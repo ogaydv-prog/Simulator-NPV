@@ -18,8 +18,10 @@
 
   .tile-container {
     position: relative;
-    width: 220px;
-    height: 150px; 
+    width: 100%;
+    max-width: 220px;
+    height: 100%;
+    max-height: 150px;
     border-radius: 12px;
     cursor: pointer;
     perspective: 1000px;
@@ -48,23 +50,28 @@
 
   .front {
     background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+
+  /* === ГЛАВНОЕ ИСПРАВЛЕНИЕ ТУТ === */
   .front img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Картинка теперь сжимается СТРОГО пропорционально и никогда не обрезается! */
     border-radius: 12px;
     transition: transform 0.25s ease, filter 0.25s ease;
   }
+
   .tile-container:not(.flipped):hover .front img {
     transform: scale(1.03);
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.15)) drop-shadow(0 0 8px rgba(76, 175, 80, 0.4));
   }
 
-  /* Обратная сторона для 6 статей — делаем текст компактнее, чтобы всё влезло без прокрутки! */
   .back {
     background: #ffffff;
-    border: 2px solid #2e7d32; /* Зеленый академический контур */
+    border: 2px solid #2e7d32;
     transform: rotateY(180deg);
     display: flex;
     flex-direction: column;
@@ -100,14 +107,13 @@
       <div class="front">
         <img src="pic-articles.png" alt="Материалы для чтения">
       </div>
-      <!-- Все 6 ссылок упакованы компактно внутрь плитки -->
       <div class="back">
         <a href="https://forbes.kz/articles/malyy-metr-bolshie-vozmozhnosti-pochemu-investory-v-rk-vybirayut-mikroliving-241765" target="_blank" onclick="event.stopPropagation();">📰 Forbes: Микроливинг РK</a>
         <a href="https://forbes.kz/articles/fermeram-uvelichat-finansirovanie-vesenne-polevyh-iuborochnyh-rabot-fe9f51" target="_blank" onclick="event.stopPropagation();">📰 Forbes: Фермеры РK</a>
         <a href="https://ru.euronews.com/business/2026/05/12/best-performing-european-equities-by-sector-in-2026" target="_blank" onclick="event.stopPropagation();">🇪🇺 Euronews: Equities 2026</a>
         <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html" target="_blank" onclick="event.stopPropagation();">📊 Damodaran: Risk Premium</a>
         <a href="https://www.kroll.com/en/tools-and-platforms/cost-of-capital" target="_blank" onclick="event.stopPropagation();">📈 Kroll: Cost of Capital</a>
-        <a href="https://atlas.kpmg.com/de/en/deal-advisory-services/cost-of-capital-and-multiples/market-risk-premium-and-risk-free-rate" target="_blank">🌐 KPMG: Market Risk</a>
+        <a href="https://atlas.kpmg.com/de/en/deal-advisory-services/cost-of-capital-and-multiples/market-risk-premium-and-risk-free-rate" target="_blank" onclick="event.stopPropagation();">🌐 KPMG: Market Risk</a>
       </div>
     </div>
   </div>
