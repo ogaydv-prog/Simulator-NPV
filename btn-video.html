@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .tile-img {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+  }
+  /* Меню появляется СВЕРХУ кнопки, чтобы не перекрывать нижний контент сайта */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    bottom: 105%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    min-width: 220px;
+    box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    z-index: 100;
+    padding: 6px 0;
+    border: 1px solid #e0e0e0;
+  }
+  .dropdown-content a {
+    color: #333333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .dropdown-content a:last-child {
+    border-bottom: none;
+  }
+  /* Подсветка пунктов меню фирменным красным цветом YouTube */
+  .dropdown-content a:hover {
+    background-color: #f9f9f9;
+    color: #cc1818;
+  }
+  /* Магия: раскрытие при наведении мыши */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  .dropdown:hover .tile-img {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.12)) drop-shadow(0 0 8px rgba(204, 24, 24, 0.4));
+  }
+</style>
+</head>
+<body>
+
+  <div class="dropdown">
+    <img src="pic-video.png" class="tile-img" alt="Видеоматериалы">
+    <div class="dropdown-content">
+      <a href="https://www.youtube.com/watch?v=7lMB1yGrRQ0" target="_blank">📺 Видеоурок 1</a>
+      <a href="https://www.youtube.com/watch?v=iKvnFUW8WHQ" target="_blank">📺 Видеоурок 2</a>
+      <a href="https://www.youtube.com/watch?v=AY1CuqkQMqc&list=PL4t_m8S_6E2BdsHD3G78-h2xhtauHUrIG&index=76" target="_blank">📺 Дополнительный разбор</a>
+    </div>
+  </div>
+
+</body>
+</html>
