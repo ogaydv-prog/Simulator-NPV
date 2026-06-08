@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оценка МСБ & NPV Лаборатория РК • MBA-В26-МД</title>
+    <!-- Google Fonts & Tailwind CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center, #0e111a 0%, #05070c 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Premium Neomorphic Gold Box styling */
+        .premium-box {
+            background: rgba(13, 16, 27, 0.95);
+            border: 1.5px solid rgba(197, 160, 89, 0.25);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-box:hover {
+            border-color: rgba(197, 160, 89, 0.45);
+            box-shadow: 0 12px 45px rgba(197, 160, 89, 0.08);
+        }
+        /* Custom styled Range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #c5a059;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.6);
+            transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.35);
+        }
+        /* Custom scrollbar for forecast tables */
+        .custom-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #c5a059;
+            border-radius: 3px;
+        }
+        /* Highlight effects */
+        .text-gold {
+            color: #c5a059;
+        }
+        .border-gold {
+            border-color: #c5a059;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 flex flex-col justify-between min-h-screen">
+
+    <!-- Header Area -->
+    <header class="premium-box max-w-7xl mx-auto w-full p-4 rounded-2xl text-center mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div class="text-left">
+            <h1 class="text-2xl md:text-3xl font-black text-gold tracking-wide uppercase mb-1">
+                Оценка МСБ & NPV Лаборатория РК
+            </h1>
+            <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase">
+                Управленческая экономика MBA-В26-МД • Летний семестр 2026 • Модель кумулятивной стоимости непубличного бизнеса
+            </p>
+        </div>
+        <div class="flex items-center gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 self-center md:self-auto">
+            <span class="text-2xl">🇰🇿</span>
+            <div class="text-left text-[11px]">
+                <span class="text-gold font-bold">Учёт региональных рисков и МСБ-специфики</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full flex-grow">
+        
+        <!-- Left Column: Inputs / Model Parameters -->
+        <section class="lg:col-span-4 premium-box p-5 rounded-xl flex flex-col justify-between space-y-5 text-xs">
+            <div>
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-2 mb-4">
+                    <span class="text-lg">⚙️</span>
+                    <h2 class="text-xs font-bold text-gold uppercase tracking-wider">Параметры Оценки МСБ</h2>
+                </div>
+
+                <!-- SECTION 1: GROWTH AND REINVESTMENT -->
+                <div class="space-y-4 mb-5 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-gold uppercase tracking-wider text-[10px] flex justify-between">
+                        <span>1. Рост и Эффективность бизнеса</span>
+                        <span class="text-slate-500 font-normal">Прогноз (5 лет)</span>
+                    </h3>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Базовая выручка (млн ₸/год):</span>
+                            <span class="text-gold font-bold" id="rev-val">50</span>
+                        </div>
+                        <input type="range" id="rev-input" min="10" max="150" step="5" value="50">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Темп роста выручки (лет 1-5):</span>
+                            <span class="text-gold font-bold" id="growth-val">15%</span>
+                        </div>
+                        <input type="range" id="growth-input" min="1" max="50" step="1" value="15">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Операционная маржа (EBIT %):</span>
+                            <span class="text-gold font-bold" id="margin-val">20%</span>
+                        </div>
+                        <input type="range" id="margin-input" min="2" max="50" step="1" value="20">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Эффективность инвестиций (Sales-to-Capital):</span>
+                            <span class="text-gold font-bold" id="s2c-val">2.0</span>
+                        </div>
+                        <input type="range" id="s2c-input" min="0.5" max="5.0" step="0.1" value="2.0">
+                        <p class="text-[9px] text-slate-500 mt-0.5">Эффективность реинвестиций: сколько новых тенге выручки приносит 1 ₸ вложений.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: CUMULATIVE DISCOUNT RATE (HURDLE RATE FOR MSB) -->
+                <div class="space-y-4 mb-5 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-sky-400 uppercase tracking-wider text-[10px]">
+                        2. Стоимость капитала (Кумулятивная ставка)
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Базовая безрисковая ставка (депозиты в ₸):</span>
+                            <span class="text-gold font-bold" id="rf-val">13.5%</span>
+                        </div>
+                        <input type="range" id="rf-input" min="5.0" max="18.0" step="0.5" value="13.5">
+                        <p class="text-[9px] text-slate-500 mt-0.5">Альтернативная безрисковая доходность на рынке РК (депозиты юрлиц / госбонды).</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300" title="По Дамадарану для Казахстана">Риск страны:</span>
+                                <span class="text-gold font-bold" id="crp-val">2.07%</span>
+                            </div>
+                            <input type="range" id="crp-input" min="0.0" max="6.0" step="0.05" value="2.07">
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Премия МСБ (Размер):</span>
+                                <span class="text-gold font-bold" id="size-val">4.5%</span>
+                            </div>
+                            <input type="range" id="size-input" min="1.0" max="10.0" step="0.5" value="4.5">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Специфич. риск:</span>
+                                <span class="text-gold font-bold" id="spec-val">2.0%</span>
+                            </div>
+                            <input type="range" id="spec-input" min="0.0" max="8.0" step="0.5" value="2.0">
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Налоговая ставка:</span>
+                                <span class="text-gold font-bold" id="tax-val">10%</span>
+                            </div>
+                            <input type="range" id="tax-input" min="3" max="25" step="1" value="10">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: TERMINAL VALUE AND SHIELD -->
+                <div class="space-y-4 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">
+                        3. Постпрогнозный этап и Долговая нагрузка
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Темп роста в бесконечности (gn):</span>
+                            <span class="text-gold font-bold" id="gn-val">3.5%</span>
+                        </div>
+                        <input type="range" id="gn-input" min="0.0" max="8.0" step="0.1" value="3.5">
+                        <div id="gn-warning" class="text-[9px] text-red-400 hidden mt-1 leading-normal">
+                            ⚠️ Внимание: темп роста бизнеса в бесконечности (gn) не должен превышать безрисковую ставку в национальной валюте (₸).
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-slate-400 block mb-1">Чистый долг бизнеса (кредиты за вычетом кэша, млн ₸):</span>
+                        <input type="number" id="net-debt-input" class="w-full bg-[#111622] border border-slate-800 rounded p-1.5 font-mono text-gold focus:outline-none focus:border-gold text-[11px]" value="10">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theory snippet -->
+            <div class="p-2.5 bg-slate-950/80 border-l-2 border-gold rounded-r text-[10px] text-slate-400 leading-normal">
+                <span class="font-bold text-gold block mb-0.5">Оценка МСБ по Дамадарану:</span>
+                Поскольку малые компании не торгуются на бирже, ставка дисконтирования собирается кумулятивно. Ставка по депозитам в тенге выступает как надежная альтернатива, утяжеленная страновым риском Казахстана и премией за масштаб МСБ.
+            </div>
+        </section>
+
+        <!-- Right Column: Results, Chart, Forecast & Live Narrative -->
+        <section class="lg:col-span-8 flex flex-col justify-between space-y-4">
+            
+            <!-- Valuation Summary & Investment Decision Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center border-l-4 border-l-gold">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block mb-0.5">Внутренняя стоимость бизнеса (EV)</span>
+                    <h3 class="text-lg md:text-xl font-black text-gold font-mono" id="firm-val-disp">0 ₸</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Приведенная стоимость фирмы (бизнес целиком)</p>
+                </div>
+
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center border-l-4 border-l-emerald-500">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block mb-0.5">Ценность для Владельца (Equity)</span>
+                    <h3 class="text-lg md:text-xl font-black text-emerald-400 font-mono" id="share-val-disp">0 ₸</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Стоимость собственного капитала (чистая за вычетом долга)</p>
+                </div>
+
+                <!-- Live Investment Deal Assessment -->
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center">
+                    <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                        <span class="uppercase tracking-widest">Цена сделки / инвестиции:</span>
+                        <span class="text-sky-400 font-mono font-bold" id="market-price-val">15.0 млн ₸</span>
+                    </div>
+                    <input type="range" id="market-price-input" min="5" max="150" value="25" class="w-full">
+                    <span class="text-[11px] font-bold mt-1 block" id="upside-disp">Потенциал сделки: +0.0%</span>
+                </div>
+            </div>
+
+            <!-- Aswath's Core Concept: Narrative + Numbers (Live generated story) -->
+            <div class="premium-box p-4 rounded-xl bg-slate-950/50">
+                <div class="flex items-center gap-2 mb-2 border-b border-slate-900 pb-1">
+                    <span class="text-sm">🗣️</span>
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">Бизнес-История компании в Казахстане (Valuation Narrative)</h4>
+                </div>
+                <p id="narrative-text" class="text-[11px] text-slate-300 leading-relaxed italic">
+                    Формирование финансовой истории...
+                </p>
+            </div>
+
+            <!-- Visualization: Bar Chart of Cash Flows and PV -->
+            <div class="premium-box p-4 rounded-xl flex-grow flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2 border-b border-slate-900 pb-1.5">
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">Динамика Денежных Потоков (FCFF) и Дисконтированных потоков (PV)</h4>
+                    <span class="text-[9px] text-slate-400 font-mono">Шкала: млн. ₸</span>
+                </div>
+                <!-- SVG Chart Container -->
+                <div class="w-full h-40 relative">
+                    <svg viewBox="0 0 700 160" class="w-full h-full" id="svg-chart">
+                        <!-- Chart content will be drawn by JS -->
+                    </svg>
+                </div>
+                <div class="flex justify-center gap-6 text-[10px] mt-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-sky-500 rounded-sm"></span>
+                        <span class="text-slate-400">Сырой поток фирмы (FCFF)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-amber-500 rounded-sm"></span>
+                        <span class="text-slate-400">Приведенный поток (PV)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-purple-500 rounded-sm"></span>
+                        <span class="text-slate-400">Вклад Терминальной стоимости (TV)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year-by-Year Forecast Table -->
+            <div class="premium-box p-4 rounded-xl">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">Детализированная модель прогноза FCFF (лет 1-5, млн ₸)</h4>
+                    <span class="text-[9px] text-slate-400">Реинвестирование основано на приросте выручки</span>
+                </div>
+                <div class="overflow-x-auto custom-scroll">
+                    <table class="w-full text-left border-collapse text-[10px] font-mono">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 uppercase text-[9px]">
+                                <th class="pb-2">Показатель (млн ₸)</th>
+                                <th class="pb-2">База</th>
+                                <th class="pb-2">Год 1</th>
+                                <th class="pb-2">Год 2</th>
+                                <th class="pb-2">Год 3</th>
+                                <th class="pb-2">Год 4</th>
+                                <th class="pb-2">Год 5</th>
+                                <th class="pb-2">Зрелость</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecast-tbody" class="text-slate-300 divide-y divide-slate-900">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Technical Footer -->
+    <footer class="text-center text-[10px] text-slate-500 mt-4 border-t border-slate-900/60 pt-2 font-bold tracking-wide">
+        Модель разработана для слушателей MBA-В26-МД, АlmaU, летний семестр. Адаптировано под реалии РК на базе кумулятивного подхода Дамадарана.
+    </footer>
+
+    <!-- Valuation Engine Script -->
+    <script>
+        // DOM Elements - Inputs
+        const revInput = document.getElementById('rev-input');
+        const growthInput = document.getElementById('growth-input');
+        const marginInput = document.getElementById('margin-input');
+        const s2cInput = document.getElementById('s2c-input');
+        
+        const rfInput = document.getElementById('rf-input');
+        const crpInput = document.getElementById('crp-input');
+        const sizeInput = document.getElementById('size-input');
+        const specInput = document.getElementById('spec-input');
+        const taxInput = document.getElementById('tax-input');
+        
+        const gnInput = document.getElementById('gn-input');
+        const netDebtInput = document.getElementById('net-debt-input');
+        const marketPriceInput = document.getElementById('market-price-input');
+
+        // DOM Elements - Displays
+        const revVal = document.getElementById('rev-val');
+        const growthVal = document.getElementById('growth-val');
+        const marginVal = document.getElementById('margin-val');
+        const s2cVal = document.getElementById('s2c-val');
+        
+        const rfVal = document.getElementById('rf-val');
+        const crpVal = document.getElementById('crp-val');
+        const sizeVal = document.getElementById('size-val');
+        const specVal = document.getElementById('spec-val');
+        const taxVal = document.getElementById('tax-val');
+        
+        const gnVal = document.getElementById('gn-val');
+        const gnWarning = document.getElementById('gn-warning');
+        const marketPriceVal = document.getElementById('market-price-val');
+        
+        const firmValDisp = document.getElementById('firm-val-disp');
+        const shareValDisp = document.getElementById('share-val-disp');
+        const upsideDisp = document.getElementById('upside-disp');
+        const narrativeText = document.getElementById('narrative-text');
+        
+        const svgChart = document.getElementById('svg-chart');
+        const forecastTbody = document.getElementById('forecast-tbody');
+
+        function updateValuation() {
+            // Get values from sliders/inputs
+            const revBase = parseFloat(revInput.value);
+            const growth = parseFloat(growthInput.value) / 100;
+            const margin = parseFloat(marginInput.value) / 100;
+            const s2c = parseFloat(s2cInput.value);
+            
+            const rf = parseFloat(rfInput.value) / 100;
+            const crp = parseFloat(crpInput.value) / 100;
+            const sizePremium = parseFloat(sizeInput.value) / 100;
+            const specRisk = parseFloat(specInput.value) / 100;
+            const taxRate = parseFloat(taxInput.value) / 100;
+            
+            let gn = parseFloat(gnInput.value) / 100;
+            const netDebt = parseFloat(netDebtInput.value) || 0;
+            const marketPrice = parseFloat(marketPriceInput.value);
+
+            // Update UI Displays
+            revVal.innerText = revBase + ' млн ₸';
+            growthVal.innerText = (growth * 100).toFixed(0) + '%';
+            marginVal.innerText = (margin * 100).toFixed(0) + '%';
+            s2cVal.innerText = s2c.toFixed(1);
+            
+            rfVal.innerText = (rf * 100).toFixed(1) + '%';
+            crpVal.innerText = (crp * 100).toFixed(2) + '%';
+            sizeVal.innerText = (sizePremium * 100).toFixed(1) + '%';
+            specVal.innerText = (specRisk * 100).toFixed(1) + '%';
+            taxVal.innerText = (taxRate * 100).toFixed(0) + '%';
+            marketPriceVal.innerText = marketPrice.toFixed(1) + ' млн ₸';
+
+            // Validate gn constraint (gn cannot exceed risk free rate in the local currency to remain stable)
+            if (gn > rf) {
+                gnWarning.classList.remove('hidden');
+                gn = rf;
+                gnVal.innerText = (rf * 100).toFixed(1) + '% (Лимит Rf)';
+            } else {
+                gnWarning.classList.add('hidden');
+                gnVal.innerText = (gn * 100).toFixed(1) + '%';
+            }
+
+            // Cumulative Discount Rate (Стоимость собственного капитала для МСБ)
+            const discountRate = rf + crp + sizePremium + specRisk;
+
+            // Year-by-Year projection
+            let revenues = [revBase];
+            let EBITs = [];
+            let taxes = [];
+            let EBIT_after_tax = [];
+            let reinvestments = [0]; 
+            let FCFFs = [0];
+            let discountFactors = [1];
+            let PV_FCFFs = [0];
+
+            // Projecting revenue, EBIT, reinvestment
+            for (let i = 1; i <= 5; i++) {
+                revenues.push(revenues[i-1] * (1 + growth));
+                EBITs.push(revenues[i] * margin);
+                taxes.push(EBITs[i-1] * taxRate);
+                EBIT_after_tax.push(EBITs[i-1] * (1 - taxRate));
+                
+                // Reinvestment based on incremental revenue: ΔRev / (Sales-to-Capital)
+                const deltaRev = revenues[i] - revenues[i-1];
+                reinvestments.push(deltaRev / s2c);
+                
+                const currentFCFF = EBIT_after_tax[i-1] - reinvestments[i];
+                FCFFs.push(currentFCFF);
+                
+                const df = 1 / Math.pow(1 + discountRate, i);
+                discountFactors.push(df);
+                PV_FCFFs.push(currentFCFF * df);
+            }
+
+            // Sum of PV of FCFFs for the high-growth phase
+            const sumPV_FCFFs = PV_FCFFs.reduce((sum, val) => sum + val, 0);
+
+            // Terminal Phase (Stable growth state)
+            const revTerm = revenues[5] * (1 + gn);
+            const EBITTerm = revTerm * margin;
+            const EBIT_after_tax_Term = EBITTerm * (1 - taxRate);
+            
+            // Reinvestment Term = EBIT_after_tax_Term * (gn / DiscountRate)
+            const reinvestmentTerm = EBIT_after_tax_Term * (gn / discountRate);
+            const FCFFTerm = EBIT_after_tax_Term - reinvestmentTerm;
+            
+            // Terminal Value (TV): TV = FCFF_6 / (discountRate - gn)
+            const TV = FCFFTerm / (discountRate - gn);
+            const PV_TV = TV * discountFactors[5];
+
+            // Firm Enterprise Value (EV) & Equity Value (Ценность для владельца)
+            const enterpriseValue = sumPV_FCFFs + PV_TV;
+            const equityValue = Math.max(0, enterpriseValue - netDebt);
+
+            // Update Primary KPI blocks
+            firmValDisp.innerText = enterpriseValue.toFixed(1) + ' млн ₸';
+            shareValDisp.innerText = equityValue.toFixed(1) + ' млн ₸';
+
+            // Potential / Upside calculation relative to target transaction price
+            const upside = ((equityValue - marketPrice) / marketPrice) * 100;
+            if (upside > 0) {
+                upsideDisp.innerHTML = `<span class="text-emerald-400 font-bold">Выгодная сделка: +${upside.toFixed(1)}% (Внутренняя ценность: ${equityValue.toFixed(1)} млн ₸)</span>`;
+            } else {
+                upsideDisp.innerHTML = `<span class="text-rose-400 font-bold">Переплата: ${upside.toFixed(1)}% (Справедливая ценность: ${equityValue.toFixed(1)} млн ₸)</span>`;
+            }
+
+            // Redraw table rows
+            forecastTbody.innerHTML = `
+                <tr>
+                    <td class="py-2 text-slate-400">Выручка (Рост: ${(growth*100).toFixed(0)}%)</td>
+                    <td>${revenues[0].toFixed(1)}</td>
+                    <td>${revenues[1].toFixed(1)}</td>
+                    <td>${revenues[2].toFixed(1)}</td>
+                    <td>${revenues[3].toFixed(1)}</td>
+                    <td>${revenues[4].toFixed(1)}</td>
+                    <td>${revenues[5].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${revTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">EBIT (Маржа: ${(margin*100).toFixed(0)}%)</td>
+                    <td>-</td>
+                    <td>${EBITs[0].toFixed(1)}</td>
+                    <td>${EBITs[1].toFixed(1)}</td>
+                    <td>${EBITs[2].toFixed(1)}</td>
+                    <td>${EBITs[3].toFixed(1)}</td>
+                    <td>${EBITs[4].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${EBITTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">Чистая Опер. прибыль (EBIT - Tax)</td>
+                    <td>-</td>
+                    <td>${EBIT_after_tax[0].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[1].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[2].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[3].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[4].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${EBIT_after_tax_Term.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">Реинвестиции (Sales/Capital: ${s2c.toFixed(1)})</td>
+                    <td>-</td>
+                    <td>${reinvestments[1].toFixed(1)}</td>
+                    <td>${reinvestments[2].toFixed(1)}</td>
+                    <td>${reinvestments[3].toFixed(1)}</td>
+                    <td>${reinvestments[4].toFixed(1)}</td>
+                    <td>${reinvestments[5].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${reinvestmentTerm.toFixed(1)}</td>
+                </tr>
+                <tr class="bg-slate-900/60 font-bold">
+                    <td class="py-2 text-sky-400">Чистый Ден. Поток (FCFF)</td>
+                    <td>-</td>
+                    <td>${FCFFs[1].toFixed(1)}</td>
+                    <td>${FCFFs[2].toFixed(1)}</td>
+                    <td>${FCFFs[3].toFixed(1)}</td>
+                    <td>${FCFFs[4].toFixed(1)}</td>
+                    <td>${FCFFs[5].toFixed(1)}</td>
+                    <td class="text-emerald-400">${FCFFTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">Фактор дисконта (Ставка: ${(discountRate*100).toFixed(2)}%)</td>
+                    <td>1.000</td>
+                    <td>${discountFactors[1].toFixed(3)}</td>
+                    <td>${discountFactors[2].toFixed(3)}</td>
+                    <td>${discountFactors[3].toFixed(3)}</td>
+                    <td>${discountFactors[4].toFixed(3)}</td>
+                    <td>${discountFactors[5].toFixed(3)}</td>
+                    <td>-</td>
+                </tr>
+                <tr class="bg-amber-950/20 font-bold text-amber-400">
+                    <td class="py-2">Дисконтированный PV (FCFF)</td>
+                    <td>-</td>
+                    <td>${PV_FCFFs[1].toFixed(1)}</td>
+                    <td>${PV_FCFFs[2].toFixed(1)}</td>
+                    <td>${PV_FCFFs[3].toFixed(1)}</td>
+                    <td>${PV_FCFFs[4].toFixed(1)}</td>
+                    <td>${PV_FCFFs[5].toFixed(1)}</td>
+                    <td class="text-emerald-400">PV(TV): ${PV_TV.toFixed(1)}</td>
+                </tr>
+            `;
+
+            // Draw Chart elements
+            drawChart(FCFFs, PV_FCFFs, TV, PV_TV);
+
+            // Dynamic Narrative Story Constructor
+            generateNarrative(revBase, growth, margin, s2c, discountRate, gn, equityValue, marketPrice, rf, crp, sizePremium);
+        }
+
+        // Beautiful SVG charting module adapted to Tenge scale
+        function drawChart(fcffs, pvFcffs, tv, pvTv) {
+            svgChart.innerHTML = '';
+            
+            // Extract values for 5 years
+            const maxVal = Math.max(...fcffs.slice(1), tv * 0.2, 10); 
+
+            // Create Y axis grid lines
+            for (let i = 0; i <= 4; i++) {
+                const y = 10 + i * 30;
+                const value = (maxVal * (1 - i/4)).toFixed(0);
+                
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", "40");
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", "660");
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "rgba(51, 65, 85, 0.25)");
+                line.setAttribute("stroke-width", "1");
+                svgChart.appendChild(line);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", "30");
+                text.setAttribute("y", y + 4);
+                text.setAttribute("fill", "#64748b");
+                text.setAttribute("font-size", "8");
+                text.setAttribute("text-anchor", "end");
+                text.setAttribute("font-family", "monospace");
+                text.textContent = value;
+                svgChart.appendChild(text);
+            }
+
+            // Draw bars
+            const barWidth = 24;
+            const startX = 60;
+            const spacing = 100;
+
+            for (let i = 1; i <= 5; i++) {
+                const x = startX + (i-1) * spacing;
+                
+                // Heights
+                const hFcff = (fcffs[i] / maxVal) * 110;
+                const hPv = (pvFcffs[i] / maxVal) * 110;
+                
+                const yFcff = 130 - hFcff;
+                const yPv = 130 - hPv;
+
+                // FCFF Bar (Blue-Sky)
+                const rectFcff = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rectFcff.setAttribute("x", x);
+                rectFcff.setAttribute("y", yFcff);
+                rectFcff.setAttribute("width", barWidth);
+                rectFcff.setAttribute("height", Math.max(0, hFcff));
+                rectFcff.setAttribute("fill", "url(#blue-grad)");
+                rectFcff.setAttribute("rx", "3");
+                svgChart.appendChild(rectFcff);
+
+                // PV Bar (Gold-Amber)
+                const rectPv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rectPv.setAttribute("x", x + barWidth + 4);
+                rectPv.setAttribute("y", yPv);
+                rectPv.setAttribute("width", barWidth);
+                rectPv.setAttribute("height", Math.max(0, hPv));
+                rectPv.setAttribute("fill", "url(#gold-grad-chart)");
+                rectPv.setAttribute("rx", "3");
+                svgChart.appendChild(rectPv);
+
+                // Label
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", x + barWidth);
+                text.setAttribute("y", "146");
+                text.setAttribute("fill", "#94a3b8");
+                text.setAttribute("font-size", "9");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = `Год ${i}`;
+                svgChart.appendChild(text);
+            }
+
+            // Draw Terminal Value Bar on the right
+            const xTv = startX + 5 * spacing;
+            const hTv = (tv / maxVal) * 22; // Scaled down TV to fit neatly
+            const hPvTv = (pvTv / maxVal) * 110;
+
+            // Raw TV Bar
+            const rectTv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rectTv.setAttribute("x", xTv);
+            rectTv.setAttribute("y", 130 - hTv);
+            rectTv.setAttribute("width", barWidth);
+            rectTv.setAttribute("height", Math.max(0, hTv));
+            rectTv.setAttribute("fill", "rgba(168, 85, 247, 0.4)");
+            rectTv.setAttribute("stroke", "rgba(168, 85, 247, 0.8)");
+            rectTv.setAttribute("stroke-dasharray", "2,2");
+            rectTv.setAttribute("rx", "3");
+            svgChart.appendChild(rectTv);
+
+            // PV TV Bar
+            const rectPvTv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rectPvTv.setAttribute("x", xTv + barWidth + 4);
+            rectPvTv.setAttribute("y", 130 - hPvTv);
+            rectPvTv.setAttribute("width", barWidth);
+            rectPvTv.setAttribute("height", Math.max(0, hPvTv));
+            rectPvTv.setAttribute("fill", "url(#purple-grad)");
+            rectPvTv.setAttribute("rx", "3");
+            svgChart.appendChild(rectPvTv);
+
+            // Label TV
+            const textTv = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textTv.setAttribute("x", xTv + barWidth);
+            textTv.setAttribute("y", "146");
+            textTv.setAttribute("fill", "#a855f7");
+            textTv.setAttribute("font-size", "9");
+            textTv.setAttribute("font-weight", "bold");
+            textTv.setAttribute("text-anchor", "middle");
+            textTv.textContent = "TV";
+            svgChart.appendChild(textTv);
+
+            // Add Gradients to defs
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = `
+                <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="100%" stop-color="#0369a1"/>
+                </linearGradient>
+                <linearGradient id="gold-grad-chart" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#fbbf24"/>
+                    <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+                <linearGradient id="purple-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#c084fc"/>
+                    <stop offset="100%" stop-color="#7e22ce"/>
+                </linearGradient>
+            `;
+            svgChart.appendChild(defs);
+        }
+
+        // Narrative valuation text builder localized to Kazakhstan SME
+        function generateNarrative(rev, growth, margin, s2c, discountRate, gn, fairValue, marketPrice, rf, crp, sizePremium) {
+            let story = "";
+            const gPercent = (growth * 100).toFixed(0);
+            const mPercent = (margin * 100).toFixed(0);
+            const dPercent = (discountRate * 100).toFixed(2);
+            const gnPercent = (gn * 100).toFixed(1);
+
+            story += `Мы оцениваем малую казахстанскую компанию с базовой выручкой <strong>${rev} млн ₸</strong> в год. По прогнозу, в ближайшие 5 лет бизнес будет расти на <strong>${gPercent}% ежегодно</strong> при рентабельности по EBIT <strong>${mPercent}%</strong>. `;
+            
+            if (s2c >= 2.5) {
+                story += `Коэффициент эффективности инвестиций составляет <strong>${s2c.toFixed(1)}</strong>, что говорит об отличной капиталоэффективности. Бизнес масштабируется без необходимости регулярной закупки тяжелого оборудования — это типично для сферы услуг, IT-сектора или легкой дистрибуции в Алматы и Астане. `;
+            } else if (s2c < 1.2) {
+                story += `Поскольку показатель эффективности инвестиций равен всего <strong>${s2c.toFixed(1)}</strong>, компания капиталоемкая — каждое расширение бизнеса требует весомого закупа сырья, транспорта или модернизации цеха, что снижает свободный денежный поток. `;
+            } else {
+                story += `Бизнес показывает сбалансированную капиталоемкость (коэффициент <strong>${s2c.toFixed(1)}</strong>), где расширение деятельности умеренно финансируется за счет удержания части прибыли. `;
+            }
+
+            story += `Оценка альтернативной доходности в тенге на уровне депозитов (<strong>${(rf*100).toFixed(1)}%</strong>), скорректированная на суверенный риск Казахстана (<strong>${(crp*100).toFixed(2)}%</strong>) и премию за масштаб МСБ (<strong>${(sizePremium*100).toFixed(1)}%</strong>), дает нам требуемую доходность на капитал владельца в размере <strong>${dPercent}% в год</strong>. `;
+
+            story += `В постпрогнозный период бизнес стабилизируется и будет расти на <strong>${gnPercent}%</strong> в вечности. `;
+
+            const diff = fairValue - marketPrice;
+            if (diff > 0) {
+                story += `Сравнивая расчетную справедливую стоимость доли владельца (<strong>${fairValue.toFixed(1)} млн ₸</strong>) с запрашиваемой ценой сделки (<strong>${marketPrice.toFixed(1)} млн ₸</strong>), мы видим, что бизнес <strong>недооценен</strong>. <span class="text-emerald-400 font-bold">Вывод по Дамадарану: Сделка выгодна.</span> Внутренняя ценность превышает запрашиваемые инвестиции.`;
+            } else {
+                story += `Однако при запрашиваемой стоимости сделки в <strong>${marketPrice.toFixed(1)} млн ₸</strong>, внутренняя ценность бизнеса составляет лишь <strong>${fairValue.toFixed(1)} млн ₸</strong>. <span class="text-rose-400 font-bold">Вывод по Дамадарану: Цена завышена.</span> Ожидаемые денежные потоки при данной ставке риска не оправдывают запрашиваемую цену.`;
+            }
+
+            narrativeText.innerHTML = story;
+        }
+
+        // Attach Event Listeners to recalculate on sliders/inputs change
+        const inputs = [
+            revInput, growthInput, marginInput, s2cInput,
+            rfInput, crpInput, sizeInput, specInput, taxInput,
+            gnInput, marketPriceInput
+        ];
+        
+        inputs.forEach(input => input.addEventListener('input', updateValuation));
+        netDebtInput.addEventListener('change', updateValuation);
+
+        // Initial launch
+        updateValuation();
+    </script>
+</body>
+</html>
