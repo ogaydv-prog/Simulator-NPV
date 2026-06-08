@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .interactive-tile {
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+  }
+  .interactive-tile:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 8px rgba(33, 150, 243, 0.4));
+  }
+  .interactive-tile:active {
+    transform: scale(0.98);
+  }
+  .tile-img {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+  <a href="https://ogaydv-prog.github.io/Simulator-NPV/task-npv-aswath.html" target="_blank" class="interactive-tile">
+    <img src="pic-task.png" class="tile-img" alt="Практические задания">
+  </a>
+</body>
+</html>
