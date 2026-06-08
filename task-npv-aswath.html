@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aswath Damodaran Valuation Lab & NPV Calculator</title>
+    <!-- Google Fonts & Tailwind CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at center, #0e111a 0%, #05070c 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Premium Neomorphic Gold Box styling */
+        .premium-box {
+            background: rgba(13, 16, 27, 0.95);
+            border: 1.5px solid rgba(197, 160, 89, 0.25);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .premium-box:hover {
+            border-color: rgba(197, 160, 89, 0.45);
+            box-shadow: 0 12px 45px rgba(197, 160, 89, 0.08);
+        }
+        /* Custom styled Range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #c5a059;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.6);
+            transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.35);
+        }
+        /* Custom scrollbar for forecast tables */
+        .custom-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #c5a059;
+            border-radius: 3px;
+        }
+        /* Highlight effects */
+        .text-gold {
+            color: #c5a059;
+        }
+        .border-gold {
+            border-color: #c5a059;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 flex flex-col justify-between min-h-screen">
+
+    <!-- Header Area -->
+    <header class="premium-box max-w-7xl mx-auto w-full p-4 rounded-2xl text-center mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div class="text-left">
+            <h1 class="text-2xl md:text-3xl font-black text-gold tracking-wide uppercase mb-1">
+                Aswath Damodaran Valuation Lab
+            </h1>
+            <p class="text-xs text-slate-400 font-semibold tracking-wider uppercase">
+                MBA Корпоративные Финансы • Модель внутренней стоимости акций (NPV & FCFF)
+            </p>
+        </div>
+        <div class="flex items-center gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 self-center md:self-auto">
+            <span class="text-2xl">🏫</span>
+            <div class="text-left text-[11px]">
+                <span class="text-slate-400 font-medium block">База знаний профессора:</span>
+                <a href="https://pages.stern.nyu.edu/~adamodar/" target="_blank" class="text-gold font-bold hover:underline">Damodaran Online (NYU Stern) ➔</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch w-full flex-grow">
+        
+        <!-- Left Column: Inputs / Model Parameters -->
+        <section class="lg:col-span-4 premium-box p-5 rounded-xl flex flex-col justify-between space-y-5 text-xs">
+            <div>
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-2 mb-4">
+                    <span class="text-lg">⚙️</span>
+                    <h2 class="text-xs font-bold text-gold uppercase tracking-wider">Параметры Оценки Damodaran</h2>
+                </div>
+
+                <!-- SECTION 1: GROWTH AND REINVESTMENT -->
+                <div class="space-y-4 mb-5 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-gold uppercase tracking-wider text-[10px] flex justify-between">
+                        <span>1. Рост и Реинвестиции</span>
+                        <span class="text-slate-500 font-normal">Этап 1 (5 лет)</span>
+                    </h3>
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Базовая выручка (млн $):</span>
+                            <span class="text-gold font-bold" id="rev-val">100</span>
+                        </div>
+                        <input type="range" id="rev-input" min="10" max="1000" step="10" value="100">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Темп роста выручки (лет 1-5):</span>
+                            <span class="text-gold font-bold" id="growth-val">15%</span>
+                        </div>
+                        <input type="range" id="growth-input" min="1" max="50" step="1" value="15">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Целевая Опер. маржа (EBIT %):</span>
+                            <span class="text-gold font-bold" id="margin-val">20%</span>
+                        </div>
+                        <input type="range" id="margin-input" min="2" max="50" step="1" value="20">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Sales-to-Capital Ratio (Эффект.):</span>
+                            <span class="text-gold font-bold" id="s2c-val">2.0</span>
+                        </div>
+                        <input type="range" id="s2c-input" min="0.5" max="5.0" step="0.1" value="2.0">
+                        <p class="text-[9px] text-slate-500 mt-0.5">Каждый $1 инвестиций генерирует $X новой выручки.</p>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: COST OF CAPITAL (WACC) -->
+                <div class="space-y-4 mb-5 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-sky-400 uppercase tracking-wider text-[10px]">
+                        2. Ставка дисконтирования (WACC)
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Безрисковая ставка (Rf):</span>
+                            <span class="text-gold font-bold" id="rf-val">4.5%</span>
+                        </div>
+                        <input type="range" id="rf-input" min="1.0" max="10.0" step="0.1" value="4.5">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Бета (Beta):</span>
+                                <span class="text-gold font-bold" id="beta-val">1.20</span>
+                            </div>
+                            <input type="range" id="beta-input" min="0.5" max="2.5" step="0.05" value="1.20">
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Премия ERP:</span>
+                                <span class="text-gold font-bold" id="erp-val">5.0%</span>
+                            </div>
+                            <input type="range" id="erp-input" min="3.0" max="10.0" step="0.1" value="5.0">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Доля долга (D/V):</span>
+                                <span class="text-gold font-bold" id="debt-ratio-val">30%</span>
+                            </div>
+                            <input type="range" id="debt-ratio-input" min="0" max="80" step="5" value="30">
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Налог. ставка:</span>
+                                <span class="text-gold font-bold" id="tax-val">20%</span>
+                            </div>
+                            <input type="range" id="tax-input" min="10" max="40" step="1" value="20">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Стоимость долга (До налогов):</span>
+                            <span class="text-gold font-bold" id="cost-debt-val">6.0%</span>
+                        </div>
+                        <input type="range" id="cost-debt-input" min="2.0" max="15.0" step="0.25" value="6.0">
+                    </div>
+                </div>
+
+                <!-- SECTION 3: TERMINAL VALUE AND SHIELD -->
+                <div class="space-y-4 bg-slate-950/40 p-3 rounded-lg border border-slate-900">
+                    <h3 class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">
+                        3. Постпрогнозный этап (Терминальный)
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-slate-300">Темп роста в бесконечности (gn):</span>
+                            <span class="text-gold font-bold" id="gn-val">3.0%</span>
+                        </div>
+                        <input type="range" id="gn-input" min="0.0" max="6.0" step="0.1" value="3.0">
+                        <div id="gn-warning" class="text-[9px] text-red-400 hidden mt-1 leading-normal">
+                            ⚠️ Дамадаран предупреждает: gn не может превышать безрисковую ставку Rf (рост компании не может обгонять глобальную экономику в бесконечности).
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="text-slate-400 block mb-1">Чистый долг (млн $):</span>
+                            <input type="number" id="net-debt-input" class="w-full bg-[#111622] border border-slate-800 rounded p-1.5 font-mono text-gold focus:outline-none focus:border-gold" value="150">
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block mb-1">Кол-во акций (млн):</span>
+                            <input type="number" id="shares-input" class="w-full bg-[#111622] border border-slate-800 rounded p-1.5 font-mono text-gold focus:outline-none focus:border-gold" value="50">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theory snippet -->
+            <div class="p-2.5 bg-slate-950/80 border-l-2 border-gold rounded-r text-[10px] text-slate-400 leading-normal">
+                <span class="font-bold text-gold block mb-0.5">WACC по Дамадарану:</span>
+                Капитал взвешивается по рыночным, а не балансовым долям. Реинвестиции рассчитываются фундаментально на основе изменения выручки: ΔRevenue / (Sales-to-Capital Ratio).
+            </div>
+        </section>
+
+        <!-- Right Column: Results, Chart, Forecast & Live Narrative -->
+        <section class="lg:col-span-8 flex flex-col justify-between space-y-4">
+            
+            <!-- Valuation Summary & Market Comparison Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center border-l-4 border-l-gold">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block mb-0.5">Внутренняя стоимость фирмы</span>
+                    <h3 class="text-xl md:text-2xl font-black text-gold font-mono" id="firm-val-disp">$0.0 M</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Сумма дисконтированных FCFF + TV</p>
+                </div>
+
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center border-l-4 border-l-emerald-500">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest block mb-0.5">Справедливая цена акции</span>
+                    <h3 class="text-xl md:text-2xl font-black text-emerald-400 font-mono animate-pulse" id="share-val-disp">$0.00</h3>
+                    <p class="text-[9px] text-slate-500 mt-0.5">Ценность акционерного капитала на акцию</p>
+                </div>
+
+                <!-- Live Stock Comparison controller -->
+                <div class="premium-box p-4 rounded-xl text-center flex flex-col justify-center">
+                    <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                        <span class="uppercase tracking-widest">Текущий курс акции:</span>
+                        <span class="text-sky-400 font-mono font-bold" id="market-price-val">$25.00</span>
+                    </div>
+                    <input type="range" id="market-price-input" min="5" max="150" value="25" class="w-full">
+                    <span class="text-[11px] font-bold mt-1 block" id="upside-disp">Потенциал: +0.0%</span>
+                </div>
+            </div>
+
+            <!-- Aswath's Core Concept: Narrative + Numbers (Live generated story) -->
+            <div class="premium-box p-4 rounded-xl bg-slate-950/50">
+                <div class="flex items-center gap-2 mb-2 border-b border-slate-900 pb-1">
+                    <span class="text-sm">🗣️</span>
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">История твоей компании (Valuation Narrative)</h4>
+                </div>
+                <p id="narrative-text" class="text-[11px] text-slate-300 leading-relaxed italic">
+                    Загрузка истории...
+                </p>
+            </div>
+
+            <!-- Visualization: Bar Chart of Cash Flows and PV -->
+            <div class="premium-box p-4 rounded-xl flex-grow flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-2 border-b border-slate-900 pb-1.5">
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">График Денежных потоков и их Текущей Стоимости (PV)</h4>
+                    <span class="text-[9px] text-slate-400 font-mono">Шкала: млн. $</span>
+                </div>
+                <!-- SVG Chart Container -->
+                <div class="w-full h-40 relative">
+                    <svg viewBox="0 0 700 160" class="w-full h-full" id="svg-chart">
+                        <!-- Chart content will be drawn by JS -->
+                    </svg>
+                </div>
+                <div class="flex justify-center gap-6 text-[10px] mt-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-sky-500 rounded-sm"></span>
+                        <span class="text-slate-400">Сырой Cash Flow (FCFF)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-amber-500 rounded-sm"></span>
+                        <span class="text-slate-400">Продисконтированный поток (PV)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-purple-500 rounded-sm"></span>
+                        <span class="text-slate-400">Доля терминальной стоимости</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year-by-Year Forecast Table -->
+            <div class="premium-box p-4 rounded-xl">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-xs font-bold text-gold uppercase tracking-wider">Шаг 3: Детализированный прогноз FCFF (лет 1-5)</h4>
+                    <span class="text-[9px] text-slate-400">Реинвестирование основано на приросте выручки</span>
+                </div>
+                <div class="overflow-x-auto custom-scroll">
+                    <table class="w-full text-left border-collapse text-[10px] font-mono">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 uppercase text-[9px]">
+                                <th class="pb-2">Показатель (млн $)</th>
+                                <th class="pb-2">База</th>
+                                <th class="pb-2">Год 1</th>
+                                <th class="pb-2">Год 2</th>
+                                <th class="pb-2">Год 3</th>
+                                <th class="pb-2">Год 4</th>
+                                <th class="pb-2">Год 5</th>
+                                <th class="pb-2">Терм.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecast-tbody" class="text-slate-300 divide-y divide-slate-900">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Technical Footer -->
+    <footer class="text-center text-[10px] text-slate-500 mt-4 border-t border-slate-900/60 pt-2 font-bold tracking-wide">
+        Управленческая экономика MBA 2026. Разработано на основе методологии корпоративного оценивания Aswath Damodaran (Stern School of Business, NYU).
+    </footer>
+
+    <!-- Valuation Engine Script -->
+    <script>
+        // DOM Elements - Inputs
+        const revInput = document.getElementById('rev-input');
+        const growthInput = document.getElementById('growth-input');
+        const marginInput = document.getElementById('margin-input');
+        const s2cInput = document.getElementById('s2c-input');
+        
+        const rfInput = document.getElementById('rf-input');
+        const betaInput = document.getElementById('beta-input');
+        const erpInput = document.getElementById('erp-input');
+        const debtRatioInput = document.getElementById('debt-ratio-input');
+        const taxInput = document.getElementById('tax-input');
+        const costDebtInput = document.getElementById('cost-debt-input');
+        
+        const gnInput = document.getElementById('gn-input');
+        const netDebtInput = document.getElementById('net-debt-input');
+        const sharesInput = document.getElementById('shares-input');
+        const marketPriceInput = document.getElementById('market-price-input');
+
+        // DOM Elements - Displays
+        const revVal = document.getElementById('rev-val');
+        const growthVal = document.getElementById('growth-val');
+        const marginVal = document.getElementById('margin-val');
+        const s2cVal = document.getElementById('s2c-val');
+        
+        const rfVal = document.getElementById('rf-val');
+        const betaVal = document.getElementById('beta-val');
+        const erpVal = document.getElementById('erp-val');
+        const debtRatioVal = document.getElementById('debt-ratio-val');
+        const taxVal = document.getElementById('tax-val');
+        const costDebtVal = document.getElementById('cost-debt-val');
+        
+        const gnVal = document.getElementById('gn-val');
+        const gnWarning = document.getElementById('gn-warning');
+        const marketPriceVal = document.getElementById('market-price-val');
+        
+        const firmValDisp = document.getElementById('firm-val-disp');
+        const shareValDisp = document.getElementById('share-val-disp');
+        const upsideDisp = document.getElementById('upside-disp');
+        const narrativeText = document.getElementById('narrative-text');
+        
+        const svgChart = document.getElementById('svg-chart');
+        const forecastTbody = document.getElementById('forecast-tbody');
+
+        function updateValuation() {
+            // Get values from sliders/inputs
+            const revBase = parseFloat(revInput.value);
+            const growth = parseFloat(growthInput.value) / 100;
+            const margin = parseFloat(marginInput.value) / 100;
+            const s2c = parseFloat(s2cInput.value);
+            
+            const rf = parseFloat(rfInput.value) / 100;
+            const beta = parseFloat(betaInput.value);
+            const erp = parseFloat(erpInput.value) / 100;
+            const debtRatio = parseFloat(debtRatioInput.value) / 100;
+            const taxRate = parseFloat(taxInput.value) / 100;
+            const costDebt = parseFloat(costDebtInput.value) / 100;
+            
+            let gn = parseFloat(gnInput.value) / 100;
+            const netDebt = parseFloat(netDebtInput.value) || 0;
+            const shares = parseFloat(sharesInput.value) || 1;
+            const marketPrice = parseFloat(marketPriceInput.value);
+
+            // Update UI Displays
+            revVal.innerText = revBase;
+            growthVal.innerText = (growth * 100).toFixed(0) + '%';
+            marginVal.innerText = (margin * 100).toFixed(0) + '%';
+            s2cVal.innerText = s2c.toFixed(1);
+            
+            rfVal.innerText = (rf * 100).toFixed(1) + '%';
+            betaVal.innerText = beta.toFixed(2);
+            erpVal.innerText = (erp * 100).toFixed(1) + '%';
+            debtRatioVal.innerText = (debtRatio * 100).toFixed(0) + '%';
+            taxVal.innerText = (taxRate * 100).toFixed(0) + '%';
+            costDebtVal.innerText = (costDebt * 100).toFixed(2) + '%';
+            marketPriceVal.innerText = '$' + marketPrice.toFixed(2);
+
+            // Validate gn constraint
+            if (gn > rf) {
+                gnWarning.classList.remove('hidden');
+                // Cap gn visually for model stability if the user violates basic valuation laws
+                gn = rf;
+                gnVal.innerText = (rf * 100).toFixed(1) + '% (Capped at Rf)';
+            } else {
+                gnWarning.classList.add('hidden');
+                gnVal.innerText = (gn * 100).toFixed(1) + '%';
+            }
+
+            // Calculations: CAPM & WACC
+            const costEquity = rf + beta * erp;
+            const afterTaxCostDebt = costDebt * (1 - taxRate);
+            const wacc = (costEquity * (1 - debtRatio)) + (afterTaxCostDebt * debtRatio);
+
+            // Year-by-Year projection
+            let years = [0, 1, 2, 3, 4, 5];
+            let revenues = [revBase];
+            let EBITs = [];
+            let taxes = [];
+            let EBIT_after_tax = [];
+            let reinvestments = [0]; // base reinvestment is unneeded/zero for delta calc
+            let FCFFs = [0];
+            let discountFactors = [1];
+            let PV_FCFFs = [0];
+
+            // Projecting revenue, EBIT, and tax shield
+            for (let i = 1; i <= 5; i++) {
+                revenues.push(revenues[i-1] * (1 + growth));
+                EBITs.push(revenues[i] * margin);
+                taxes.push(EBITs[i-1] * taxRate);
+                EBIT_after_tax.push(EBITs[i-1] * (1 - taxRate));
+                
+                // Reinvestment based on incremental revenue: ΔRev / (Sales-to-Capital)
+                const deltaRev = revenues[i] - revenues[i-1];
+                reinvestments.push(deltaRev / s2c);
+                
+                const currentFCFF = EBIT_after_tax[i-1] - reinvestments[i];
+                FCFFs.push(currentFCFF);
+                
+                const df = 1 / Math.pow(1 + wacc, i);
+                discountFactors.push(df);
+                PV_FCFFs.push(currentFCFF * df);
+            }
+
+            // Sum of PV of FCFFs for the high-growth phase
+            const sumPV_FCFFs = PV_FCFFs.reduce((sum, val) => sum + val, 0);
+
+            // Terminal Phase (Year 6 onwards in stable growth gn)
+            const revTerm = revenues[5] * (1 + gn);
+            const EBITTerm = revTerm * margin;
+            const EBIT_after_tax_Term = EBITTerm * (1 - taxRate);
+            
+            // In stable state, reinvestment is determined by gn / ROC (stable state ROC assumed equals stable WACC for simplicity)
+            // Reinvestment Term = EBIT_after_tax_Term * (gn / WACC)
+            const reinvestmentTerm = EBIT_after_tax_Term * (gn / wacc);
+            const FCFFTerm = EBIT_after_tax_Term - reinvestmentTerm;
+            
+            // Terminal Value at end of year 5: TV = FCFF_6 / (WACC - gn)
+            const TV = FCFFTerm / (wacc - gn);
+            const PV_TV = TV * discountFactors[5];
+
+            // Firm Enterprise Value
+            const enterpriseValue = sumPV_FCFFs + PV_TV;
+            const equityValue = enterpriseValue - netDebt;
+            const valuePerShare = Math.max(0, equityValue / shares);
+
+            // Update Primary KPI blocks
+            firmValDisp.innerText = '$' + enterpriseValue.toFixed(1) + 'M';
+            shareValDisp.innerText = '$' + valuePerShare.toFixed(2);
+
+            // Potential / Upside calculation
+            const upside = ((valuePerShare - marketPrice) / marketPrice) * 100;
+            if (upside > 0) {
+                upsideDisp.innerHTML = `<span class="text-emerald-400 font-bold">Недооценка: +${upside.toFixed(1)}% (Справедливо: $${valuePerShare.toFixed(2)})</span>`;
+            } else {
+                upsideDisp.innerHTML = `<span class="text-rose-400 font-bold">Переоценка: ${upside.toFixed(1)}% (Справедливо: $${valuePerShare.toFixed(2)})</span>`;
+            }
+
+            // Redraw table rows
+            forecastTbody.innerHTML = `
+                <tr>
+                    <td class="py-2 text-slate-400">Выручка (Growth: ${(growth*100).toFixed(0)}%)</td>
+                    <td>${revenues[0].toFixed(1)}</td>
+                    <td>${revenues[1].toFixed(1)}</td>
+                    <td>${revenues[2].toFixed(1)}</td>
+                    <td>${revenues[3].toFixed(1)}</td>
+                    <td>${revenues[4].toFixed(1)}</td>
+                    <td>${revenues[5].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${revTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">EBIT (Margin: ${(margin*100).toFixed(0)}%)</td>
+                    <td>-</td>
+                    <td>${EBITs[0].toFixed(1)}</td>
+                    <td>${EBITs[1].toFixed(1)}</td>
+                    <td>${EBITs[2].toFixed(1)}</td>
+                    <td>${EBITs[3].toFixed(1)}</td>
+                    <td>${EBITs[4].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${EBITTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">EBIT * (1 - t)</td>
+                    <td>-</td>
+                    <td>${EBIT_after_tax[0].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[1].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[2].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[3].toFixed(1)}</td>
+                    <td>${EBIT_after_tax[4].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${EBIT_after_tax_Term.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">Реинвестиции (Sales/Capital: ${s2c.toFixed(1)})</td>
+                    <td>-</td>
+                    <td>${reinvestments[1].toFixed(1)}</td>
+                    <td>${reinvestments[2].toFixed(1)}</td>
+                    <td>${reinvestments[3].toFixed(1)}</td>
+                    <td>${reinvestments[4].toFixed(1)}</td>
+                    <td>${reinvestments[5].toFixed(1)}</td>
+                    <td class="text-emerald-400 font-bold">${reinvestmentTerm.toFixed(1)}</td>
+                </tr>
+                <tr class="bg-slate-900/60 font-bold">
+                    <td class="py-2 text-sky-400">Чистый Поток FCFF</td>
+                    <td>-</td>
+                    <td>${FCFFs[1].toFixed(1)}</td>
+                    <td>${FCFFs[2].toFixed(1)}</td>
+                    <td>${FCFFs[3].toFixed(1)}</td>
+                    <td>${FCFFs[4].toFixed(1)}</td>
+                    <td>${FCFFs[5].toFixed(1)}</td>
+                    <td class="text-emerald-400">${FCFFTerm.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-slate-400">Фактор Дисконта (WACC: ${(wacc*100).toFixed(2)}%)</td>
+                    <td>1.000</td>
+                    <td>${discountFactors[1].toFixed(3)}</td>
+                    <td>${discountFactors[2].toFixed(3)}</td>
+                    <td>${discountFactors[3].toFixed(3)}</td>
+                    <td>${discountFactors[4].toFixed(3)}</td>
+                    <td>${discountFactors[5].toFixed(3)}</td>
+                    <td>-</td>
+                </tr>
+                <tr class="bg-amber-950/20 font-bold text-amber-400">
+                    <td class="py-2">Дисконтированный PV (FCFF)</td>
+                    <td>-</td>
+                    <td>${PV_FCFFs[1].toFixed(1)}</td>
+                    <td>${PV_FCFFs[2].toFixed(1)}</td>
+                    <td>${PV_FCFFs[3].toFixed(1)}</td>
+                    <td>${PV_FCFFs[4].toFixed(1)}</td>
+                    <td>${PV_FCFFs[5].toFixed(1)}</td>
+                    <td class="text-emerald-400">PV(TV): ${PV_TV.toFixed(1)}</td>
+                </tr>
+            `;
+
+            // Draw Chart elements
+            drawChart(FCFFs, PV_FCFFs, TV, PV_TV);
+
+            // Dynamic Narrative Story Constructor
+            generateNarrative(revBase, growth, margin, s2c, wacc, gn, valuePerShare, marketPrice);
+        }
+
+        // Beautiful SVG charting module
+        function drawChart(fcffs, pvFcffs, tv, pvTv) {
+            svgChart.innerHTML = '';
+            
+            // Extract values for 5 years
+            const yearsData = [1, 2, 3, 4, 5];
+            const maxVal = Math.max(...fcffs.slice(1), tv * 0.2, 50); // scales for visual consistency
+
+            // Create Y axis grid lines
+            for (let i = 0; i <= 4; i++) {
+                const y = 10 + i * 30;
+                const value = (maxVal * (1 - i/4)).toFixed(0);
+                
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", "40");
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", "660");
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", "rgba(51, 65, 85, 0.25)");
+                line.setAttribute("stroke-width", "1");
+                svgChart.appendChild(line);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", "30");
+                text.setAttribute("y", y + 4);
+                text.setAttribute("fill", "#64748b");
+                text.setAttribute("font-size", "8");
+                text.setAttribute("text-anchor", "end");
+                text.setAttribute("font-family", "monospace");
+                text.textContent = value;
+                svgChart.appendChild(text);
+            }
+
+            // Draw bars
+            const barWidth = 24;
+            const startX = 60;
+            const spacing = 100;
+
+            for (let i = 1; i <= 5; i++) {
+                const x = startX + (i-1) * spacing;
+                
+                // Heights
+                const hFcff = (fcffs[i] / maxVal) * 110;
+                const hPv = (pvFcffs[i] / maxVal) * 110;
+                
+                const yFcff = 130 - hFcff;
+                const yPv = 130 - hPv;
+
+                // FCFF Bar (Blue-Sky)
+                const rectFcff = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rectFcff.setAttribute("x", x);
+                rectFcff.setAttribute("y", yFcff);
+                rectFcff.setAttribute("width", barWidth);
+                rectFcff.setAttribute("height", Math.max(0, hFcff));
+                rectFcff.setAttribute("fill", "url(#blue-grad)");
+                rectFcff.setAttribute("rx", "3");
+                svgChart.appendChild(rectFcff);
+
+                // PV Bar (Gold-Amber)
+                const rectPv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                rectPv.setAttribute("x", x + barWidth + 4);
+                rectPv.setAttribute("y", yPv);
+                rectPv.setAttribute("width", barWidth);
+                rectPv.setAttribute("height", Math.max(0, hPv));
+                rectPv.setAttribute("fill", "url(#gold-grad-chart)");
+                rectPv.setAttribute("rx", "3");
+                svgChart.appendChild(rectPv);
+
+                // Label
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", x + barWidth);
+                text.setAttribute("y", "146");
+                text.setAttribute("fill", "#94a3b8");
+                text.setAttribute("font-size", "9");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = `Год ${i}`;
+                svgChart.appendChild(text);
+            }
+
+            // Draw Terminal Value Bar on the right
+            const xTv = startX + 5 * spacing;
+            const hTv = (tv / maxVal) * 22; // Scaled down TV to fit neatly without breaking graph limits
+            const hPvTv = (pvTv / maxVal) * 110;
+
+            // Raw TV Bar (Purple representing long-term terminal assets)
+            const rectTv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rectTv.setAttribute("x", xTv);
+            rectTv.setAttribute("y", 130 - hTv);
+            rectTv.setAttribute("width", barWidth);
+            rectTv.setAttribute("height", Math.max(0, hTv));
+            rectTv.setAttribute("fill", "rgba(168, 85, 247, 0.4)");
+            rectTv.setAttribute("stroke", "rgba(168, 85, 247, 0.8)");
+            rectTv.setAttribute("stroke-dasharray", "2,2");
+            rectTv.setAttribute("rx", "3");
+            svgChart.appendChild(rectTv);
+
+            // PV TV Bar
+            const rectPvTv = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rectPvTv.setAttribute("x", xTv + barWidth + 4);
+            rectPvTv.setAttribute("y", 130 - hPvTv);
+            rectPvTv.setAttribute("width", barWidth);
+            rectPvTv.setAttribute("height", Math.max(0, hPvTv));
+            rectPvTv.setAttribute("fill", "url(#purple-grad)");
+            rectPvTv.setAttribute("rx", "3");
+            svgChart.appendChild(rectPvTv);
+
+            // Label TV
+            const textTv = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textTv.setAttribute("x", xTv + barWidth);
+            textTv.setAttribute("y", "146");
+            textTv.setAttribute("fill", "#a855f7");
+            textTv.setAttribute("font-size", "9");
+            textTv.setAttribute("font-weight", "bold");
+            textTv.setAttribute("text-anchor", "middle");
+            textTv.textContent = "TV";
+            svgChart.appendChild(textTv);
+
+            // Add Gradients to defs dynamically
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            defs.innerHTML = `
+                <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="100%" stop-color="#0369a1"/>
+                </linearGradient>
+                <linearGradient id="gold-grad-chart" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#fbbf24"/>
+                    <stop offset="100%" stop-color="#b45309"/>
+                </linearGradient>
+                <linearGradient id="purple-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#c084fc"/>
+                    <stop offset="100%" stop-color="#7e22ce"/>
+                </linearGradient>
+            `;
+            svgChart.appendChild(defs);
+        }
+
+        // Narrative valuation text builder
+        function generateNarrative(rev, growth, margin, s2c, wacc, gn, fairPrice, marketPrice) {
+            let story = "";
+            const gPercent = (growth * 100).toFixed(0);
+            const mPercent = (margin * 100).toFixed(0);
+            const wPercent = (wacc * 100).toFixed(2);
+            const gnPercent = (gn * 100).toFixed(1);
+
+            // Part 1: Company Profile and growth phase
+            story += `Мы рассматриваем компанию с базовой выручкой в <strong>$${rev}M</strong>. Инвесторы верят в сильный макроэкономический сценарий: за следующие 5 лет предприятие будет расти с выдающейся скоростью в <strong>${gPercent}% в год</strong>, удерживая солидную операционную маржу на уровне <strong>${mPercent}%</strong>. `;
+            
+            // Part 2: Reinvestment efficiency (Sales-to-Capital)
+            if (s2c >= 2.5) {
+                story += `Благодаря невероятно высокому коэффициенту Sales-to-Capital в <strong>${s2c.toFixed(1)}</strong>, этот бизнес капиталоэффективен — каждый доллар инвестиций возвращается быстрым приростом объема продаж. Это визитная карточка технологических или легких франшизных индустрий. `;
+            } else if (s2c < 1.2) {
+                story += `При этом коэффициент Sales-to-Capital составляет всего <strong>${s2c.toFixed(1)}</strong>, отражая тяжелый капиталоемкий характер бизнеса (например, классическое производство или логистика). Каждое расширение продаж будет обходиться акционерам дорого. `;
+            } else {
+                story += `При умеренной капиталоемкости (Sales-to-Capital: <strong>${s2c.toFixed(1)}</strong>), компания удерживает здоровый баланс между агрессивным ростом и необходимостью реинвестировать средства. `;
+            }
+
+            // Part 3: Discounting and Risk WACC
+            story += `Рынки оценивают риски компании с учетом структуры её капитала и оценивают средневзвешенную стоимость капитала (WACC) в размере <strong>${wPercent}%</strong>. `;
+
+            // Part 4: Terminal convergence and stock value comparison
+            story += `Спустя 5 лет активной экспансии, бизнес выходит на фазу зрелости и растет с консервативным темпом <strong>${gnPercent}%</strong> в вечности. `;
+
+            const undervalue = fairPrice - marketPrice;
+            if (undervalue > 0) {
+                story += `Сравнивая справедливую ценность в <strong>$${fairPrice.toFixed(2)}</strong> с текущим рыночным курсом акции (<strong>$${marketPrice.toFixed(2)}</strong>), мы видим классическое недооцененное сокровище. <span class="text-emerald-400 font-bold">Вывод Дамадарана: BUY.</span> Рынок недооценивает внутренние фундаментальные силы и денежные генерации этой фирмы.`;
+            } else {
+                story += `Однако при текущей цене акции на рынке в <strong>$${marketPrice.toFixed(2)}</strong>, ценность компании в <strong>$${fairPrice.toFixed(2)} за акцию</strong> указывает на то, что активы переоценены оптимистичной толпой. <span class="text-rose-400 font-bold">Вывод Дамадарана: AVOID/SELL.</span> Наш фундаментальный расчет NPV не поддерживает рыночные мультипликаторы компании.`;
+            }
+
+            narrativeText.innerHTML = story;
+        }
+
+        // Attach Event Listeners to recalculate on sliders/inputs change
+        const inputs = [
+            revInput, growthInput, marginInput, s2cInput,
+            rfInput, betaInput, erpInput, debtRatioInput, taxInput, costDebtInput,
+            gnInput, marketPriceInput
+        ];
+        
+        inputs.forEach(input => input.addEventListener('input', updateValuation));
+        
+        // Input fields for keyboard values
+        netDebtInput.addEventListener('change', updateValuation);
+        sharesInput.addEventListener('change', updateValuation);
+
+        // Initial launch
+        updateValuation();
+    </script>
+</body>
+</html>
