@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  /* Убираем прокрутку полностью */
   html, body {
     margin: 0;
     padding: 0;
@@ -17,14 +16,14 @@
     align-items: center;
   }
 
-  /* Контейнер строго под размер вашей иконки */
   .tile-container {
     position: relative;
-    width: 220px;
-    height: 150px; /* Высота вашей стандартной плитки */
-    border-radius: 12px;
+    width: 100%;
+    max-width: 220px; /* Идеально совпадает с размером симуляторов */
+    height: 100%;
+    max-height: 150px; 
     cursor: pointer;
-    perspective: 1000px; /* Для красивого эффекта */
+    perspective: 1000px;
   }
 
   .tile-card {
@@ -35,7 +34,6 @@
     transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
 
-  /* Класс, который сработает при клике */
   .tile-container.flipped .tile-card {
     transform: rotateY(180deg);
   }
@@ -49,26 +47,30 @@
     box-sizing: border-box;
   }
 
-  /* Лицевая сторона — ваша картинка */
   .front {
     background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+
+  /* === ГЛАВНОЕ ИСПРАВЛЕНИЕ ТУТ === */
   .front img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Картинка теперь сжимается СТРОГО пропорционально и никогда не обрезается! */
     border-radius: 12px;
     transition: transform 0.25s ease, filter 0.25s ease;
   }
+
   .tile-container:not(.flipped):hover .front img {
     transform: scale(1.03);
     filter: drop-shadow(0 5px 15px rgba(0,0,0,0.15)) drop-shadow(0 0 8px rgba(244, 67, 54, 0.4));
   }
 
-  /* Обратная сторона — красивое меню со ссылками внутри плитки */
   .back {
     background: #ffffff;
-    border: 2px solid #cc1818; /* Красный контур YouTube */
+    border: 2px solid #cc1818;
     transform: rotateY(180deg);
     display: flex;
     flex-direction: column;
@@ -102,11 +104,9 @@
 
   <div class="tile-container" id="videoTile">
     <div class="tile-card">
-      <!-- Лицо плитки -->
       <div class="front">
         <img src="pic-video.png" alt="Видеоматериалы">
       </div>
-      <!-- Меню внутри плитки -->
       <div class="back">
         <a href="https://www.youtube.com/watch?v=7lMB1yGrRQ0" target="_blank" onclick="event.stopPropagation();">📺 Видеоурок 1</a>
         <a href="https://www.youtube.com/watch?v=iKvnFUW8WHQ" target="_blank" onclick="event.stopPropagation();">📺 Видеоурок 2</a>
@@ -116,7 +116,6 @@
   </div>
 
   <script>
-    // Скрипт для переворота по клику
     const tile = document.getElementById('videoTile');
     tile.addEventListener('click', function() {
       this.classList.toggle('flipped');
