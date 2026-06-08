@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent; /* Прозрачный фон для Google Сайта */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .live-container {
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: smoothPulse 3s infinite ease-in-out;
+  }
+
+  /* Эффект оживания при наведении мышки студентом */
+  .live-container:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+  }
+
+  .live-container:active {
+    transform: scale(0.98);
+  }
+
+  .responsive-icon {
+    width: 100%;
+    max-width: 250px; /* Размер под вашу плитку на сайте */
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+
+  @keyframes smoothPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); } /* Легкое "дыхание" */
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+  <a href="https://ogaydv-prog.github.io/Simulator-NPV/ppf.html" target="_blank" class="live-container">
+    <img src="pic-ppf.png" class="responsive-icon" alt="Симулятор КПВ">
+  </a>
+
+</body>
+</html>
