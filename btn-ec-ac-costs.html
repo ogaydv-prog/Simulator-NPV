@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  /* Наша фирменная пружинящая кнопка */
+  .main-tile-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Эффект увеличения и мягкой изумрудно-зеленой неоновой подсветки при наведении */
+  .main-tile-btn:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+  }
+  .main-tile-btn:active {
+    transform: scale(0.98);
+  }
+  .tile-img {
+    width: 100%;
+    max-width: 250px; /* Стандартный размер плитки, совпадающий со всеми остальными элементами */
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Кнопка со ссылкой на изображение из вашего репозитория GitHub -->
+  <button id="btn-ec-ac-costs" class="main-tile-btn">
+    <img src="pic-ec-ac-costs.png" class="tile-img" alt="Переход к симулятору: Экономические и бухгалтерские издержки">
+  </button>
+
+<script>
+  document.getElementById("btn-ec-ac-costs").addEventListener("click", function() {
+    // Надежный абсолютный веб-адрес перехода на симулятор из Google Сайтов
+    window.open("https://ogaydv-prog.github.io/Simulator-NPV/sim-ec-ac-costs.html", "_blank");
+  });
+</script>
+
+</body>
+</html>
