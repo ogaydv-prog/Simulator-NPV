@@ -16,24 +16,20 @@
     width: 100vw;
   }
   
+  /* Наша фирменная пружинящая кнопка - теперь полностью отзывчивая */
   .main-tile-btn {
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: inline-block;
     transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
     outline: none;
     -webkit-tap-highlight-color: transparent;
-    /* Кнопка занимает всю площадь, выделенную ей в редакторе Google Сайтов */
-    width: 100%;
-    height: 100%;
     max-width: 100%;
-    max-height: 100%;
   }
   
+  /* Эффект увеличения и мягкой изумрудной неоновой подсветки при наведении */
   .main-tile-btn:hover {
     transform: scale(1.05);
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
@@ -42,26 +38,25 @@
     transform: scale(0.98);
   }
   
+  /* Точные параметры отзывчивости как у кнопки Лекции и Спроса/Предложения */
   .tile-img {
     width: 100%;
-    height: 100%;
-    /* Изображение будет автоматически пропорционально сжиматься и увеличиваться */
-    object-fit: contain; 
-    border-radius: 12px;
+    max-width: 250px; /* Ограничиваем максимальный размер, совпадающий с остальными кнопками */
+    height: auto; /* Высота подстраивается автоматически, исключая искажения */
     display: block;
+    border-radius: 12px;
   }
 </style>
 </head>
 <body>
 
-  <!-- Кнопка со ссылкой на изображение из вашего репозитория GitHub -->
   <button id="btn-ec-ac-costs" class="main-tile-btn">
     <img src="pic-ec-ac-costs.png" class="tile-img" alt="Переход к симулятору: Экономические и бухгалтерские издержки">
   </button>
 
 <script>
   document.getElementById("btn-ec-ac-costs").addEventListener("click", function() {
-    // Полный абсолютный адрес для обхода песочницы Google Сайтов
+    // Надежный переход на симулятор из фрейма Google Сайтов
     window.open("https://ogaydv-prog.github.io/Simulator-NPV/sim-ec-ac-costs.html", "_blank");
   });
 </script>
