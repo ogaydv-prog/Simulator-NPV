@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Arial', sans-serif;
+  }
+
+  /* 3D Контейнер для переворота */
+  .flip-card {
+    background-color: transparent;
+    width: 250px;
+    height: 250px;
+    perspective: 1000px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+  }
+
+  /* Эффект увеличения и сочного оранжевого свечения всей плитки при наведении */
+  .flip-card:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)) drop-shadow(0 0 12px rgba(249, 115, 22, 0.6));
+  }
+
+  /* Внутренняя оболочка */
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  /* Класс переворота, управляемый через JS */
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* Лицевая и обратная стороны */
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* ЛИЦЕВАЯ СТОРОНА (Картинка-обложка) */
+  .flip-card-front {
+    background-color: #ffffff;
+  }
+
+  .tile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ОБРАТНАЯ СТОРОНА (Премиум тёмный список видео по эластичности) */
+  .flip-card-back {
+    background-color: #111418;
+    color: #ffffff;
+    transform: rotateY(180deg);
+    border: 2px solid rgba(249, 115, 22, 0.7); /* Оранжевый неоновый кант */
+    padding: 10px 12px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* Шапка обратной стороны */
+  .back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .back-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #f97316; /* Фирменный оранжевый цвет */
+    letter-spacing: 0.5px;
+  }
+
+  /* Кнопка закрытия/переворота обратно */
+  .btn-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 4px;
+    transition: color 0.2s;
+  }
+
+  .btn-close:hover {
+    color: #ffffff;
+  }
+
+  /* Список видеоссылок с прокруткой для 6 элементов */
+  .video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 4px;
+  }
+
+  /* Кастомизация скроллбара для списка ссылок */
+  .video-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  .video-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 2px;
+  }
+  .video-list::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.4);
+    border-radius: 2px;
+  }
+
+  .video-link {
+    display: block;
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  .video-link:hover {
+    background: rgba(249, 115, 22, 0.15);
+    border-color: #f97316;
+    color: #ffffff;
+    transform: translateX(2px);
+  }
+</style>
+</head>
+<body>
+
+<div class="flip-card" id="cardContainer">
+  <div class="flip-card-inner">
+    
+    <!-- Лицевая сторона кнопки -->
+    <div class="flip-card-front" id="cardFront">
+      <img src="pic-video3.png" class="tile-img" alt="Видеоматериалы 3">
+    </div>
+
+    <!-- Обратная сторона кнопки -->
+    <div class="flip-card-back">
+      <div class="back-header">
+        <span class="back-title">Тема 3: Эластичность</span>
+        <button class="btn-close" id="btnClose" title="Назад">✕</button>
+      </div>
+      
+      <!-- Список интерактивных ссылок по вашей теме -->
+      <div class="video-list">
+        <a href="https://www.youtube.com/watch?v=31Qb9aKm9mo" target="_blank" class="video-link" title="Как цена влияет на спрос">
+          1. Как цена влияет на спрос (Теория)
+        </a>
+        <a href="https://www.youtube.com/watch?v=C3C9TzqU1zo" target="_blank" class="video-link" title="Эластичность спроса по цене">
+          2. Расчет ценовой эластичности
+        </a>
+        <a href="https://www.youtube.com/watch?v=u0AM1Xyyqv" target="_blank" class="video-link" title="Эластичность: точечная и дуговая">
+          3. Эластичность спроса (Практика)
+        </a>
+        <a href="https://www.youtube.com/watch?v=EaqxUiw226U" target="_blank" class="video-link" title="Факторы эластичности спроса">
+          4. Факторы эластичности спроса
+        </a>
+        <a href="https://www.youtube.com/watch?v=CgNwHQWdejw" target="_blank" class="video-link" title="Перекрёстная эластичность">
+          5. Кейс: Перекрёстная эластичность
+        </a>
+        <a href="https://www.youtube.com/watch?v=3nPDR7D350c&list=PLIE00iFQ5qwkcDvT4b7veuFaDAiRllat1&index=2" target="_blank" class="video-link" title="Эластичность и доход компании">
+          6. Эластичность и доход компании
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const card = document.getElementById('cardContainer');
+  const cardFront = document.getElementById('cardFront');
+  const btnClose = document.getElementById('btnClose');
+
+  // Переворот на обратную сторону при клике по лицевой
+  cardFront.addEventListener('click', function(e) {
+    card.classList.add('flipped');
+  });
+
+  // Переворот обратно при клике на крестик
+  btnClose.addEventListener('click', function(e) {
+    e.stopPropagation(); // Останавливаем всплытие события, чтобы карточка снова не перевернулась
+    card.classList.remove('flipped');
+  });
+
+  // Предотвращаем переворот карты обратно при клике на ссылки видео
+  const links = document.querySelectorAll('.video-link');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+</script>
+
+</body>
+</html>
