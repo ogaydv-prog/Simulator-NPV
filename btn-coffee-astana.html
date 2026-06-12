@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интерактивная кнопка Практическое задание</title>
 <style>
   body {
     margin: 0;
@@ -14,7 +15,8 @@
     align-items: center;
     height: 100vh;
   }
-  /* Наша фирменная пружинящая кнопка */
+  
+  /* Фирменная пружинящая кнопка */
   .main-tile-btn {
     background: none;
     border: none;
@@ -25,17 +27,20 @@
     outline: none;
     -webkit-tap-highlight-color: transparent;
   }
-  /* Эффект увеличения и мягкой янтарно-золотой неоновой подсветки под стиль плашки */
+  
+  /* Эффект увеличения и мягкого золотисто-янтарного свечения (под цвет новой шапки) */
   .main-tile-btn:hover {
     transform: scale(1.05);
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(234, 179, 8, 0.65));
   }
+  
   .main-tile-btn:active {
     transform: scale(0.98);
   }
+  
   .tile-img {
     width: 100%;
-    max-width: 250px; /* Идеальный размер плитки, совпадающий с остальными кнопками */
+    max-width: 250px; /* Идеальный размер, соответствующий остальным плиткам */
     height: auto;
     display: block;
     border-radius: 12px;
@@ -44,17 +49,18 @@
 </head>
 <body>
 
-  <!-- Кнопка со ссылкой на изображение из вашего репозитория GitHub -->
   <button id="btn-task" class="main-tile-btn">
-    <img src="pic-task2.png" class="tile-img" alt="Практическое задание: Симулятор рынка кофе Астаны">
+    <!-- Изображение вашей новой желтой карточки практического задания -->
+    <img src="pic-task2.png" class="tile-img" alt="Практическое задание: Симулятор рынка кофе Астаны" onerror="this.src='https://placehold.co/250x250/ffe082/1e293b?text=Задание+2'">
   </button>
 
 <script>
   document.getElementById("btn-task").addEventListener("click", function() {
-    // Теперь перенаправляем на файл с практическим заданием task-coffee-astana.html
+    // Надежный переход к странице практического кейса
     window.open("https://ogaydv-prog.github.io/Simulator-NPV/task-coffee-astana.html", "_blank");
   });
 </script>
 
 </body>
+</html>
 </html>
