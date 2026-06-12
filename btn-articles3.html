@@ -16,6 +16,7 @@
     font-family: 'Arial', sans-serif;
   }
 
+  /* 3D Контейнер для переворота — вернула стандартные 250px */
   .flip-card {
     background-color: transparent;
     width: 250px;
@@ -25,7 +26,7 @@
     transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
   }
 
-  /* Эффект увеличения и мягкого бирюзового свечения при наведении */
+  /* Эффект увеличения и неоновой подсветки при наведении */
   .flip-card:hover {
     transform: scale(1.05);
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)) drop-shadow(0 0 12px rgba(20, 184, 166, 0.6));
@@ -125,7 +126,7 @@
     flex-direction: column;
     gap: 8px;
     flex-grow: 1;
-    justify-content: center; /* Центрируем статьи по высоте в объеме 250px */
+    justify-content: center;
   }
 
   /* Ссылки на статьи */
