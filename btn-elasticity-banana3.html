@@ -1,31 +1,66 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запуск симулятора</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .card-shadow:hover { box-shadow: 0 0 25px rgba(0, 255, 208, 0.2); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  /* Фирменная пружинящая кнопка */
+  .main-tile-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+  }
+  
+  /* Эффект увеличения и сочного синего свечения при наведении */
+  .main-tile-btn:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(2, 132, 199, 0.65));
+  }
+  
+  /* Физическое упругое сжатие при клике */
+  .main-tile-btn:active {
+    transform: scale(0.98);
+  }
+  
+  /* Скругление углов плитки */
+  .tile-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+</style>
 </head>
-<body class="bg-[#0d1117] flex items-center justify-center h-screen m-0">
+<body>
 
-    <a href="sim-elasticity-banana3.html" 
-       target="_blank"
-       class="card-shadow block w-[280px] bg-[#161b22] border border-[#22303c] rounded-2xl p-4 transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] cursor-pointer">
-        
-        <div class="w-full h-40 bg-[#0d1117] rounded-xl overflow-hidden mb-4 border border-[#22303c]">
-            <img src="pic-sim-demand-analysis-1-1.png" 
-                 alt="Симулятор" 
-                 class="w-full h-full object-cover">
-        </div>
+  <button id="btn-sim-elasticity" class="main-tile-btn">
+    <img src="pic-sim-demand-analysis-1-1.png" class="tile-img" alt="Симулятор: Эластичность спроса" onerror="this.src='https://placehold.co/250x250/0284c7/ffffff?text=Симулятор'">
+  </button>
 
-        <div class="text-center">
-            <h3 class="text-sm font-bold text-white mb-1">Анализ спроса: Бананы</h3>
-            <p class="text-[10px] text-[#8b949e] uppercase tracking-widest">Симулятор v.3.0</p>
-        </div>
-    </a>
+<script>
+  document.getElementById("btn-sim-elasticity").addEventListener("click", function() {
+    window.open("sim-elasticity-banana3.html", "_blank");
+  });
+</script>
 
 </body>
 </html>
