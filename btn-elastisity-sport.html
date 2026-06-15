@@ -5,27 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .hover-effect {
+        /* Полностью убираем любые отступы и скроллбары, чтобы размер соответствовал картинке */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+        }
+        
+        .btn-img {
             transition: transform 0.3s ease, filter 0.3s ease;
-            display: inline-block;
             cursor: pointer;
+            display: block;
+            /* Убеждаемся, что картинка не растягивается сверх меры */
+            max-width: 100%;
+            height: auto;
         }
-        .hover-effect:hover {
+
+        /* Эффект при наведении */
+        .btn-img:hover {
             transform: scale(1.05);
-            filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            filter: brightness(1.15) drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
         }
-        .hover-effect:active {
+
+        /* Эффект при нажатии */
+        .btn-img:active {
             transform: scale(0.98);
         }
     </style>
 </head>
-<body class="bg-transparent flex items-center justify-center p-0 m-0">
+<body>
 
     <!-- Ссылка на симулятор в новом окне -->
-    <a href="sim-elastisity-sport.html" target="_blank" class="hover-effect">
+    <a href="sim-elastisity-sport.html" target="_blank">
         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-elastisity-sport.png" 
-             alt="Запуск симулятора" 
-             class="block w-full h-auto">
+             alt="Симулятор эластичности спорта" 
+             class="btn-img"
+             draggable="false">
     </a>
 
 </body>
