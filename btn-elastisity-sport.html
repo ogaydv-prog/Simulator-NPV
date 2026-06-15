@@ -2,38 +2,51 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Запуск симулятора</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Устанавливаем белый фон страницы */
-        body { background-color: #ffffff; }
-        
-        .btn-sim {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            display: block;
-            border-radius: 12px;
-            overflow: hidden;
-            /* Убираем лишние тени, если нужно строгое отображение */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        body { 
+            background-color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
         }
 
-        .btn-sim:hover {
-            transform: scale(1.02);
+        /* Контейнер кнопки */
+        .launcher-btn {
+            display: inline-block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        /* Увеличение и легкая подсветка при наведении */
+        .launcher-btn:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Эффект нажатия */
+        .launcher-btn:active {
+            transform: scale(0.98);
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
-<body class="flex items-center justify-center h-screen">
+<body>
 
-    <!-- Используем object-contain, чтобы картинка не обрезалась -->
-    <div class="btn-sim w-64 h-64 border border-gray-200" onclick="window.location.href='sim-elastisity-sport.html'">
-        <img src="pic-sim-elastisity-sport.png" 
-             alt="Симулятор" 
-             class="w-full h-full object-contain"
-             onerror="this.src='https://placehold.co/256x256?text=Нажмите+для+запуска'">
-    </div>
+    <!-- Ссылка-кнопка с визуальными эффектами -->
+    <a href="sim-elastisity1.html" class="launcher-btn">
+        <img src="pic-sim-elastisity-sport.png" alt="Запустить симуляцию" onerror="this.style.display='none'; this.parentNode.innerHTML='<h2>Симулятор эластичности</h2>'">
+    </a>
 
 </body>
-</html>
 </html>
