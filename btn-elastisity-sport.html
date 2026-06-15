@@ -3,39 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запуск симулятора эластичности</title>
+    <title>Запуск симулятора</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Стиль кнопки с эффектом оживления */
+        /* Устанавливаем белый фон страницы */
+        body { background-color: #ffffff; }
+        
         .btn-sim {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: block;
             border-radius: 12px;
             overflow: hidden;
+            /* Убираем лишние тени, если нужно строгое отображение */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .btn-sim:hover {
-            transform: scale(1.05);
-            box-shadow: 0 20px 25px -5px rgba(56, 189, 248, 0.4);
-            filter: brightness(1.2);
-        }
-
-        .btn-sim:active {
-            transform: scale(0.98);
+            transform: scale(1.02);
         }
     </style>
 </head>
-<body class="flex items-center justify-center h-screen bg-slate-950">
+<body class="flex items-center justify-center h-screen">
 
-    <!-- Кнопка с изображением -->
-    <div class="btn-sim" onclick="window.location.href='sim-elastisity-sport.html'">
+    <!-- Используем object-contain, чтобы картинка не обрезалась -->
+    <div class="btn-sim w-64 h-64 border border-gray-200" onclick="window.location.href='sim-elastisity-sport.html'">
         <img src="pic-sim-elastisity-sport.png" 
-             alt="Симулятор эластичности спроса" 
-             class="w-64 h-64 object-cover"
-             onerror="this.src='https://placehold.co/256x256?text=Симулятор'">
+             alt="Симулятор" 
+             class="w-full h-full object-contain"
+             onerror="this.src='https://placehold.co/256x256?text=Нажмите+для+запуска'">
     </div>
 
 </body>
+</html>
 </html>
