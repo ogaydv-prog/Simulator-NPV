@@ -3,43 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кнопка симулятора эластичности</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Плавные переходы для анимации */
-        .simulator-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-block;
-            outline: none;
-            border: none;
-            background: transparent;
+        body {
+            margin: 0;
             padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: transparent;
+        }
+
+        .simulator-btn {
+            display: block;
+            transition: transform 0.3s ease, filter 0.3s ease;
             cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            outline: none;
         }
 
-        /* Эффект при наведении */
         .simulator-btn:hover {
-            transform: scale(1.08);
-            filter: brightness(1.2) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3));
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         }
 
-        /* Эффект при нажатии */
-        .simulator-btn:active {
-            transform: scale(0.95);
+        .simulator-btn img {
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen bg-gray-100">
+<body>
 
-    <!-- Кнопка, которая ведет на файл симулятора -->
-    <a href="sim-elastisity-sport.html" class="simulator-btn">
-        <img 
-            src="pic-sim-elastisity-sport.png" 
-            alt="Запустить симулятор"
-            class="block"
-        >
+    <a href="sim-elastisity-sport.html" target="_blank" class="simulator-btn">
+        <img src="pic-sim-elastisity-sport.png" alt="Запуск симулятора">
     </a>
 
 </body>
-</html>
 </html>
