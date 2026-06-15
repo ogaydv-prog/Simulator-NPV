@@ -1,68 +1,44 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  /* Фирменная пружинящая кнопка */
-  .main-tile-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    display: inline-block;
-    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
-    width: 100%;
-    max-width: 250px; /* Идеально совпадает с остальными плитками на сайте */
-    height: auto;
-  }
-  
-  /* Эффект увеличения и сочного синего свечения при наведении */
-  .main-tile-btn:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(2, 132, 199, 0.65));
-  }
-  
-  /* Физическое упругое сжатие при клике */
-  .main-tile-btn:active {
-    transform: scale(0.98);
-  }
-  
-  /* Скругление углов плитки */
-  .tile-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 12px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: transparent;
+        }
+        .btn {
+            display: block;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease;
+            width: 250px;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 15px rgba(0, 255, 208, 0.6));
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
 
-  <button id="btn-lecture3" class="main-tile-btn">
-    <!-- Ссылка на картинку в вашем репозитории на GitHub Pages -->
-    <img src="pic-lecture3.png" class="tile-img" alt="Лекция 3: Количественный анализ спроса" onerror="this.src='https://placehold.co/250x250/0284c7/ffffff?text=%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D1%8F+3'">
-  </button>
-
-<script>
-  document.getElementById("btn-lecture3").addEventListener("click", function() {
-    // Надежный переход на документ Лекции 3 на вашем Google Диске
-    window.open("https://docs.google.com/document/d/1ujzGrdFF4hRhqH4YwgkIPkz7C6Jf7GK1/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true", "_blank");
-  });
-</script>
+    <a href="sim-elasticity-banana3.html" target="_blank" class="btn">
+        <img src="pic-sim-demand-analysis-1-1.png" alt="Симулятор">
+    </a>
 
 </body>
 </html>
