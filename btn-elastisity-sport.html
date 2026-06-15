@@ -5,42 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: transparent;
-        }
-
-        .simulator-btn {
-            display: block;
+        .hover-effect {
             transition: transform 0.3s ease, filter 0.3s ease;
+            display: inline-block;
             cursor: pointer;
-            border: none;
-            background: none;
-            padding: 0;
-            outline: none;
         }
-
-        .simulator-btn:hover {
+        .hover-effect:hover {
             transform: scale(1.05);
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         }
-
-        .simulator-btn img {
-            display: block;
-            max-width: 100%;
-            height: auto;
+        .hover-effect:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
-<body>
+<body class="bg-transparent flex items-center justify-center p-0 m-0">
 
-    <a href="sim-elastisity-sport.html" target="_blank" class="simulator-btn">
-        <img src="pic-sim-elastisity-sport.png" alt="Запуск симулятора">
+    <!-- Ссылка на симулятор в новом окне -->
+    <a href="sim-elastisity-sport.html" target="_blank" class="hover-effect">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-elastisity-sport.png" 
+             alt="Запуск симулятора" 
+             class="block w-full h-auto">
     </a>
 
 </body>
