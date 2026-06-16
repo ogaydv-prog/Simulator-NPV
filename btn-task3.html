@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Полный сброс отступов. Страница занимает ровно столько места, сколько сама картинка */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            text-align: center;
+        }
+        
+        /* Плавный пружинящий эффект наведения без утяжеления интерфейса */
+        .btn-link {
+            display: inline-block;
+            text-decoration: none;
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            cursor: pointer;
+            max-width: 100%;
+        }
+
+        /* Оживление: легкое увеличение на 4% и мягкая подсветка */
+        .btn-link:hover {
+            transform: scale(1.04);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15)) drop-shadow(0 0 8px rgba(2, 132, 199, 0.4));
+        }
+
+        /* Эффект физического нажатия (клик) */
+        .btn-link:active {
+            transform: scale(0.98);
+        }
+
+        /* Картинка аккуратно вписывается в рамки фрейма, сохраняя пропорции */
+        .btn-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://docs.google.com/document/d/1fTLcfxu7PpaZ2mDrlNPCEsxik2us5sE30JsA_JjUdtM/edit?tab=t.0" target="_blank" class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-task3.png" 
+             alt="Открыть задание: Моделирование спроса" 
+             class="btn-img"
+             draggable="false">
+    </a>
+
+</body>
+</html>
