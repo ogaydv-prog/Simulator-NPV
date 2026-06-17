@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Иконки Lucide для премиального отображения интерфейса списка -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Шрифт Inter для профессиональной типографики -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Полностью убираем любые отступы и скроллбары по умолчанию */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Стилизация кнопки-картинки */
+        .btn-img {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+        }
+
+        /* Эффект при наведении — кнопка оживает, слегка приподнимается и подсвечивается */
+        .btn-img:hover {
+            transform: scale(1.04) translateY(-4px);
+            filter: brightness(1.12) 
+                    drop-shadow(0 12px 20px rgba(30, 64, 175, 0.45)) 
+                    drop-shadow(0 0 15px rgba(218, 192, 163, 0.55));
+        }
+
+        /* Эффект при нажатии — кнопка упруго вдавливается */
+        .btn-img:active {
+            transform: scale(0.97) translateY(-1px);
+        }
+
+        /* Стилизация кастомного скроллбара для списка видео */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(218, 192, 163, 0.4);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(218, 192, 163, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Контейнер кнопки-картинки -->
+    <div class="relative inline-block select-none">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-video4.png" 
+             alt="Производственные издержки — Видеоматериалы" 
+             class="btn-img"
+             draggable="false"
+             onclick="openVideoList()">
+    </div>
+
+    <!-- Модальное окно со списком видеоматериалов (скрыто по умолчанию) -->
+    <div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
+            
+            <!-- Шапка списка видео -->
+            <div class="p-5 border-b border-slate-800 bg-slate-950/50 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-300">
+                        <i data-lucide="play" class="w-5 h-5 fill-amber-300/20"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-white text-base leading-tight">Производственные издержки</h3>
+                        <p class="text-xs text-slate-400">Видеокейс-подборка • ВШБ AlmaU</p>
+                    </div>
+                </div>
+                <!-- Кнопка закрытия -->
+                <button onclick="closeVideoList()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Контент списка видео -->
+            <div class="p-4 overflow-y-auto custom-scroll flex-grow space-y-3 bg-slate-900/40">
+                
+                <!-- Видео 1 -->
+                <a href="https://www.youtube.com/watch?v=EAp8nr2tUjE" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">01</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Издержки фирмы глазами экономиста (Часть 2)</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Безвозвратные и альтернативные затраты, концепции прибыли</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 2 -->
+                <a href="https://www.youtube.com/watch?v=r3MsYwcDCac" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">02</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Виды капитала предприятия</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Собственный, заемный, основной и оборотный капитал фирмы</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 3 -->
+                <a href="https://www.youtube.com/watch?v=diLKlYISOpw&t=118s" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">03</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Nestle. Самый злой бизнес</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Кейс-анализ издержек, монополии и поведения корпорации</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 4 -->
+                <a href="https://www.youtube.com/watch?v=1az5t5VOCVE" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">04</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Издержки производства: Теория и Графики</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Поведение общих, средних и предельных затрат фирмы</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 5 -->
+                <a href="https://www.youtube.com/watch?v=VrSyLOnmr6A" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">05</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Предельные и средние издержки (MC, ATC, AVC)</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Математическая связь и закон убывающей отдачи факторов</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 6 -->
+                <a href="https://www.youtube.com/watch?v=8IRBdY30ngE" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">06</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Анализ безубыточности и максимизация</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Поиск оптимального объема выпуска (Правило равенства MR и MC)</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 7 -->
+                <a href="https://www.youtube.com/watch?v=Ftzi9D52CC0" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">07</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Постоянные и переменные издержки</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Классификация затрат, примеры и методы оптимизации</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 8 -->
+                <a href="https://www.youtube.com/watch?v=ZEicChPSnI8" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">08</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Экономическая и Бухгалтерская прибыль</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Явные издержки против неявных (альтернативных)</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+                <!-- Видео 9 -->
+                <a href="https://www.youtube.com/watch?v=Yn-4iFLhp_E" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 hover:border-blue-500/30 transition-all group">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">09</span>
+                        <div class="min-w-0">
+                            <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-colors truncate">Решение задач по издержкам</h4>
+                            <p class="text-[10px] md:text-xs text-slate-400 truncate">Практический разбор типовых экзаменационных формул ВШБ</p>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-blue-600 text-[11px] font-bold text-slate-300 group-hover:text-white transition-all flex items-center gap-1 shrink-0">
+                        Смотреть <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    </span>
+                </a>
+
+            </div>
+
+            <!-- Подвал списка -->
+            <div class="py-3.5 px-5 bg-slate-950/80 border-t border-slate-800 flex justify-between items-center">
+                <span class="text-[10px] text-amber-200/80 font-bold tracking-widest uppercase">Graduate School of Business</span>
+                <span class="text-[10px] text-slate-500">AlmaU • 2026</span>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Lucide иконок
+        window.onload = function() {
+            lucide.createIcons();
+        };
+
+        // Открытие модального окна со списком
+        function openVideoList() {
+            const modal = document.getElementById('video-modal');
+            const content = document.getElementById('modal-content');
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+
+        // Закрытие модального окна
+        function closeVideoList() {
+            const modal = document.getElementById('video-modal');
+            const content = document.getElementById('modal-content');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+        }
+
+        // Закрытие при клике по фону (вне контента модалки)
+        document.getElementById('video-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideoList();
+            }
+        });
+    </script>
+</body>
+</html>
