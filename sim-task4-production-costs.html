@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВШБ - Симулятор производственных издержек MBA</title>
+<!-- Подключение Tailwind CSS для премиального темного дизайна -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0b0f13;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+  }
+
+  /* Стилизация полей ввода для защиты от искажений */
+  input[type="number"] {
+    background-color: #151b22;
+    border: 1px solid #30363d;
+    color: #f0f6fc;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: monospace;
+    outline: none;
+    transition: all 0.2s ease-in-out;
+  }
+  input[type="number"]:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+
+  /* Винтажный аналоговый ползунок объема производства Q и FC */
+  input[type="range"].vintage-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: #151b22;
+    height: 12px;
+    border-radius: 4px;
+    border: 1px solid #30363d;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Стилизация бегунка (Chrome, Safari, Opera, Edge) */
+  input[type="range"].vintage-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 32px;
+    background: linear-gradient(to right, 
+      #8a95a5 0%, 
+      #cfd8dc 30%, 
+      #b0bec5 45%, 
+      #ef4444 48%, 
+      #ef4444 52%, 
+      #b0bec5 55%, 
+      #cfd8dc 70%, 
+      #8a95a5 100%
+    );
+    border: 1.5px solid #0b0f13;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.5), 
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: transform 0.1s ease;
+  }
+  input[type="range"].vintage-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.08);
+  }
+
+  /* Стилизация бегунка (Firefox) */
+  input[type="range"].vintage-slider::-moz-range-thumb {
+    width: 18px;
+    height: 32px;
+    background: linear-gradient(to right, 
+      #8a95a5 0%, 
+      #cfd8dc 30%, 
+      #b0bec5 45%, 
+      #ef4444 48%, 
+      #ef4444 52%, 
+      #b0bec5 55%, 
+      #cfd8dc 70%, 
+      #8a95a5 100%
+    );
+    border: 1.5px solid #0b0f13;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.5), 
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: transform 0.1s ease;
+  }
+  input[type="range"].vintage-slider::-moz-range-thumb:hover {
+    transform: scale(1.08);
+  }
+
+  /* Панель с эффектом стекла */
+  .glass-card {
+    background: rgba(21, 27, 34, 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+</style>
+</head>
+<body class="text-slate-100 min-h-screen p-3 md:p-6 flex flex-col items-center justify-start overflow-x-hidden">
+
+<div class="w-full max-w-7xl bg-[#111518]/95 border border-indigo-500/10 shadow-[0_0_50px_rgba(99,102,241,0.05)] rounded-2xl p-4 md:p-6 backdrop-blur-md">
+  
+  <!-- Шапка симулятора (Очищенная от логотипов) -->
+  <div class="flex flex-col md:flex-row justify-between items-center border-b border-slate-800 pb-5 mb-5 gap-4">
+    <div>
+      <span class="text-[10px] font-bold tracking-[0.25em] text-indigo-400 uppercase block">Управленческая экономика | Интерактивный дашборд</span>
+      <h1 class="text-lg md:text-xl font-black text-white tracking-tight mt-0.5">Анализ производственных издержек</h1>
+      <p class="text-slate-400 text-xs">Оптимизация загрузки мощностей и структуры затрат фирмы</p>
+    </div>
+    
+    <div class="text-center md:text-right shrink-0">
+      <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">Разработано для группы</span>
+      <span class="text-xs font-extrabold text-indigo-400">MBA-В26-МД • AlmaU GSB</span>
+    </div>
+  </div>
+
+  <!-- Главная сетка: Левая колонка (Ввод параметров) / Правая (Анализ и Графики) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <!-- ЛЕВАЯ ПАНЕЛЬ: Ввод данных (33% ширины) -->
+    <div class="lg:col-span-4 flex flex-col gap-4">
+      
+      <!-- Карточка 1: Постоянные издержки со стильным винтажным слайдером -->
+      <div class="bg-[#14181c] border border-slate-800 rounded-xl p-5 shadow-inner">
+        <h3 class="text-xs font-black text-indigo-400 tracking-wider uppercase mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+          Шаг 1. Постоянные затраты (FC)
+        </h3>
+        
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-[11px] text-slate-400 font-medium">Постоянные издержки (FC)</label>
+            <span id="fc-badge" class="text-sm font-black text-indigo-400 font-mono">1 200 ₸</span>
+          </div>
+          <!-- Винтажный слайдер FC -->
+          <div class="py-2.5">
+            <input type="range" id="volume-slider-fc" min="200" max="4000" value="1200" step="50" class="w-full vintage-slider">
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Аренда, амортизация, оклады управления (не зависят от Q).</p>
+        </div>
+      </div>
+
+      <!-- Карточка 2: Параметры технологии производства -->
+      <div class="bg-[#14181c] border border-slate-800 rounded-xl p-5 shadow-inner">
+        <h3 class="text-xs font-black text-emerald-400 tracking-wider uppercase mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+          Шаг 2. Параметры технологии (VC)
+        </h3>
+        
+        <div class="space-y-3">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] text-slate-400 font-medium" title="Линейный коэффициент (коэфф. a)">Линейный (a)</label>
+              <input type="number" id="inp-vca" value="25" step="1" min="1">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] text-slate-400 font-medium" title="Квадратичный коэффициент (коэфф. b)">Элемент сжатия (b)</label>
+              <input type="number" id="inp-vcb" value="0.60" step="0.05" min="0">
+            </div>
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] text-slate-400 font-medium" title="Кубический коэффициент (коэфф. c)">Перегрузка (c)</label>
+              <input type="number" id="inp-vcc" value="0.012" step="0.001" min="0.001">
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 leading-normal">
+            *Задает формулу переменных издержек:<br>
+            <span class="font-mono text-emerald-400 text-[11px]">VC(Q) = a·Q - b·Q² + c·Q³</span>. <br>
+            Отражает действие закона убывающей отдачи факторов.
+          </p>
+        </div>
+      </div>
+
+      <!-- Карточка 3: Интерактивное управление объемом производства -->
+      <div class="bg-[#14181c] border border-indigo-500/20 rounded-xl p-5 shadow-inner">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xs font-black text-amber-400 tracking-wider uppercase">Шаг 3. Объем выпуска (Q)</h3>
+          <span id="volume-badge" class="text-lg font-black text-indigo-400">50 шт</span>
+        </div>
+        
+        <!-- Винтажный металлический тумблер -->
+        <div class="py-2.5">
+          <input type="range" id="volume-slider" min="1" max="100" value="50" class="w-full vintage-slider">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 mt-3 text-[11px] text-slate-400">
+          <div class="bg-black/30 p-2.5 rounded-lg border border-slate-800">
+            <span class="block text-slate-500 uppercase text-[9px] mb-0.5">Переменные (VC)</span>
+            <span id="stat-vc" class="text-white font-bold text-sm">-</span>
+          </div>
+          <div class="bg-black/30 p-2.5 rounded-lg border border-slate-800">
+            <span class="block text-slate-500 uppercase text-[9px] mb-0.5">Общие издержки (TC)</span>
+            <span id="stat-tc" class="text-indigo-400 font-bold text-sm font-mono">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Карточка 4: Анализ безубыточности (Новый блок вместо docx) -->
+      <div class="bg-[#14181c] border border-rose-500/20 rounded-xl p-5 shadow-inner">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-xs font-black text-rose-400 tracking-wider uppercase flex items-center gap-2">
+            <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+            Шаг 4. Анализ безубыточности
+          </h3>
+          <!-- Свитч включения анализа -->
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="chk-bep" class="sr-only peer">
+            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:width-4 after:transition-all peer-checked:bg-rose-500 peer-checked:after:bg-white"></div>
+          </label>
+        </div>
+        
+        <!-- Управляющие элементы BEP -->
+        <div id="bep-controls" class="space-y-3 opacity-40 pointer-events-none transition-all duration-300">
+          <div class="flex justify-between items-center">
+            <label class="text-[11px] text-slate-400 font-medium">Рыночная цена товара (P)</label>
+            <span id="price-badge" class="text-xs bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded">80 ₸</span>
+          </div>
+          <div class="py-1">
+            <input type="range" id="price-slider" min="10" max="250" value="80" step="5" class="w-full vintage-slider">
+          </div>
+          <p class="text-[10px] text-slate-500 leading-normal">
+            Выявляет диапазоны окупаемости, где общая выручка фирмы покрывает или превосходит валовые издержки ($TR \ge TC$).
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ: Результаты и Графики (67% ширины) -->
+    <div class="lg:col-span-8 flex flex-col gap-4">
+      
+      <!-- Блок аналитики средних, предельных и точки безубыточности (bep) -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        
+        <!-- Средние постоянные (AFC) -->
+        <div class="bg-[#14181c] border-l-4 border-slate-500 p-4 rounded-r-xl">
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Средние постоянные (AFC)</span>
+          <div id="val-afc" class="text-xs md:text-sm font-mono font-bold text-slate-200 mt-1">-</div>
+          <span class="text-[9px] text-slate-500 block mt-1">Постоянная нагрузка снижается при росте Q</span>
+        </div>
+
+        <!-- Средние общие (ATC) -->
+        <div class="bg-[#14181c] border-l-4 border-emerald-500 p-4 rounded-r-xl">
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Себестоимость (ATC)</span>
+          <div id="val-atc" class="text-xs md:text-sm font-mono font-bold text-emerald-400 mt-1">-</div>
+          <span class="text-[9px] text-slate-500 block mt-1">Min ATC: <span id="val-atc-min" class="font-bold text-slate-300">-</span></span>
+        </div>
+
+        <!-- Предельные издержки (MC) -->
+        <div class="bg-[#14181c] border-l-4 border-rose-500 p-4 rounded-r-xl">
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Предельные издержки (MC)</span>
+          <div id="val-mc" class="text-xs md:text-sm font-mono font-bold text-rose-400 mt-1">-</div>
+          <span class="text-[9px] text-slate-500 block mt-1">Затраты на производство след. единицы</span>
+        </div>
+
+        <!-- Точка безубыточности (BEP) (Добавленный аналитический блок) -->
+        <div class="bg-[#14181c] border-l-4 border-indigo-400 p-4 rounded-r-xl">
+          <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Безубыточность (BEP)</span>
+          <div id="val-bep" class="text-xs md:text-sm font-mono font-bold text-slate-500 mt-1">Выключена</div>
+          <span id="val-bep-desc" class="text-[9px] text-slate-500 block mt-1">Включите анализ слева</span>
+        </div>
+
+      </div>
+
+      <!-- Графический холст в премиальном темном стиле -->
+      <div class="bg-[#14181c] border border-slate-800 shadow-xl rounded-xl p-4 relative overflow-hidden">
+        
+        <!-- Легенда графиков -->
+        <div class="flex flex-wrap gap-4 text-[10px] font-extrabold mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span>
+            <span class="text-slate-300">ATC (Средние общие)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 bg-indigo-400 rounded-full inline-block"></span>
+            <span class="text-slate-300">AVC (Средние переменные)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 bg-slate-500 rounded-full inline-block"></span>
+            <span class="text-slate-300">AFC (Средние постоянные)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 bg-rose-500 rounded-full inline-block"></span>
+            <span class="text-slate-300">MC (Предельные)</span>
+          </div>
+          <div class="flex items-center gap-1.5" id="legend-price-container" style="display:none;">
+            <span class="w-3.5 h-0.5 bg-pink-400 inline-block border-t border-dashed"></span>
+            <span class="text-slate-300">Рыночная цена (P)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded bg-amber-400 inline-block border border-white"></span>
+            <span class="text-slate-300">Технологический оптимум (Min ATC)</span>
+          </div>
+        </div>
+        
+        <!-- Полностью адаптивный HTML5 холст -->
+        <div class="w-full">
+          <canvas id="costCanvas" class="w-full h-auto block cursor-crosshair"></canvas>
+        </div>
+        <div class="text-[9px] text-slate-500 text-right mt-1">
+          *Вы можете перемещать ползунок объема выпуска (Q) зажатием курсора или пальца прямо на поле графика!
+        </div>
+      </div>
+
+      <!-- Панель динамического стратегического вердикта -->
+      <div id="verdict-panel" class="bg-[#14181c] border-l-4 border-indigo-500 rounded-r-xl p-4 transition-all duration-300">
+        <h4 id="verdict-title" class="text-xs font-black tracking-wider uppercase mb-1 text-indigo-400">Анализ уровня загрузки мощностей</h4>
+        <p id="verdict-text" class="text-slate-300 text-xs leading-relaxed">
+          Проверка параметров издержек и калькуляция стратегических зон...
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Подвал -->
+  <div class="text-center text-[10px] text-slate-600 border-t border-slate-800/60 mt-5 pt-3">
+    Интерактивный симулятор-анализатор для выполнения проектов MBA по издержкам | Высшая Школа Бизнеса © 2026
+  </div>
+
+</div>
+
+<script>
+  // Захват элементов ввода данных
+  const inpFc = document.getElementById('volume-slider-fc'); // Новый винтажный слайдер FC
+  const fcBadge = document.getElementById('fc-badge');
+  const inpVca = document.getElementById('inp-vca');
+  const inpVcb = document.getElementById('inp-vcb');
+  const inpVcc = document.getElementById('inp-vcc');
+
+  // Управление BEP
+  const chkBep = document.getElementById('chk-bep');
+  const bepControls = document.getElementById('bep-controls');
+  const priceSlider = document.getElementById('price-slider');
+  const priceBadge = document.getElementById('price-badge');
+  const legendPriceContainer = document.getElementById('legend-price-container');
+
+  // Управление Q
+  const volumeSlider = document.getElementById('volume-slider');
+  const volumeBadge = document.getElementById('volume-badge');
+
+  // Результаты текстом
+  const statVc = document.getElementById('stat-vc');
+  const statTc = document.getElementById('stat-tc');
+  const valAfc = document.getElementById('val-afc');
+  const valAtc = document.getElementById('val-atc');
+  const valMc = document.getElementById('val-mc');
+  const valAtcMin = document.getElementById('val-atc-min');
+  const valBep = document.getElementById('val-bep');
+  const valBepDesc = document.getElementById('val-bep-desc');
+
+  // Панель вердикта
+  const verdictPanel = document.getElementById('verdict-panel');
+  const verdictTitle = document.getElementById('verdict-title');
+  const verdictText = document.getElementById('verdict-text');
+
+  // Настройка канваса
+  const canvas = document.getElementById('costCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Отступы увеличены для поддержки крупных числовых шкал на оси Y
+  const pad = { top: 25, right: 40, bottom: 45, left: 80 };
+  
+  let isDraggingQ = false;
+
+  // Форматирование валюты
+  function formatValue(val, suffix = ' ₸') {
+    return new Intl.NumberFormat('ru-RU').format(Math.round(val)) + suffix;
+  }
+
+  // Расчет издержек на основе кубической функции: TC = FC + a·Q - b·Q² + c·Q³
+  function getCosts(Q, model) {
+    if (Q <= 0) {
+      return { fc: model.fc, vc: 0, tc: model.fc, afc: Infinity, avc: 0, atc: Infinity, mc: model.vca };
+    }
+    const fc = model.fc;
+    const vc = model.vca * Q - model.vcb * Q * Q + model.vcc * Q * Q * Q;
+    const tc = fc + vc;
+    const afc = fc / Q;
+    const avc = vc / Q;
+    const atc = tc / Q;
+    // Производная: MC = a - 2·b·Q + 3·c·Q²
+    const mc = model.vca - 2 * model.vcb * Q + 3 * model.vcc * Q * Q;
+    
+    return { fc, vc, tc, afc, avc, atc, mc };
+  }
+
+  // Поиск минимумов ATC и AVC численными методами для вывода точных точек на графике
+  function findMinima(model) {
+    let minATC = Infinity;
+    let qAtcMin = 1;
+    let minAVC = Infinity;
+    let qAvcMin = 1;
+
+    // Сетка поиска от 1 до 100 с шагом 0.1
+    for (let q = 1; q <= 100; q += 0.1) {
+      const costs = getCosts(q, model);
+      if (costs.atc < minATC) {
+        minATC = costs.atc;
+        qAtcMin = q;
+      }
+      if (costs.avc < minAVC) {
+        minAVC = costs.avc;
+        qAvcMin = q;
+      }
+    }
+    return { qAtcMin, minATC, qAvcMin, minAVC };
+  }
+
+  // Чтение и валидация модели издержек
+  function calculateModel() {
+    const fc = parseFloat(inpFc.value) || 0;
+    const vca = parseFloat(inpVca.value) || 0;
+    const vcb = parseFloat(inpVcb.value) || 0;
+    const vcc = parseFloat(inpVcc.value) || 0.001;
+
+    if (fc < 0 || vca <= 0 || vcb < 0 || vcc <= 0) {
+      return { error: "Ошибка: Введите корректные положительные параметры технологии производства." };
+    }
+
+    return { fc, vca, vcb, vcc };
+  }
+
+  // Адаптивное масштабирование Canvas
+  function resizeCanvas() {
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth;
+    canvas.height = Math.max(280, container.clientWidth * 0.45);
+    update();
+  }
+
+  // Получение значения объема Q из координаты X на графике
+  function getQFromX(mouseX, gW) {
+    let relativeX = (mouseX - pad.left) / gW;
+    let q = relativeX * 100; // Шкала Q до 100
+    return Math.max(1, Math.min(100, Math.round(q)));
+  }
+
+  // Функция точной отрисовки букв с подстрочными индексами (Word-стиль) без underscores и $
+  function drawLabel(baseText, subText, valueText, x, y, color = '#94a3b8', font = '10px Inter', subFont = '8px Inter') {
+    ctx.fillStyle = color;
+    ctx.font = font;
+    ctx.fillText(baseText, x, y);
+    let currentX = x + ctx.measureText(baseText).width;
+    
+    if (subText) {
+      ctx.font = subFont;
+      ctx.fillText(subText, currentX, y + 3);
+      currentX += ctx.measureText(subText).width;
+    }
+    
+    if (valueText) {
+      ctx.font = font;
+      ctx.fillText(valueText, currentX, y);
+    }
+  }
+
+  // Обновление дашборда
+  function update() {
+    const model = calculateModel();
+
+    if (model.error) {
+      verdictPanel.style.borderLeftColor = "#f43f5e";
+      verdictTitle.innerText = "Ошибка ввода параметров";
+      verdictTitle.style.color = "#f43f5e";
+      verdictText.innerHTML = `<span class="text-rose-400 font-bold">${model.error}</span>`;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    const Q = parseInt(volumeSlider.value);
+    volumeBadge.innerText = Q + " шт";
+
+    // Обновляем бейдж для постоянных издержек FC
+    fcBadge.innerText = formatValue(model.fc);
+
+    // Вычисление всех видов издержек на текущем объеме Q
+    const costs = getCosts(Q, model);
+    const minima = findMinima(model);
+
+    // Вывод базовых показателей
+    statVc.innerText = formatValue(costs.vc);
+    statTc.innerText = formatValue(costs.tc);
+    valAfc.innerText = formatValue(costs.afc);
+    valAtc.innerText = formatValue(costs.atc);
+    valMc.innerText = formatValue(costs.mc);
+    valAtcMin.innerHTML = `Q = ${Math.round(minima.qAtcMin)} шт (при ` + formatValue(minima.minATC) + ")";
+
+    // Калькуляция и логика анализа безубыточности (BEP)
+    let bepText = "Выключен";
+    let bepPoints = []; // Точки пересечения цены и кривой ATC
+    
+    if (chkBep.checked) {
+      bepControls.classList.remove('opacity-40', 'pointer-events-none');
+      legendPriceContainer.style.display = 'flex';
+      
+      const P = parseFloat(priceSlider.value);
+      priceBadge.innerText = P + " ₸";
+      
+      // Поиск диапазонов безубыточности методом сканирования Q от 1 до 100
+      let profitZoneStart = null;
+      let profitZoneEnd = null;
+      
+      for (let q = 1; q <= 100; q += 0.1) {
+        const c = getCosts(q, model);
+        if (P >= c.atc) {
+          if (profitZoneStart === null) profitZoneStart = q;
+          profitZoneEnd = q;
+        }
+      }
+      
+      if (profitZoneStart !== null) {
+        bepText = `${Math.round(profitZoneStart)} - ${Math.round(profitZoneEnd)} шт`;
+        bepPoints = [profitZoneStart, profitZoneEnd];
+        valBep.innerText = bepText;
+        valBep.className = "text-xs md:text-sm font-mono font-bold text-indigo-400 mt-1";
+        valBepDesc.innerText = `При цене P = ${P} ₸`;
+      } else {
+        bepText = "Нет (Всегда убыток)";
+        valBep.innerText = bepText;
+        valBep.className = "text-xs md:text-sm font-mono font-bold text-rose-400 mt-1";
+        valBepDesc.innerText = `Цена P ниже min ATC (${Math.round(minima.minATC)} ₸)`;
+      }
+    } else {
+      bepControls.classList.add('opacity-40', 'pointer-events-none');
+      legendPriceContainer.style.display = 'none';
+      valBep.innerText = "Выключена";
+      valBep.className = "text-xs md:text-sm font-mono font-bold text-slate-500 mt-1";
+      valBepDesc.innerText = "Включите анализ слева";
+    }
+
+    // Выработка стратегического управленческого вердикта
+    // Минимальный порог закрытия фирмы (Shutdown Point) наступает при Q < Min AVC
+    if (Q < minima.qAvcMin) {
+      verdictPanel.style.borderLeftColor = "#f43f5e"; // Красный
+      verdictTitle.innerHTML = "КРИТИЧЕСКАЯ ЗОНА: ЗАПУСК ПРЕДПРИЯТИЯ НЕОПТИМАЛЕН";
+      verdictTitle.style.color = "#f43f5e";
+      verdictText.innerHTML = `Объем производства <strong>${Q} шт</strong> находится ниже технологической точки закрытия (Shutdown Point), которая наступает при <strong>${Math.round(minima.qAvcMin)} шт</strong>. Средние переменные затраты AVC слишком велики. <br><strong>Управленческое решение:</strong> При текущем спросе предприятию выгоднее временно законсервировать мощности, минимизировав потери на уровне постоянных затрат (FC = ${formatValue(model.fc)}).`;
+    } 
+    // Зона минимизации убытков (Short-run Loss Minimization): Min AVC <= Q < Min ATC
+    else if (Q >= minima.qAvcMin && Q < minima.qAtcMin) {
+      verdictPanel.style.borderLeftColor = "#f59e0b"; // Янтарный
+      verdictTitle.innerHTML = "КРАТКОСРОЧНАЯ УБЫТОЧНОСТЬ (МИНИМИЗАЦИЯ ПОТЕРЬ)";
+      verdictTitle.style.color = "#f59e0b";
+      verdictText.innerHTML = `Выпускаемая партия покрывает переменные затраты, но не позволяет полностью окупить постоянные расходы. <br><strong>Управленческое решение:</strong> В краткосрочном периоде фирме выгодно оставаться на рынке, так как операционная прибыль компенсирует часть постоянных затрат (FC). В долгосрочном периоде требуется либо увеличить продажи до <strong>${Math.round(minima.qAtcMin)} шт</strong> (к точке Min ATC), либо оптимизировать технологию.`;
+    } 
+    // Зона прибыли и роста: Q >= Min ATC
+    else {
+      verdictPanel.style.borderLeftColor = "#10b981"; // Изумрудный
+      verdictTitle.innerHTML = "ЗОНА ТЕХНОЛОГИЧЕСКОЙ ЭФФЕКТИВНОСТИ И ПРИБЫЛИ";
+      verdictTitle.style.color = "#10b981";
+      verdictText.innerHTML = `Ваш масштаб выпуска <strong>${Q} шт</strong> превышает точку безубыточности (Min ATC = ${Math.round(minima.qAtcMin)} шт). <br><strong>Управленческое решение:</strong> Вы работаете с положительной экономической прибылью в зоне оптимальной окупаемости. Однако следите за ростом предельных издержек MC (сейчас ${formatValue(costs.mc)}). Если MC поднимутся выше рыночной цены продажи продукта, дальнейшее расширение производства станет убыточным.`;
+    }
+
+    // Отрисовка графиков
+    drawGraphics(Q, costs, minima, model, bepPoints);
+  }
+
+  // Отрисовка графических кривых на холсте HTML5 Canvas
+  function drawGraphics(Q, currentCosts, minima, model, bepPoints) {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const gW = w - pad.left - pad.right;
+    const gH = h - pad.top - pad.bottom;
+
+    // Автоматическое шкалирование оси Y на основе пиковых издержек и цены (если включен анализ)
+    const maxCosts = getCosts(100, model);
+    const P = chkBep.checked ? parseFloat(priceSlider.value) : 0;
+    const maxValP = Math.max(maxCosts.mc, currentCosts.atc * 1.5, minima.minATC * 1.8, P * 1.25) * 1.05;
+    const maxValQ = 100; // Q до 100
+
+    // Функции преобразования в пиксели
+    const getX = (q) => pad.left + (q / maxValQ) * gW;
+    const getY = (p) => pad.top + (1 - p / maxValP) * gH;
+
+    // 1. Координатная сетка
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 0.5;
+    for (let i = 1; i <= 5; i++) {
+      let q_grid = (maxValQ / 5) * i;
+      ctx.beginPath(); 
+      ctx.moveTo(getX(q_grid), pad.top); 
+      ctx.lineTo(getX(q_grid), h - pad.bottom); 
+      ctx.stroke();
+      
+      let p_grid = (maxValP / 5) * i;
+      ctx.beginPath(); 
+      ctx.moveTo(pad.left, getY(p_grid)); 
+      ctx.lineTo(w - pad.right, getY(p_grid)); 
+      ctx.stroke();
+    }
+
+    // 2. Оси
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top - 10);
+    ctx.lineTo(pad.left, h - pad.bottom);
+    ctx.lineTo(w - pad.right + 10, h - pad.bottom);
+    ctx.stroke();
+
+    // 3. Построение кривых (рендерим попиксельно от Q = 1 до 100)
+    ctx.lineWidth = 3;
+    
+    // А. Средние постоянные издержки (AFC) - Серая линия
+    ctx.strokeStyle = '#64748b';
+    ctx.beginPath();
+    for (let q = 2; q <= 100; q++) {
+      const c = getCosts(q, model);
+      if (getY(c.afc) > pad.top && getY(c.afc) < h - pad.bottom) {
+        if (q === 2) ctx.moveTo(getX(q), getY(c.afc));
+        else ctx.lineTo(getX(q), getY(c.afc));
+      }
+    }
+    ctx.stroke();
+
+    // Б. Средние переменные издержки (AVC) - Индиго-синяя линия
+    ctx.strokeStyle = '#818cf8';
+    ctx.beginPath();
+    for (let q = 1; q <= 100; q++) {
+      const c = getCosts(q, model);
+      if (getY(c.avc) > pad.top && getY(c.avc) < h - pad.bottom) {
+        if (q === 1) ctx.moveTo(getX(q), getY(c.avc));
+        else ctx.lineTo(getX(q), getY(c.avc));
+      }
+    }
+    ctx.stroke();
+
+    // В. Средние общие издержки (ATC) - Изумрудная линия
+    ctx.strokeStyle = '#10b981';
+    ctx.beginPath();
+    for (let q = 2; q <= 100; q++) {
+      const c = getCosts(q, model);
+      if (getY(c.atc) > pad.top && getY(c.atc) < h - pad.bottom) {
+        if (q === 2) ctx.moveTo(getX(q), getY(c.atc));
+        else ctx.lineTo(getX(q), getY(c.atc));
+      }
+    }
+    ctx.stroke();
+
+    // Г. Предельные издержки (MC) - Алая линия
+    ctx.strokeStyle = '#f43f5e';
+    ctx.beginPath();
+    for (let q = 1; q <= 100; q++) {
+      const c = getCosts(q, model);
+      if (getY(c.mc) > pad.top && getY(c.mc) < h - pad.bottom) {
+        if (q === 1) ctx.moveTo(getX(q), getY(c.mc));
+        else ctx.lineTo(getX(q), getY(c.mc));
+      }
+    }
+    ctx.stroke();
+
+    // 4. Отрисовка Линии рыночной цены P (если включена)
+    if (chkBep.checked) {
+      ctx.strokeStyle = '#f472b6'; // Розовая линия
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, getY(P));
+      ctx.lineTo(w - pad.right, getY(P));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Подпись линии цены
+      ctx.fillStyle = '#f472b6';
+      ctx.font = 'bold 9px Inter';
+      ctx.fillText(`Цена P = ${P} ₸`, w - pad.right - 80, getY(P) - 6);
+
+      // Отрисовка перекрестков безубыточности BEP
+      if (bepPoints.length > 0) {
+        ctx.fillStyle = '#f472b6';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+
+        // BEP1 (Вход в окупаемость)
+        ctx.beginPath();
+        ctx.arc(getX(bepPoints[0]), getY(P), 6, 0, 2 * Math.PI);
+        ctx.fill(); ctx.stroke();
+        ctx.fillText(`BEP1 (${Math.round(bepPoints[0])} шт)`, getX(bepPoints[0]) - 25, getY(P) - 10);
+
+        // BEP2 (Выход из окупаемости из-за перегрузки)
+        ctx.beginPath();
+        ctx.arc(getX(bepPoints[1]), getY(P), 6, 0, 2 * Math.PI);
+        ctx.fill(); ctx.stroke();
+        ctx.fillText(`BEP2 (${Math.round(bepPoints[1])} шт)`, getX(bepPoints[1]) - 25, getY(P) - 10);
+      }
+    }
+
+    // 5. Трассировка текущего объема выпуска Q (Пунктирная вертикальная линия)
+    ctx.strokeStyle = isDraggingQ ? '#818cf8' : '#e2e8f0';
+    ctx.lineWidth = isDraggingQ ? 1.8 : 1.2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(getX(Q), pad.top);
+    ctx.lineTo(getX(Q), h - pad.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Горизонтальные линии проекции текущих ATC, AVC и MC на ось Y
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 0.7;
+    ctx.setLineDash([2, 2]);
+    
+    if (getY(currentCosts.atc) < h - pad.bottom) {
+      ctx.beginPath(); ctx.moveTo(pad.left, getY(currentCosts.atc)); ctx.lineTo(getX(Q), getY(currentCosts.atc)); ctx.stroke();
+    }
+    if (getY(currentCosts.mc) < h - pad.bottom) {
+      ctx.beginPath(); ctx.moveTo(pad.left, getY(currentCosts.mc)); ctx.lineTo(getX(Q), getY(currentCosts.mc)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // 6. Точки-маркеры пересечений на текущем Q
+    // Точка текущего ATC
+    ctx.fillStyle = '#10b981';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(getX(Q), getY(currentCosts.atc), 5.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+
+    // Точка текущего MC
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath(); ctx.arc(getX(Q), getY(currentCosts.mc), 5.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+
+    // Золотые маркеры - Минимумы ATC и AVC (Где MC пересекает их)
+    ctx.fillStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    // Минимум ATC
+    ctx.beginPath(); ctx.arc(getX(minima.qAtcMin), getY(minima.minATC), 6.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    // Минимум AVC
+    ctx.beginPath(); ctx.arc(getX(minima.qAvcMin), getY(minima.minAVC), 6.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+
+    // 7. Подписи и разметка в Word-стиле
+    drawLabel('Затраты ', '(₸)', pad.left - 70, pad.top - 12, '#cbd5e1', 'bold 10px Inter');
+    drawLabel('Выпуск ', '(Q, шт)', w - pad.right - 80, h - pad.bottom + 30, '#cbd5e1', 'bold 10px Inter');
+
+    // Подписи значений на осях
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '9px monospace';
+    
+    ctx.fillText('Min ATC (' + Math.round(minima.minATC) + ')', pad.left - 75, getY(minima.minATC) + 3);
+    ctx.fillText('Min AVC (' + Math.round(minima.minAVC) + ')', pad.left - 75, getY(minima.minAVC) + 3);
+
+    ctx.fillText('Q = ' + Q, getX(Q) - 15, h - pad.bottom + 15);
+    ctx.fillText('Q_atc = ' + Math.round(minima.qAtcMin), getX(minima.qAtcMin) - 20, h - pad.bottom + 25);
+
+    // Подписи кривых
+    drawLabel('ATC', '', '', getX(92), getY(getCosts(92, model).atc) - 8, '#10b981', 'bold 10px Inter');
+    drawLabel('AVC', '', '', getX(92), getY(getCosts(92, model).avc) + 14, '#818cf8', 'bold 10px Inter');
+    drawLabel('MC', '', '', getX(80), getY(getCosts(80, model).mc) - 8, '#f43f5e', 'bold 10px Inter');
+
+    // Обозначение минимумов
+    drawLabel('Optimum', '', '', getX(minima.qAtcMin) + 8, getY(minima.minATC) - 5, '#f59e0b', 'bold 9px Inter');
+    drawLabel('Shutdown', '', '', getX(minima.qAvcMin) + 8, getY(minima.minAVC) - 5, '#f59e0b', 'bold 9px Inter');
+
+    // Сохраняем физические параметры для драг-н-дропа
+    window.lastMaxValQ = maxValQ;
+    window.lastGW = gW;
+  }
+
+  // 8. Обработка Drag-and-Drop объема Q прямо по координатной плоскости Canvas
+  function getMousePos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    return {
+      x: (clientX - rect.left) * (canvas.width / rect.width),
+      y: (clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+
+  canvas.addEventListener('mousedown', function(e) {
+    const pos = getMousePos(e);
+    if (pos.x >= pad.left && pos.x <= canvas.width - pad.right) {
+      isDraggingQ = true;
+      const calculatedQ = getQFromX(pos.x, window.lastGW);
+      volumeSlider.value = calculatedQ;
+      update();
+    }
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isDraggingQ) return;
+    const pos = getMousePos(e);
+    const calculatedQ = getQFromX(pos.x, window.lastGW);
+    volumeSlider.value = calculatedQ;
+    update();
+  });
+
+  window.addEventListener('mouseup', function() {
+    isDraggingQ = false;
+    update();
+  });
+
+  // Сенсорное управление для планшетов (iPad / Android)
+  canvas.addEventListener('touchstart', function(e) {
+    const pos = getMousePos(e);
+    if (pos.x >= pad.left && pos.x <= canvas.width - pad.right) {
+      isDraggingQ = true;
+    }
+  });
+
+  canvas.addEventListener('touchmove', function(e) {
+    if (!isDraggingQ) return;
+    e.preventDefault(); // Запрещаем скролл страницы во время игры с кривыми
+    const pos = getMousePos(e);
+    const calculatedQ = getQFromX(pos.x, window.lastGW);
+    volumeSlider.value = calculatedQ;
+    update();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function() {
+    isDraggingQ = false;
+    update();
+  });
+
+  // Привязка слушателей
+  [inpFc, inpVca, inpVcb, inpVcc, volumeSlider, priceSlider].forEach(el => {
+    el.addEventListener('input', update);
+  });
+  chkBep.addEventListener('change', update);
+
+  // Первичный запуск
+  window.addEventListener('load', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas);
+</script>
+
+</body>
+</html>
