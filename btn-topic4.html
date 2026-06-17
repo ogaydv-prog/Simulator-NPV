@@ -1,71 +1,62 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кнопка темы: Производственные издержки</title>
-  <style>
-    /* Полное обнуление отступов и скрытие полос прокрутки */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Ссылка-контейнер */
-    .topic-button-link {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Стили изображения-кнопки */
-    .topic-button-img {
-      /* Уменьшение базового размера на 5% для соответствия остальным кнопкам */
-      width: 95%; 
-      height: auto;
-      display: block;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      
-      /* Плавность перехода для эффекта "оживания" */
-      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-
-    /* Оживление и подсветка при наведении */
-    .topic-button-link:hover .topic-button-img {
-      /* Эффект увеличения и небольшого подъема */
-      transform: translateY(-5px) scale(1.03); 
-      /* Фирменная индиго-подсветка */
-      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.45), 0 4px 10px rgba(0, 0, 0, 0.3);
-      filter: brightness(1.1);
-    }
-
-    /* Эффект при нажатии */
-    .topic-button-link:active .topic-button-img {
-      transform: translateY(-1px) scale(0.98);
-      box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* Полный сброс отступов и скроллбаров для идеальной посадки на Google Сайте */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  /* Наша фирменная пружинящая кнопка */
+  .main-tile-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    width: 100%;
+    max-width: 250px; /* Идеальный размер плитки, совпадающий со всеми остальными */
+    height: auto;
+  }
+  
+  /* Эффект плавного увеличения и мягкого голубого свечения эластичности при наведении */
+  .main-tile-btn:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.65));
+  }
+  
+  /* Эффект физического клика */
+  .main-tile-btn:active {
+    transform: scale(0.98);
+  }
+  
+  .tile-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+</style>
 </head>
 <body>
 
-  <a href="sim-production-costs-bep.html" class="topic-button-link">
-    <img src="pic-topic4.png" alt="Производственные издержки" class="topic-button-img">
+  <!-- При нажатии на кнопку открывается страница Производственных издержек в новом окне -->
+  <a href="https://sites.google.com/view/managerial-economics-mba/%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8F/%D0%BF%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D1%8B%D0%B5-%D0%B8%D0%B7%D0%B4%D0%B5%D1%80%D0%B6%D0%BA%D0%B8" target="_blank" class="main-tile-btn">
+    <!-- Используется прямое абсолютное изображение с GitHub -->
+    <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-topic4.png" class="tile-img" alt="Перейти к теме: Производственные издержки" draggable="false" onerror="this.src='https://placehold.co/250x250/0f172a/38bdf8?text=Издержки+производства'">
   </a>
 
 </body>
-</html>
 </html>
