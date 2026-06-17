@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кнопка-симулятор: Производственные издержки</title>
+  <style>
+    /* Полное обнуление отступов и скрытие прокрутки */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent; /* Делает фон прозрачным для идеальной встройки */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Контейнер-ссылка подстраивается строго под размер картинки */
+    .image-button-link {
+      display: inline-block;
+      text-decoration: none;
+      border: none;
+      outline: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Стили самой картинки-кнопки */
+    .image-button-img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border: none;
+      border-radius: 12px; /* Мягкое скругление углов (можно убрать, если картинка строго прямоугольная) */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      
+      /* Плавность анимации возврата в исходное состояние */
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* Эффект при наведении (Ховер) */
+    .image-button-link:hover .image-button-img {
+      transform: translateY(-5px) scale(1.03); /* Картинка приподнимается и слегка увеличивается */
+      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3); /* Плотная неоновая indigo-подсветка */
+      filter: brightness(1.1); /* Легкое подсвечивание самой картинки */
+    }
+
+    /* Эффект при клике (Активное состояние) */
+    .image-button-link:active .image-button-img {
+      transform: translateY(-1px) scale(0.99); /* Кнопка слегка прожимается внутрь */
+      box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <a href="https://ogaydv-prog.github.io/Simulator-NPV/sim-production-costs-bep.html" target="_blank" class="image-button-link">
+    <img src="pic-sim-prod-costs4.png" alt="Запуск симулятора производственных издержек" class="image-button-img">
+  </a>
+
+</body>
+</html>
