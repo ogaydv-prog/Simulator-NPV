@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Полностью убираем любые отступы и скроллбары по умолчанию, чтобы размер соответствовал картинке */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+        }
+        
+        /* Стилизация кнопки-картинки */
+        .btn-img {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+        }
+
+        /* Эффект при наведении — кнопка оживает, слегка приподнимается и подсвечивается */
+        .btn-img:hover {
+            transform: scale(1.04) translateY(-4px);
+            filter: brightness(1.12) 
+                    drop-shadow(0 12px 20px rgba(30, 64, 175, 0.45)) 
+                    drop-shadow(0 0 15px rgba(218, 192, 163, 0.35));
+        }
+
+        /* Эффект при нажатии — кнопка упруго вдавливается */
+        .btn-img:active {
+            transform: scale(0.97) translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ссылка на лекцию в новом окне -->
+    <a href="https://docs.google.com/document/d/1MByKya4C1VS46OI0EH5Xh9s9n8hLWD7O/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" target="_blank" class="inline-block select-none">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-lecture4.png" 
+             alt="Лекция 4 — Производственные издержки" 
+             class="btn-img"
+             draggable="false">
+    </a>
+
+</body>
+</html>
