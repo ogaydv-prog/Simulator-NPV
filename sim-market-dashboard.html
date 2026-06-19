@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализ Совершенной Конкуренции | МВА В26-МД</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b1121; color: #f8fafc; }
+        
+        .glass-panel { background: #111827; border: 1px solid #1f2937; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        /* Винтажные слайдеры */
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: #1e293b; height: 10px; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 30px; background: #e2e8f0; border-radius: 4px; cursor: pointer; border: 2px solid #000; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        
+        .chart-bg { background: #ffffff; border-radius: 12px; }
+    </style>
+</head>
+<body class="p-6">
+
+<div class="max-w-7xl mx-auto space-y-6">
+    <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div>
+            <h1 class="text-2xl font-black text-white">Совершенная конкуренция</h1>
+            <p class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest mt-1">Управленческая экономика • Группа МВА В26-МД</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="setScenario(131)" class="px-4 py-2 bg-emerald-600 rounded text-[10px] font-bold text-white hover:opacity-80 transition">P = $131 (Рост)</button>
+            <button onclick="setScenario(81)" class="px-4 py-2 bg-amber-600 rounded text-[10px] font-bold text-white hover:opacity-80 transition">P = $81 (Спад)</button>
+            <button onclick="setScenario(71)" class="px-4 py-2 bg-rose-600 rounded text-[10px] font-bold text-white hover:opacity-80 transition">P = $71 (Кризис)</button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- ЛЕВАЯ ПАНЕЛЬ: Управление -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass-panel p-6 rounded-xl">
+                <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block">Объем продукции (Q)</label>
+                <input type="range" id="slider-q" min="0" max="10" value="5" step="1" class="vintage-slider">
+                <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
+                    <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span>
+                </div>
+                <div class="text-center mt-4">
+                    <span id="val-q" class="text-4xl font-black text-white">5 ед.</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-4 rounded-xl border-l-4 border-blue-500">
+                    <span class="text-[8px] uppercase font-black text-slate-500">Выручка (TR)</span>
+                    <div id="val-tr" class="text-lg font-mono font-bold text-white">$0</div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border-l-4 border-rose-500">
+                    <span class="text-[8px] uppercase font-black text-slate-500">Издержки (TC)</span>
+                    <div id="val-tc" class="text-lg font-mono font-bold text-white">$0</div>
+                </div>
+            </div>
+
+            <div id="profit-panel" class="glass-panel p-6 rounded-xl border border-slate-700">
+                <span class="text-[8px] uppercase font-black text-slate-500">Экономическая прибыль</span>
+                <div id="val-profit" class="text-3xl font-black font-mono text-white">$0</div>
+                <p id="val-verdict" class="text-[11px] text-slate-400 mt-4 leading-relaxed"></p>
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ: Графики -->
+        <div class="lg:col-span-8 space-y-6">
+            <div class="chart-bg p-4 h-[300px]">
+                <canvas id="trTcChart"></canvas>
+            </div>
+            <div class="chart-bg p-4 h-[300px]">
+                <canvas id="mrMcChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center text-[10px] text-slate-600 uppercase tracking-widest pt-8 border-t border-slate-800">
+        Практическое задание по управленческой экономике
+    </footer>
+</div>
+
+<script>
+    const tableData = [
+        { q: 0, tvc: 0, tc: 100, mc: null, avc: null, atc: null },
+        { q: 1, tvc: 90, tc: 190, mc: 90, avc: 90.00, atc: 190.00 },
+        { q: 2, tvc: 170, tc: 270, mc: 80, avc: 85.00, atc: 135.00 },
+        { q: 3, tvc: 240, tc: 340, mc: 70, avc: 80.00, atc: 113.33 },
+        { q: 4, tvc: 300, tc: 400, mc: 60, avc: 75.00, atc: 100.00 },
+        { q: 5, tvc: 370, tc: 470, mc: 70, avc: 74.00, atc: 94.00 },
+        { q: 6, tvc: 450, tc: 550, mc: 80, avc: 75.00, atc: 91.67 },
+        { q: 7, tvc: 540, tc: 640, mc: 90, avc: 77.14, atc: 91.43 },
+        { q: 8, tvc: 650, tc: 750, mc: 110, avc: 81.25, atc: 93.75 },
+        { q: 9, tvc: 780, tc: 880, mc: 130, avc: 86.67, atc: 97.78 },
+        { q: 10, tvc: 930, tc: 1030, mc: 150, avc: 93.00, atc: 103.00 }
+    ];
+
+    let currentPrice = 131;
+    let trTcChart, mrMcChart;
+
+    function initCharts() {
+        const config = (title, datasets) => ({
+            type: 'line',
+            data: { labels: tableData.map(d => d.q), datasets },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: title } } }
+        });
+
+        trTcChart = new Chart(document.getElementById('trTcChart'), config('Анализ TR vs TC', [
+            { label: 'TR', data: [], borderColor: '#3b82f6', fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' },
+            { label: 'TC', data: tableData.map(d => d.tc), borderColor: '#f43f5e' }
+        ]));
+
+        mrMcChart = new Chart(document.getElementById('mrMcChart'), config('Анализ MR vs MC', [
+            { label: 'MR (Price)', data: [], borderColor: '#10b981', borderDash: [5,5] },
+            { label: 'MC', data: tableData.map(d => d.mc), borderColor: '#f59e0b' }
+        ]));
+    }
+
+    function setScenario(p) {
+        currentPrice = p;
+        trTcChart.data.datasets[0].data = tableData.map(d => d.q * p);
+        mrMcChart.data.datasets[0].data = tableData.map(d => p);
+        trTcChart.update(); mrMcChart.update();
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        const q = parseInt(document.getElementById('slider-q').value);
+        const tr = q * currentPrice;
+        const profit = tr - tableData[q].tc;
+        
+        document.getElementById('val-q').innerText = q + " ед.";
+        document.getElementById('val-tr').innerText = "$" + tr;
+        document.getElementById('val-tc').innerText = "$" + tableData[q].tc;
+        document.getElementById('val-profit').innerText = "$" + profit;
+        
+        // Вердикт
+        let text = profit > 0 ? "Прибыль растет! Фирма в оптимальном состоянии." : "Фирма несет убытки. Оптимизируйте выпуск.";
+        document.getElementById('val-verdict').innerText = text;
+    }
+
+    document.getElementById('slider-q').addEventListener('input', updateDashboard);
+    initCharts();
+    setScenario(131);
+</script>
+</body>
+</html>
