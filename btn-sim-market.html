@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { 
-            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; 
-            height: 100vh; background: transparent; overflow: hidden; 
+            margin: 0; padding: 0; overflow: hidden; 
+            display: flex; justify-content: center; align-items: center; 
+            background: transparent;
         }
+        /* Ссылка, которая открывает симулятор в НОВОЙ вкладке */
         .btn-link { 
             display: block; transition: transform 0.3s ease, filter 0.3s ease; 
-            cursor: pointer; line-height: 0;
+            cursor: pointer; line-height: 0; width: 100%;
         }
         .btn-link:hover { 
             transform: scale(1.05); 
             filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); 
         }
-        .btn-link:active { transform: scale(0.98); }
         .btn-img { display: block; width: 100%; height: auto; }
     </style>
 </head>
 <body>
+    <!-- target="_blank" — вот ключ к открытию в новом окне -->
+    <!-- Ссылка указывает СТРОГО на sim-perfect-competition.html -->
     <a href="sim-perfect-competition.html" target="_blank" class="btn-link">
         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-market.png" 
-             alt="Симулятор рынка" class="btn-img"
-             onerror="this.src='https://placehold.co/250x250/2563eb/ffffff?text=Симулятор'">
+             alt="Симулятор совершенной конкуренции" class="btn-img">
     </a>
 </body>
 </html>
