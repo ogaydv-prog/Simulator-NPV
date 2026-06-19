@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кнопка Видео: Типы конкуренции</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            overflow: hidden; /* Убираем любые прокрутки */
+        }
+        /* Анимация «оживания» при наведении */
+        .interactive-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .interactive-btn:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
+        }
+        /* Кастомный скроллбар для списка, если он вдруг понадобится */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-start pt-2">
+
+    <!-- Контейнер кнопки -->
+    <div class="relative inline-block text-center">
+        <button id="main-btn" onclick="toggleMenu()" class="interactive-btn focus:outline-none block cursor-pointer">
+            <!-- Путь к твоей картинке в репозитории -->
+            <img src="pic-video5.png" alt="Видео материалы" class="w-auto h-auto max-w-full block">
+        </button>
+
+        <!-- Выпадающий список ссылок -->
+        <div id="video-menu" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-slate-950/95 border border-blue-500/30 rounded-xl shadow-2xl p-3 z-50 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+            <div class="text-[10px] uppercase font-black text-blue-400 tracking-widest mb-2 text-left px-2 border-b border-slate-800 pb-1">
+                Типы конкуренции: Видео
+            </div>
+            <ul class="space-y-1.5 text-left text-xs custom-scroll max-h-60 overflow-y-auto">
+                <li>
+                    <a href="https://www.youtube.com/watch?v=NySt2EDS1Ik" target="_blank" class="flex items-center gap-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/20 transition-all">
+                        <span class="text-blue-500 font-bold">▶</span> Часть 1: Совершенная конкуренция
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/watch?v=cdkE_TgDMM4" target="_blank" class="flex items-center gap-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/20 transition-all">
+                        <span class="text-blue-500 font-bold">▶</span> Часть 2: Монополистическая
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/watch?v=t9LIn6kKHw0" target="_blank" class="flex items-center gap-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/20 transition-all">
+                        <span class="text-blue-500 font-bold">▶</span> Часть 3: Олигополия (Модели)
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/watch?v=A0lUZ_-ZkI0" target="_blank" class="flex items-center gap-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/20 transition-all">
+                        <span class="text-blue-500 font-bold">▶</span> Часть 4: Чистая монопия
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.youtube.com/watch?v=0QIDLnTfnpY" target="_blank" class="flex items-center gap-2 p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-600/20 border border-transparent hover:border-blue-500/20 transition-all">
+                        <span class="text-blue-500 font-bold">▶</span> Часть 5: Практические кейсы
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('video-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        // Закрытие меню при клике за пределами кнопки
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('video-menu');
+            const btn = document.getElementById('main-btn');
+            if (!btn.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
