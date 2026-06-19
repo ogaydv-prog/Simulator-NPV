@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор: Совершенная конкуренция</title>
+    <style>
+        /* Идеальная центровка: растягиваем на весь фрейм */
+        html, body { 
+            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; 
+            height: 100vh; background: transparent; overflow: hidden; 
+        }
+        
+        /* Пружинящая кнопка с эффектами */
+        .btn-link { 
+            display: block; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
+            cursor: pointer; 
+            line-height: 0; 
+            width: 100%; 
+            height: 100%;
+        }
+        
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.2) drop-shadow(0 0 10px rgba(56, 189, 248, 0.65)); 
+        }
+        
+        .btn-link:active { transform: scale(0.98); }
+        
+        .btn-img { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Картинка всегда вписана и центрирована */
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="sim-perfect-competition-task.html" target="_blank" class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-task5.png" 
+             alt="Симулятор: Совершенная конкуренция" 
+             class="btn-img">
+    </a>
+
+</body>
+</html>
