@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA BI-26 | Market Infrastructure</title>
+    <title>MBA В26-МД | Market Infrastructure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+        body { background-color: #050505; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .tab-btn { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.05); }
+        .tab-btn.active { transform: translateY(-4px) scale(1.02); border: 1px solid currentColor; background: rgba(255,255,255,0.05); box-shadow: 0 10px 25px -5px currentColor; }
+        .tab-content { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Стилизация винтажных ползунков */
+        input[type="range"].vintage-slider { -webkit-appearance: none; width: 100%; background: #151b22; height: 10px; border-radius: 4px; outline: none; border: 1px solid #30363d; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8); }
+        input[type="range"].vintage-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 28px; background: linear-gradient(to right, #8a95a5, #cfd8dc, #ef4444, #cfd8dc, #8a95a5); border-radius: 3px; cursor: pointer; border: 1px solid #000; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.2); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.5); border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-8 custom-scroll">
+
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="mb-8 border-b border-slate-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+            <h1 class="text-3xl md:text-5xl font-black text-white tracking-tight">Рыночная инфраструктура</h1>
+            <p class="text-indigo-400 text-xs md:text-sm font-bold tracking-widest uppercase mt-2">Управленческая экономика • Группа МВА В26-МД</p>
+        </div>
+        <div class="bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl flex items-center gap-3">
+            <i data-lucide="activity" class="text-indigo-400"></i>
+            <span class="text-xs font-semibold text-indigo-300 uppercase tracking-wider">Интерактивный Терминал</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <button onclick="switchTab(this, 'perfect', '#3b82f6')" class="tab-btn active text-blue-400 font-bold p-5 rounded-2xl flex flex-col items-center gap-3 bg-slate-900/50">
+            <i data-lucide="shield-check" class="w-8 h-8"></i> <span class="text-center leading-tight">Совершенная<br>конкуренция</span>
+        </button>
+        <button onclick="switchTab(this, 'mono-comp', '#10b981')" class="tab-btn text-emerald-400 font-bold p-5 rounded-2xl flex flex-col items-center gap-3 bg-slate-900/50">
+            <i data-lucide="sparkles" class="w-8 h-8"></i> <span class="text-center leading-tight">Монополистическая<br>конкуренция</span>
+        </button>
+        <button onclick="switchTab(this, 'oligopoly', '#f59e0b')" class="tab-btn text-amber-400 font-bold p-5 rounded-2xl flex flex-col items-center gap-3 bg-slate-900/50">
+            <i data-lucide="layers" class="w-8 h-8"></i> <span class="text-center leading-tight">Олигополия<br>(Взаимозависимость)</span>
+        </button>
+        <button onclick="switchTab(this, 'monopoly', '#f43f5e')" class="tab-btn text-rose-500 font-bold p-5 rounded-2xl flex flex-col items-center gap-3 bg-slate-900/50">
+            <i data-lucide="crown" class="w-8 h-8"></i> <span class="text-center leading-tight">Чистая<br>монополия</span>
+        </button>
+    </div>
+
+    <div id="content" class="glass rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Tab 1: Совершенная конкуренция -->
+        <div id="perfect" class="tab-content block">
+            
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                <div class="p-2 bg-blue-500/20 rounded-lg"><i data-lucide="trending-up" class="text-blue-400"></i></div>
+                <div>
+                    <h2 class="text-2xl font-black text-white">Модель: Совершенная конкуренция</h2>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">Анализ фирмы-ценополучателя</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                
+                <!-- Левая колонка: Управление симулятором -->
+                <div class="xl:col-span-4 flex flex-col gap-6">
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-700">
+                        <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4"></i> Панель управления
+                        </h3>
+                        
+                        <!-- Рыночная цена P -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-semibold text-slate-300">Рыночная цена (P = MR)</label>
+                                <span id="val-p" class="font-mono font-bold text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded">16 000 ₸</span>
+                            </div>
+                            <input type="range" id="slider-p" min="4000" max="30000" value="16000" step="1000" class="vintage-slider">
+                            <p class="text-[10px] text-slate-500 mt-1">Рынок диктует цену. Фирма не может ее изменить.</p>
+                        </div>
+
+                        <!-- Объем выпуска Q -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="text-xs font-semibold text-slate-300">Ваш выпуск (Q)</label>
+                                <span id="val-q" class="font-mono font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded">6 ед.</span>
+                            </div>
+                            <input type="range" id="slider-q" min="1" max="12" value="6" step="1" class="vintage-slider">
+                            <p class="text-[10px] text-slate-500 mt-1">Поиск оптимального объема производства.</p>
+                        </div>
+                    </div>
+
+                    <!-- Статистика -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[9px] text-slate-500 uppercase font-bold">Выручка (TR)</span>
+                            <span id="stat-tr" class="text-lg font-mono font-black text-white">-</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[9px] text-slate-500 uppercase font-bold">Общие издержки (TC)</span>
+                            <span id="stat-tc" class="text-lg font-mono font-black text-rose-400">-</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[9px] text-slate-500 uppercase font-bold">Предельные (MC)</span>
+                            <span id="stat-mc" class="text-lg font-mono font-black text-orange-400">-</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                            <span class="block text-[9px] text-slate-500 uppercase font-bold">Средние (ATC)</span>
+                            <span id="stat-atc" class="text-lg font-mono font-black text-emerald-400">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Вердикт -->
+                    <div id="verdict-box" class="p-4 rounded-xl border-l-4 bg-slate-900/80 transition-all duration-300">
+                        <h4 id="verdict-title" class="text-xs font-black uppercase tracking-wider mb-2">Вердикт</h4>
+                        <p id="verdict-desc" class="text-xs text-slate-300 leading-relaxed"></p>
+                        <div class="mt-3 pt-3 border-t border-slate-700/50 flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-slate-400">Экономическая прибыль:</span>
+                            <span id="stat-profit" class="text-xl font-black font-mono"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка: График и Теория -->
+                <div class="xl:col-span-8 flex flex-col gap-6">
+                    
+                    <!-- Интерактивный График -->
+                    <div class="bg-[#0b1120] border border-slate-800 rounded-2xl p-5 relative">
+                        <div class="flex flex-wrap gap-4 mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 justify-center">
+                            <span class="text-blue-400 border-b border-blue-400 pb-0.5">--- Цена (P=MR)</span>
+                            <span class="text-emerald-400">● ATC (Средние)</span>
+                            <span class="text-purple-400">● AVC (Переменные)</span>
+                            <span class="text-orange-400">● MC (Предельные)</span>
+                        </div>
+                        <canvas id="perfectCanvas" class="w-full h-[350px]"></canvas>
+                        <p class="text-center text-[10px] text-slate-500 mt-2">Математическая модель: TC = 20 000 + 4000Q + 1000Q²</p>
+                    </div>
+
+                    <!-- НОВЫЙ БЛОК: Интерпретация бизнеса -->
+                    <div class="bg-indigo-900/10 p-5 rounded-2xl border border-indigo-500/20">
+                        <h3 class="text-sm font-bold text-indigo-400 mb-3 flex items-center gap-2">
+                            <i data-lucide="store" class="w-4 h-4"></i> Бизнес-интерпретация модели
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <span class="block text-[10px] text-slate-500 uppercase font-bold mb-1">Что за бизнес?</span>
+                                <p class="text-xs text-slate-300 leading-relaxed">Малый крафтовый цех (например, премиум-кондитерская) с ежедневным циклом производства.</p>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-500 uppercase font-bold mb-1">FC = 20 000 ₸</span>
+                                <p class="text-xs text-slate-300 leading-relaxed">Ежедневная аренда кухни, фиксированный налог и базовые коммунальные платежи.</p>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] text-slate-500 uppercase font-bold mb-1">Сырье + Перегрузка</span>
+                                <p class="text-xs text-slate-300 leading-relaxed">Базовые ингредиенты (4к ₸). Квадрат <strong>Q²</strong> отражает рост брака, тесноту и сверхурочные при спешке.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Теория из документа -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-blue-900/10 p-5 rounded-2xl border border-blue-500/20">
+                            <h3 class="text-sm font-bold text-blue-400 mb-3 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i> Ключевые принципы</h3>
+                            <ul class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                                <li><strong class="text-white">Price Taker:</strong> Фирма не может влиять на рыночную цену. Спрос абсолютно эластичен (горизонтален).</li>
+                                <li><strong class="text-white">Однородность:</strong> Товары неотличимы.</li>
+                                <li><strong class="text-white">Свободный вход:</strong> Отсутствие барьеров нормализует прибыль в долгосрочном периоде до нуля.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-emerald-900/10 p-5 rounded-2xl border border-emerald-500/20">
+                            <h3 class="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Управленческие выводы</h3>
+                            <ul class="text-xs text-slate-300 space-y-2 leading-relaxed">
+                                <li><strong class="text-white">P = MC:</strong> Золотое правило максимизации прибыли. Всегда производите до точки, где предельные издержки равны цене.</li>
+                                <li><strong class="text-white">Shutdown Point:</strong> Если цена падает ниже минимума AVC, немедленно приостанавливайте производство.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Заглушки для других вкладок -->
+        <div id="mono-comp" class="tab-content hidden p-10 text-center text-slate-500">
+            <i data-lucide="sparkles" class="w-16 h-16 mx-auto mb-4 text-emerald-500 opacity-20"></i>
+            <h2 class="text-2xl text-emerald-400 font-bold mb-2">Монополистическая конкуренция</h2>
+            <p class="max-w-md mx-auto">Дифференцированные продукты, высокая роль бренда и рекламы. Фирма обладает ограниченной рыночной властью над своей нишей.</p>
+        </div>
+        <div id="oligopoly" class="tab-content hidden p-10 text-center text-slate-500">
+            <i data-lucide="layers" class="w-16 h-16 mx-auto mb-4 text-amber-500 opacity-20"></i>
+            <h2 class="text-2xl text-amber-400 font-bold mb-2">Олигополия</h2>
+            <p class="max-w-md mx-auto">Взаимозависимость фирм. Решения о цене и выпуске принимаются с оглядкой на реакцию конкурентов. Анализируется через Теорию Игр.</p>
+        </div>
+        <div id="monopoly" class="tab-content hidden p-10 text-center text-slate-500">
+            <i data-lucide="crown" class="w-16 h-16 mx-auto mb-4 text-rose-500 opacity-20"></i>
+            <h2 class="text-2xl text-rose-500 font-bold mb-2">Чистая монополия</h2>
+            <p class="max-w-md mx-auto">Один продавец, уникальный продукт без субститутов. Блокированный вход. Компания является "Price Maker" (ценоустановителем).</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Инициализация иконок
+    lucide.createIcons();
+
+    // Переключение вкладок
+    function switchTab(btn, id, color) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.borderColor = 'rgba(255,255,255,0.05)';
+            b.style.boxShadow = 'none';
+        });
+        btn.classList.add('active');
+        btn.style.borderColor = color;
+        btn.style.boxShadow = `0 10px 25px -5px ${color}40`;
+    }
+
+    // --- Математическая модель (из предоставленного текста) ---
+    // Умножено на 1000 для реалистичности
+    // TC = 20000 + 4000Q + 1000Q^2
+    // MC = 4000 + 2000Q
+    // ATC = 20000/Q + 4000 + 1000Q
+    // AVC = 4000 + 1000Q
+    
+    const sliderP = document.getElementById('slider-p');
+    const sliderQ = document.getElementById('slider-q');
+    const canvas = document.getElementById('perfectCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function formatMoney(val) {
+        return new Intl.NumberFormat('ru-RU').format(Math.round(val));
+    }
+
+    function getCosts(Q) {
+        if(Q <= 0) return { tc: 20000, mc: 4000, atc: Infinity, avc: 4000 };
+        return {
+            tc: 20000 + 4000*Q + 1000*Q*Q,
+            mc: 4000 + 2000*Q,
+            atc: 20000/Q + 4000 + 1000*Q,
+            avc: 4000 + 1000*Q
+        };
+    }
+
+    function updateSim() {
+        const P = parseFloat(sliderP.value);
+        const Q = parseFloat(sliderQ.value);
+        
+        document.getElementById('val-p').innerText = formatMoney(P) + " ₸";
+        document.getElementById('val-q').innerText = Q + " ед.";
+
+        const c = getCosts(Q);
+        const TR = P * Q;
+        const profit = TR - c.tc;
+        const optQ = (P - 4000) / 2000; // Из P = MC => P = 4000 + 2000Q
+
+        // Обновление статов
+        document.getElementById('stat-tr').innerText = formatMoney(TR);
+        document.getElementById('stat-tc').innerText = formatMoney(c.tc);
+        document.getElementById('stat-mc').innerText = formatMoney(c.mc);
+        document.getElementById('stat-atc').innerText = formatMoney(c.atc);
+        
+        const profitEl = document.getElementById('stat-profit');
+        profitEl.innerText = (profit > 0 ? "+" : "") + formatMoney(profit) + " ₸";
+        
+        // Анализ и вердикт
+        const vBox = document.getElementById('verdict-box');
+        const vTitle = document.getElementById('verdict-title');
+        const vDesc = document.getElementById('verdict-desc');
+
+        if (P < 4000) { // P < min AVC
+            vBox.style.borderColor = '#ef4444'; // Red
+            vTitle.innerText = "Shutdown Point (Остановка)";
+            vTitle.style.color = '#ef4444';
+            profitEl.style.color = '#ef4444';
+            vDesc.innerHTML = `Цена упала ниже ${formatMoney(P)} ₸. Вы не покрываете даже переменные издержки (сырье). <strong>Совет: Немедленно остановить выпуск</strong> (минимизация убытка до FC = 20 000 ₸).`;
+        } else if (P < c.atc && profit < 0) { // AVC < P < ATC
+            vBox.style.borderColor = '#f59e0b'; // Amber
+            vTitle.innerText = "Убыток, но работаем";
+            vTitle.style.color = '#f59e0b';
+            profitEl.style.color = '#f59e0b';
+            vDesc.innerHTML = `Выручка покрывает переменные затраты, но не окупает постоянные (FC). Остановка даст больший убыток. Оптимальный Q для минимизации потерь: <strong>${Math.max(0, Math.round(optQ))} ед.</strong>`;
+        } else {
+            vBox.style.borderColor = '#10b981'; // Emerald
+            vTitle.innerText = "Сверхприбыль (Short-run)";
+            vTitle.style.color = '#10b981';
+            profitEl.style.color = '#10b981';
+            let advice = "";
+            if (Math.abs(Q - optQ) < 0.6) {
+                advice = `Вы максимизируете прибыль! P = MC выполнено идеально.`;
+            } else if (Q < optQ) {
+                advice = `Вы недопроизводите. Увеличьте Q до <strong>${Math.round(optQ)}</strong>, так как MR > MC.`;
+            } else {
+                advice = `Вы перепроизводите. Снизьте Q до <strong>${Math.round(optQ)}</strong>, так как каждая лишняя единица приносит убыток (MC > MR).`;
+            }
+            vDesc.innerHTML = `Фирма получает экономическую прибыль. В долгосрочном периоде это привлечет конкурентов, и цена упадет. <br><span class="text-emerald-400 mt-1 block"><strong>Совет:</strong> ${advice}</span>`;
+        }
+
+        drawChart(P, Q, optQ);
+    }
+
+    function drawChart(P, userQ, optQ) {
+        // Подготовка Canvas
+        const rect = canvas.parentElement.getBoundingClientRect();
+        const w = canvas.width = rect.width - 40; // padding
+        const h = canvas.height = 350;
+        ctx.clearRect(0, 0, w, h);
+
+        const pad = { top: 20, right: 20, bottom: 30, left: 50 }; // Отступ для чисел 'k'
+        const graphW = w - pad.left - pad.right;
+        const graphH = h - pad.top - pad.bottom;
+        
+        const maxQ = 14;
+        const maxCost = 35000; // Ось Y до 35 000 ₸
+
+        const getX = (q) => pad.left + (q / maxQ) * graphW;
+        const getY = (val) => pad.top + graphH - (val / maxCost) * graphH;
+
+        // Сетка
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+        for(let i=0; i<=maxCost; i+=5000) {
+            ctx.beginPath(); ctx.moveTo(pad.left, getY(i)); ctx.lineTo(w-pad.right, getY(i)); ctx.stroke();
+            ctx.fillStyle = '#64748b'; ctx.font = '10px Inter'; ctx.fillText((i/1000) + 'k', 15, getY(i)+3);
+        }
+        for(let i=0; i<=maxQ; i+=2) {
+            ctx.beginPath(); ctx.moveTo(getX(i), pad.top); ctx.lineTo(getX(i), h-pad.bottom); ctx.stroke();
+            ctx.fillText(i, getX(i)-3, h-10);
+        }
+
+        // Отрисовка Зоны прибыли/убытка (Прямоугольник)
+        if (userQ > 0) {
+            const currentATC = getCosts(userQ).atc;
+            const isProfit = P >= currentATC;
+            ctx.fillStyle = isProfit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+            const topY = Math.min(getY(P), getY(currentATC));
+            const rectHeight = Math.abs(getY(P) - getY(currentATC));
+            ctx.fillRect(pad.left, topY, getX(userQ) - pad.left, rectHeight);
+            
+            // Рамка прямоугольника
+            ctx.strokeStyle = isProfit ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(pad.left, topY, getX(userQ) - pad.left, rectHeight);
+        }
+
+        // Функция отрисовки кривых
+        const drawCurve = (type, color, width=2) => {
+            ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath();
+            let started = false;
+            for(let q=0.5; q<=maxQ; q+=0.2) {
+                const val = getCosts(q)[type];
+                if(val <= maxCost) {
+                    if(!started) { ctx.moveTo(getX(q), getY(val)); started = true; } 
+                    else { ctx.lineTo(getX(q), getY(val)); }
+                }
+            }
+            ctx.stroke();
+        };
+
+        // Кривые
+        drawCurve('atc', '#10b981'); // Изумрудный ATC
+        drawCurve('avc', '#a855f7'); // Фиолетовый AVC
+        drawCurve('mc', '#f97316');  // Оранжевый MC
+
+        // Линия цены (P = MR)
+        ctx.strokeStyle = '#3b82f6'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(pad.left, getY(P)); ctx.lineTo(w-pad.right, getY(P)); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#3b82f6'; ctx.font = 'bold 12px Inter'; ctx.fillText('P = MR', w-pad.right-50, getY(P)-5);
+
+        // Текущий выпуск пользователя (Вертикальная линия)
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(getX(userQ), pad.top); ctx.lineTo(getX(userQ), h-pad.bottom); ctx.stroke();
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath(); ctx.arc(getX(userQ), getY(P), 4, 0, 2*Math.PI); ctx.fill();
+
+        // Оптимальная точка (если существует)
+        if (optQ > 0 && optQ <= maxQ && P >= 4000) {
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath(); ctx.arc(getX(optQ), getY(P), 5, 0, 2*Math.PI); ctx.fill();
+            ctx.strokeStyle = '#fff'; ctx.lineWidth=1; ctx.stroke();
+        }
+    }
+
+    // Слушатели
+    sliderP.addEventListener('input', updateSim);
+    sliderQ.addEventListener('input', updateSim);
+
+    // Initial draw (timeout to ensure canvas wrapper is rendered)
+    setTimeout(updateSim, 100);
+    window.addEventListener('resize', updateSim);
+
+</script>
+</body>
+</html>
