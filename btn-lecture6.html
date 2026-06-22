@@ -8,7 +8,7 @@
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    /* Убрано overflow:hidden, чтобы дать картинке свободу */
   }
 
   .card-button {
@@ -16,32 +16,21 @@
     width: 100%;
     height: 100%;
     text-decoration: none;
-    overflow: hidden;
-    /* Убрали padding, чтобы картинка была до самых краев */
+    /* Никаких ограничений, рамка задает размер */
   }
 
   .tile-img {
     width: 100%;
     height: 100%;
-    display: none;
+    display: block;
+    /* Картинка растягивается строго по рамке */
+    object-fit: fill; 
     transition: transform 0.2s ease;
-    /* object-fit: fill заставит её менять размер вслед за рамкой */
-    object-fit: fill;
   }
 
   .card-button:hover .tile-img {
     transform: scale(1.03);
     filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.8));
-  }
-
-  .fallback-card {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #1e293b;
-    border: 2px solid #f97316;
   }
 </style>
 </head>
@@ -50,15 +39,10 @@
 <a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
    target="_blank" 
    class="card-button">
-  
-  <div id="fallback" class="fallback-card" style="display:flex;">
-    <span style="color:#fff; font-family:sans-serif;">Лекция 6</span>
-  </div>
-
+   
   <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-lecture6.png" 
-       id="real-img" 
        class="tile-img" 
-       onload="document.getElementById('real-img').style.display='block'; document.getElementById('fallback').style.display='none';">
+       alt="Лекция 6">
 </a>
 
 </body>
