@@ -5,7 +5,7 @@
 <style>
   :root {
     --size: 250px;
-    --vertical-padding: 20px;   /* Отступ сверху и снизу */
+    --vertical-padding: 30px;   /* Увеличил отступ сверху и снизу для симметрии */
     --horizontal-padding: 2px;  /* Минимальный отступ по бокам */
   }
 
@@ -26,7 +26,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Первый параметр (20px) - вертикаль, второй (2px) - горизонталь */
+    /* Указываем отступы явно: сверху-снизу 30px, слева-справа 2px */
     padding: var(--vertical-padding) var(--horizontal-padding);
     box-sizing: border-box;
     text-decoration: none;
