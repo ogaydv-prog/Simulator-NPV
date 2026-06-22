@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>btn-lecture6</title>
 <style>
-  /* Убираем все отступы и заставляем страницу занимать 100% размера iframe */
+  /* НАСТРОЙКА РАЗМЕРОВ КНОПКИ */
+  :root {
+    --btn-width: 250px;   /* Точная ширина кнопки (как у видео 6 и артикл 6) */
+    --btn-height: 250px;  /* Точная высота кнопки (как у видео 6 и артикл 6) */
+    --br-radius: 12px;    /* Скругление углов кнопки */
+  }
+
+  /* Сброс отступов и центрирование кнопки во фрейме */
   html, body {
     margin: 0;
     padding: 0;
@@ -13,33 +20,36 @@
     height: 100%;
     overflow: hidden;
     background: transparent;
+    display: flex;
+    justify-content: center; /* Центрируем по горизонтали */
+    align-items: center;     /* Центрируем по вертикали */
   }
 
-  /* Кнопка-ссылка заполняет весь iframe целиком, как соседние кнопки */
+  /* Контейнер кнопки с фиксированными размерами */
   .card-button {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: var(--btn-width);
+    height: var(--btn-height);
     text-decoration: none;
     outline: none;
-    border-radius: 12px; /* Радиус скругления углов */
+    border-radius: var(--br-radius);
     overflow: hidden;
     box-sizing: border-box;
-    /* Плавная анимация увеличения и тени при наведении */
+    /* Плавная анимация при наведении */
     transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease;
   }
 
-  /* Эффект при наведении — легкое увеличение и аккуратное синее свечение */
+  /* Эффект при наведении (как на соседних кнопках) */
   .card-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+    transform: scale(1.03); /* Легкое увеличение */
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); /* Аккуратное синее свечение */
   }
 
-  /* Изображение заполняет всю площадь кнопки без обрезки по краям */
+  /* Картинка заполняет кнопку целиком без деформации и обрезки */
   .tile-img {
     width: 100%;
     height: 100%;
-    object-fit: fill; /* Растягивает картинку ровно по границам кнопки (как в видео 6 / артикл 6) */
+    object-fit: fill; /* Заполнение всей площади (как в видео 6 / артикл 6) */
     display: block;
     border: none;
   }
