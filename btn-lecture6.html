@@ -8,34 +8,45 @@
     padding: 0;
     width: 100%;
     height: 100%;
-    /* Убрано overflow:hidden, чтобы дать картинке свободу */
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .card-button {
-    display: block;
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-decoration: none;
-    /* Никаких ограничений, рамка задает размер */
+    /* Плавная анимация при наведении */
+    transition: transform 0.25s ease, filter 0.25s ease;
+    padding: 0;
+    box-sizing: border-box;
+    border-radius: 12px;
+  }
+
+  .card-button:hover {
+    transform: scale(1.05);
+    /* Оранжевое свечение как в других кнопках */
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.8));
   }
 
   .tile-img {
     width: 100%;
     height: 100%;
+    object-fit: cover; /* Заполняет всю область кнопки */
+    border-radius: 12px;
     display: block;
-    /* Картинка растягивается строго по рамке */
-    object-fit: fill; 
-    transition: transform 0.2s ease;
-  }
-
-  .card-button:hover .tile-img {
-    transform: scale(1.03);
-    filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.8));
   }
 </style>
 </head>
 <body>
 
+<!-- Ссылка на лекцию в новой вкладке -->
 <a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
    target="_blank" 
    class="card-button">
