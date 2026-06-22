@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная кнопка-статья</title>
+    <style>
+        :root {
+            --primary-glow: rgba(99, 102, 241, 0.6);
+            --bg-menu: #0f172a;
+            --text-color: #e2e8f0;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --hover-item-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Контейнер для точного позиционирования всей структуры */
+        .widget-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Кнопка-ячейка с идеальной центровкой исходной картинки */
+        .image-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                        filter 0.3s ease, 
+                        box-shadow 0.3s ease;
+            border-radius: 8px; /* Небольшое скругление по краям картинки */
+        }
+
+        /* Стили самой картинки: строго повторяет свои исходные размеры без искажений */
+        .image-btn img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* Эффект при наведении: картинка подсвечивается, оживает и слегка увеличивается */
+        .image-btn:hover {
+            transform: scale(1.04);
+            filter: brightness(1.15);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* Эффект при нажатии */
+        .image-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Выпадающий список ссылок (скрыт по умолчанию) */
+        .links-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background-color: var(--bg-menu);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            min-width: 280px;
+            z-index: 999;
+            padding: 6px 0;
+            animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        /* Показ меню при активации класса */
+        .links-menu.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Элементы списка — ссылки */
+        .links-menu a {
+            display: block;
+            padding: 10px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        /* Интерактивное выделение строк в меню */
+        .links-menu a:hover {
+            background-color: var(--hover-item-bg);
+            color: #fff;
+            border-left-color: #6366f1;
+        }
+
+        /* Разделитель между важными ссылками */
+        .links-menu .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    <button class="image-btn" id="articlesBtn" title="Просмотреть аналитические материалы">
+        <img src="pic-articles6.png" alt="Анализ конкуренции">
+    </button>
+
+    <div class="links-menu" id="articlesMenu">
+        <a href="https://kz.kursiv.media/2023-04-07/chto-oznachayut-indeksy/" target="_blank">
+            Что означают индексы концентрации рынка?
+        </a>
+        <div class="divider"></div>
+        <a href="https://stat.gov.kz/ru/news/byuro-zapustilo-novyy-instrument-dlya-analiza-konkurentsii-na-rynkakh/" target="_blank">
+            Новый инструмент Бюро для анализа конкуренции
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.gov.kz/memleket/entities/zk/documents/details/318123?lang=ru" target="_blank">
+            Официальные документы АЗРК РК
+        </a>
+    </div>
+</div>
+
+<script>
+    const btn = document.getElementById('articlesBtn');
+    const menu = document.getElementById('articlesMenu');
+
+    // Логика открытия/закрытия списка по клику
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('show');
+    });
+
+    // Закрытие меню, если кликнули в любом другом месте экрана
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== btn) {
+            menu.classList.remove('show');
+        }
+    });
+</script>
+
+</body>
+</html>
