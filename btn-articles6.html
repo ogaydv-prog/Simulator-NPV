@@ -13,37 +13,41 @@
             --hover-item-bg: rgba(255, 255, 255, 0.05);
         }
 
+        /* Центрируем всю структуру на странице и задаем равные отступы сверху/снизу */
         body {
             background-color: transparent;
             margin: 0;
-            padding: 0;
+            padding: 8px 0; /* Одинаковые небольшие зазоры сверху и снизу */
+            display: flex;
+            justify-content: center; /* Центровка по горизонтали */
+            align-items: center;     /* Центровка по вертикали */
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Контейнер для точного позиционирования всей структуры */
+        /* Контейнер виджета */
         .widget-container {
             position: relative;
             display: inline-block;
         }
 
-        /* Кнопка-ячейка с идеальной центровкой исходной картинки */
+        /* Кнопка-ячейка: теперь со строгой внутренней центровкой */
         .image-btn {
             background: transparent;
             border: none;
-            padding: 0;
+            padding: 4px; /* Небольшой симметричный внутренний отступ для баланса свечения */
             cursor: pointer;
             outline: none;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Абсолютная центровка картинки внутри ячейки */
             overflow: hidden;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                         filter 0.3s ease, 
                         box-shadow 0.3s ease;
-            border-radius: 8px; /* Небольшое скругление по краям картинки */
+            border-radius: 8px;
         }
 
-        /* Стили самой картинки: строго повторяет свои исходные размеры без искажений */
+        /* Картинка: строго исходный размер без прокруток и деформаций */
         .image-btn img {
             display: block;
             max-width: 100%;
@@ -51,24 +55,24 @@
             pointer-events: none;
         }
 
-        /* Эффект при наведении: картинка подсвечивается, оживает и слегка увеличивается */
+        /* Оживление при наведении */
         .image-btn:hover {
             transform: scale(1.04);
             filter: brightness(1.15);
             box-shadow: 0 0 20px var(--primary-glow);
         }
 
-        /* Эффект при нажатии */
         .image-btn:active {
             transform: scale(0.98);
         }
 
-        /* Выпадающий список ссылок (скрыт по умолчанию) */
+        /* Выпадающее меню (динамически выравнивается относительно отцентрованной кнопки) */
         .links-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
+            top: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px); /* Центрируем меню ровно под кнопкой */
             background-color: var(--bg-menu);
             border: 1px solid var(--border-color);
             border-radius: 12px;
@@ -76,26 +80,18 @@
             min-width: 280px;
             z-index: 999;
             padding: 6px 0;
-            animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Показ меню при активации класса */
+        /* Показ меню с плавной анимацией */
         .links-menu.show {
             display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Элементы списка — ссылки */
+        /* Элементы списка */
         .links-menu a {
             display: block;
             padding: 10px 16px;
@@ -106,16 +102,15 @@
             line-height: 1.4;
             transition: background-color 0.2s ease, color 0.2s ease;
             border-left: 3px solid transparent;
+            white-space: nowrap; /* Чтобы ссылки смотрелись аккуратно в одну строку */
         }
 
-        /* Интерактивное выделение строк в меню */
         .links-menu a:hover {
             background-color: var(--hover-item-bg);
             color: #fff;
             border-left-color: #6366f1;
         }
 
-        /* Разделитель между важными ссылками */
         .links-menu .divider {
             height: 1px;
             background-color: var(--border-color);
@@ -127,7 +122,7 @@
 
 <div class="widget-container">
     <button class="image-btn" id="articlesBtn" title="Просмотреть аналитические материалы">
-        <img src="pic-articles6.png" alt="Анализ конкуренции">
+        <img src="pic-articles6.png" alt="Типы конкуренции">
     </button>
 
     <div class="links-menu" id="articlesMenu">
@@ -149,13 +144,11 @@
     const btn = document.getElementById('articlesBtn');
     const menu = document.getElementById('articlesMenu');
 
-    // Логика открытия/закрытия списка по клику
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
         menu.classList.toggle('show');
     });
 
-    // Закрытие меню, если кликнули в любом другом месте экрана
     document.addEventListener('click', (e) => {
         if (!menu.contains(e.target) && e.target !== btn) {
             menu.classList.remove('show');
