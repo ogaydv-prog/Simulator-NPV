@@ -5,87 +5,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>btn-preza6</title>
 <style>
+  /* Обнуляем все отступы, чтобы код занимал ровно 100% фрейма Google Sites */
   html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* Жестко убирает любые полосы прокрутки */
     background: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
+  /* Ссылка-контейнер растягивается на всю синюю рамку */
   .card-button {
-    width: 250px;
-    height: 250px;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     text-decoration: none;
     outline: none;
     background: transparent;
-    transition: transform 0.25s ease, filter 0.25s ease;
-    position: relative;
-    border-radius: 20px;
+    box-sizing: border-box;
+    padding: 8px; /* Небольшой зазор внутри рамки, чтобы свечению было куда расти */
+    overflow: hidden;
   }
 
-  /* Эффект оживления и теплого оранжевого свечения для презентации */
-  .card-button:hover {
-    transform: scale(1.04);
-    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.7));
-  }
-
-  /* Оригинальная картинка из вашего GitHub */
+  /* Картинка плавно подстраивается под размеры рамки */
   .tile-img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Картинка сохраняет свои пропорции при любом сжатии */
     border: none;
-    display: none; /* Скрыта, пока не подтвердится успешная загрузка */
+    display: none; /* Скрыта до полной загрузки */
+    transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out;
+    border-radius: 12px;
   }
 
-  /* Красивая резервная заглушка, если вдруг на GitHub пропадет интернет/картинка */
+  /* Эффект свечения и увеличения применяется ТОЛЬКО к самой картинке, 
+     что гарантирует отсутствие полос прокрутки во фрейме Google Sites */
+  .card-button:hover .tile-img {
+    transform: scale(1.03); /* Легкое элегантное увеличение */
+    filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.8)); /* Оранжевый неоновый ореол */
+  }
+
+  /* Адаптивная заглушка на случай сбоя сети */
   .fallback-card {
     width: 100%;
     height: 100%;
+    max-width: 100%;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border: 2px solid #f97316;
-    border-radius: 20px;
+    border-radius: 12px;
     color: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     box-sizing: border-box;
-    padding: 24px;
+    padding: 10px;
     text-align: center;
-    box-shadow: inset 0 0 20px rgba(249, 115, 22, 0.15);
+    box-shadow: inset 0 0 15px rgba(249, 115, 22, 0.15);
   }
 
   .fallback-icon {
-    width: 64px;
-    height: 64px;
+    width: 30%;
+    height: auto;
+    max-height: 40px;
     color: #f97316;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.5));
+    margin-bottom: 8px;
   }
 
   .fallback-title {
-    font-size: 20px;
+    font-size: clamp(10px, 4vw, 15px); /* Текст уменьшается, если рамка очень маленькая */
     font-weight: 700;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.02em;
-  }
-
-  .fallback-subtitle {
-    font-size: 11px;
-    color: #94a3b8;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    margin: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 </style>
 </head>
@@ -95,7 +100,7 @@
    target="_blank" 
    class="card-button">
   
-  <!-- Заглушка (показывается только если картинка не загрузилась) -->
+  <!-- Заглушка (пока картинка грузится) -->
   <div id="fallback" class="fallback-card">
     <svg class="fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -103,10 +108,9 @@
       <line x1="12" y1="17" x2="12" y2="21"></line>
     </svg>
     <div class="fallback-title">Презентация 6</div>
-    <div class="fallback-subtitle">Загрузка файла...</div>
   </div>
 
-  <!-- Ваша реальная картинка прямо с вашего GitHub Pages -->
+  <!-- Ваша оригинальная картинка из репозитория GitHub -->
   <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-preza6.png" 
        id="real-img" 
        class="tile-img" 
