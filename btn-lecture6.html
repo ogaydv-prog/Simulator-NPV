@@ -3,55 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>btn-lecture6</title>
 <style>
-  /* НАСТРОЙКА РАЗМЕРОВ КНОПКИ */
+  /* Фиксируем размеры, идентичные остальным кнопкам */
   :root {
-    --btn-width: 250px;   /* Точная ширина кнопки (как у видео 6 и артикл 6) */
-    --btn-height: 250px;  /* Точная высота кнопки (как у видео 6 и артикл 6) */
-    --br-radius: 12px;    /* Скругление углов кнопки */
+    --size: 250px;
   }
 
-  /* Сброс отступов и центрирование кнопки во фрейме */
-  html, body {
+  body {
     margin: 0;
     padding: 0;
-    width: 100%;
-    height: 100%;
+    width: var(--size);
+    height: var(--size);
     overflow: hidden;
     background: transparent;
     display: flex;
-    justify-content: center; /* Центрируем по горизонтали */
-    align-items: center;     /* Центрируем по вертикали */
+    justify-content: center;
+    align-items: center;
   }
 
-  /* Контейнер кнопки с фиксированными размерами */
   .card-button {
+    width: var(--size);
+    height: var(--size);
     display: block;
-    width: var(--btn-width);
-    height: var(--btn-height);
     text-decoration: none;
-    outline: none;
-    border-radius: var(--br-radius);
+    border-radius: 12px;
     overflow: hidden;
-    box-sizing: border-box;
-    /* Плавная анимация при наведении */
-    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
-  /* Эффект при наведении (как на соседних кнопках) */
+  /* Тот же эффект оживления, что и у остальных */
   .card-button:hover {
-    transform: scale(1.03); /* Легкое увеличение */
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); /* Аккуратное синее свечение */
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
   }
 
-  /* Картинка заполняет кнопку целиком без деформации и обрезки */
   .tile-img {
     width: 100%;
     height: 100%;
-    object-fit: fill; /* Заполнение всей площади (как в видео 6 / артикл 6) */
+    object-fit: fill; /* Гарантирует заполнение без обрезки */
     display: block;
-    border: none;
   }
 </style>
 </head>
@@ -59,9 +49,8 @@
 
 <a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
    target="_blank" 
-   class="card-button" 
-   title="Открыть лекцию">
-  <img src="pic-lecture6.png" class="tile-img" alt="Лекция 6">
+   class="card-button">
+  <img src="pic-lecture6.png" class="tile-img">
 </a>
 
 </body>
