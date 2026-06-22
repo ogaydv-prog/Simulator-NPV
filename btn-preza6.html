@@ -34,19 +34,19 @@
   /* Эффект оживления и теплого оранжевого свечения для презентации */
   .card-button:hover {
     transform: scale(1.04);
-    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.6));
+    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.7));
   }
 
-  /* Оригинальная картинка */
+  /* Оригинальная картинка из вашего GitHub */
   .tile-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     border: none;
-    display: none; /* Скрыта, пока не загрузится на GitHub */
+    display: none; /* Скрыта, пока не подтвердится успешная загрузка */
   }
 
-  /* Заглушка для корректного отображения в окне предпросмотра */
+  /* Красивая резервная заглушка, если вдруг на GitHub пропадет интернет/картинка */
   .fallback-card {
     width: 100%;
     height: 100%;
@@ -74,14 +74,14 @@
   }
 
   .fallback-title {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     margin: 0 0 6px 0;
     letter-spacing: -0.02em;
   }
 
   .fallback-subtitle {
-    font-size: 12px;
+    font-size: 11px;
     color: #94a3b8;
     font-weight: 600;
     text-transform: uppercase;
@@ -95,6 +95,7 @@
    target="_blank" 
    class="card-button">
   
+  <!-- Заглушка (показывается только если картинка не загрузилась) -->
   <div id="fallback" class="fallback-card">
     <svg class="fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
@@ -102,10 +103,11 @@
       <line x1="12" y1="17" x2="12" y2="21"></line>
     </svg>
     <div class="fallback-title">Презентация 6</div>
-    <div class="fallback-subtitle">Открыть слайды</div>
+    <div class="fallback-subtitle">Загрузка файла...</div>
   </div>
 
-  <img src="pic-preza6.png" 
+  <!-- Ваша реальная картинка прямо с вашего GitHub Pages -->
+  <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-preza6.png" 
        id="real-img" 
        class="tile-img" 
        alt="Презентация 6" 
@@ -115,7 +117,7 @@
 
 <script>
   function showImage() {
-    document.getElementById('real-img').style.style.display = 'block';
+    document.getElementById('real-img').style.display = 'block';
     document.getElementById('fallback').style.display = 'none';
   }
   
