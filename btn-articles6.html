@@ -13,41 +13,45 @@
             --hover-item-bg: rgba(255, 255, 255, 0.05);
         }
 
-        /* Центрируем всю структуру на странице и задаем равные отступы сверху/снизу */
-        body {
-            background-color: transparent;
+        /* Полная жесткая центровка по двум осям в пределах ячейки/iframe */
+        html, body {
+            height: 100vh;
             margin: 0;
-            padding: 8px 0; /* Одинаковые небольшие зазоры сверху и снизу */
-            display: flex;
-            justify-content: center; /* Центровка по горизонтали */
-            align-items: center;     /* Центровка по вертикали */
+            padding: 0;
+            overflow: hidden; /* Никаких случайных полос прокрутки */
+            background-color: transparent;
+        }
+
+        body {
+            display: grid;
+            place-items: center; /* Намертво ставит контейнер в абсолютный центр ячейки */
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Контейнер виджета */
+        /* Контейнер виджета с небольшими симметричными зазорами сверху и снизу */
         .widget-container {
             position: relative;
             display: inline-block;
+            margin: 8px 0; /* Одинаковые небольшие расстояния сверху и снизу */
         }
 
-        /* Кнопка-ячейка: теперь со строгой внутренней центровкой */
+        /* Кнопка-ячейка: строго повторяет размеры картинки */
         .image-btn {
             background: transparent;
             border: none;
-            padding: 4px; /* Небольшой симметричный внутренний отступ для баланса свечения */
+            padding: 0;
             cursor: pointer;
             outline: none;
             display: flex;
             align-items: center;
-            justify-content: center; /* Абсолютная центровка картинки внутри ячейки */
-            overflow: hidden;
+            justify-content: center;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                         filter 0.3s ease, 
                         box-shadow 0.3s ease;
             border-radius: 8px;
         }
 
-        /* Картинка: строго исходный размер без прокруток и деформаций */
+        /* Картинка без искажений и надписей */
         .image-btn img {
             display: block;
             max-width: 100%;
@@ -55,9 +59,9 @@
             pointer-events: none;
         }
 
-        /* Оживление при наведении */
+        /* Эффект оживления и подсветки при наведении */
         .image-btn:hover {
-            transform: scale(1.04);
+            transform: scale(1.05);
             filter: brightness(1.15);
             box-shadow: 0 0 20px var(--primary-glow);
         }
@@ -66,32 +70,31 @@
             transform: scale(0.98);
         }
 
-        /* Выпадающее меню (динамически выравнивается относительно отцентрованной кнопки) */
+        /* Выпадающий список (центрирован строго под кнопкой) */
         .links-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 4px);
+            top: calc(100% + 6px);
             left: 50%;
-            transform: translateX(-50%) translateY(-8px); /* Центрируем меню ровно под кнопкой */
+            transform: translateX(-50%) translateY(-8px);
             background-color: var(--bg-menu);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
             min-width: 280px;
             z-index: 999;
             padding: 6px 0;
             opacity: 0;
-            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
-        /* Показ меню с плавной анимацией */
         .links-menu.show {
             display: block;
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Элементы списка */
+        /* Ссылки внутри меню */
         .links-menu a {
             display: block;
             padding: 10px 16px;
@@ -102,7 +105,7 @@
             line-height: 1.4;
             transition: background-color 0.2s ease, color 0.2s ease;
             border-left: 3px solid transparent;
-            white-space: nowrap; /* Чтобы ссылки смотрелись аккуратно в одну строку */
+            white-space: nowrap;
         }
 
         .links-menu a:hover {
@@ -121,21 +124,21 @@
 <body>
 
 <div class="widget-container">
-    <button class="image-btn" id="articlesBtn" title="Просмотреть аналитические материалы">
+    <button class="image-btn" id="articlesBtn" title="Типы конкуренции">
         <img src="pic-articles6.png" alt="Типы конкуренции">
     </button>
 
     <div class="links-menu" id="articlesMenu">
         <a href="https://kz.kursiv.media/2023-04-07/chto-oznachayut-indeksy/" target="_blank">
-            Что означают индексы концентрации рынка?
+            What do market concentration indices mean?
         </a>
         <div class="divider"></div>
         <a href="https://stat.gov.kz/ru/news/byuro-zapustilo-novyy-instrument-dlya-analiza-konkurentsii-na-rynkakh/" target="_blank">
-            Новый инструмент Бюро для анализа конкуренции
+            New Bureau tool for market competition analysis
         </a>
         <div class="divider"></div>
         <a href="https://www.gov.kz/memleket/entities/zk/documents/details/318123?lang=ru" target="_blank">
-            Официальные документы АЗРК РК
+            Official AZRK RK Documents
         </a>
     </div>
 </div>
