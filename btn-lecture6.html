@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>btn-lecture6</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center; /* Центровка по горизонтали в ячейке */
+    align-items: center;     /* Центровка по вертикали в ячейке */
+    height: 100vh;
+  }
+
+  /* Контейнер кнопки-картинки с аналогичными размерами и физикой анимации */
+  .card-button {
+    background-color: transparent;
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    outline: none;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+  }
+
+  /* Эффект подсветки, свечения и оживления при наведении (синий неоновый glow под стиль лекций) */
+  .card-button:hover {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
+  }
+
+  /* Свойства картинки внутри кнопки */
+  .tile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Ссылка-картинка, которая сразу открывается в новой вкладке -->
+<a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
+   target="_blank" 
+   class="card-button" 
+   title="Открыть лекцию">
+  <img src="pic-lecture6.png" class="tile-img" alt="Лекция: Природа отрасли">
+</a>
+
+</body>
+</html>
