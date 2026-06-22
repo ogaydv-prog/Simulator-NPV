@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>btn-sim-monopolycompetition</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .card-button {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    outline: none;
+    background: transparent;
+    box-sizing: border-box;
+    padding: 5px; /* Минимальный отступ для корректного отображения свечения */
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  /* Эффект оживления при наведении */
+  .card-button:hover {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.7));
+  }
+
+  .tile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Картинка всегда полностью видна и по центру */
+    border: none;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<a href="https://ogaydv-prog.github.io/Simulator-NPV/sim-market-structures-dashboard-c-m-mc.html" 
+   target="_blank" 
+   class="card-button">
+   
+  <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-sim-monopolycompetition.png" 
+       class="tile-img" 
+       alt="Симулятор: Монополистическая конкуренция">
+</a>
+
+</body>
+</html>
