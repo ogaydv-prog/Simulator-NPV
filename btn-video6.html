@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Интерактивная карточка-видео 6</title>
+<title>btn-video6</title>
 <style>
   body {
     margin: 0;
@@ -11,44 +11,33 @@
     overflow: hidden;
     background: transparent;
     display: flex;
-    justify-content: center; /* Центровка по горизонтали в ячейке */
-    align-items: center;     /* Центровка по вертикали в ячейке */
+    justify-content: center;
+    align-items: center;
     height: 100vh;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* 3D Контейнер карточки (размер один в один как у статей) */
+  /* 3D Контейнер */
   .flip-card {
     background-color: transparent;
     width: 250px;
     height: 250px;
     perspective: 1000px;
     cursor: pointer;
-    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
   }
 
-  /* Эффект увеличения и красной неоновой подсветки при наведении */
-  .flip-card:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.5));
-  }
-
-  /* Внутренняя оболочка для вращения */
   .flip-card-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    text-align: center;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
   }
 
-  /* Класс для совершения переворота */
+  /* Переворот */
   .flip-card.flipped .flip-card-inner {
     transform: rotateY(180deg);
   }
 
-  /* Общие стили для обеих сторон */
   .flip-card-front, .flip-card-back {
     position: absolute;
     width: 100%;
@@ -60,12 +49,19 @@
     box-sizing: border-box;
   }
 
-  /* ЛИЦЕВАЯ СТОРОНА (Обложка кнопки) */
+  /* ЛИЦЕВАЯ СТОРОНА: Только чистая картинка, идеально отцентрованная */
   .flip-card-front {
     background-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+
+  /* Эффект подсветки и оживления только при наведении на лицевую сторону */
+  .flip-card:not(.flipped):hover .flip-card-front {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.6));
   }
 
   .tile-img {
@@ -75,64 +71,17 @@
     display: block;
   }
 
-  /* ОБРАТНАЯ СТОРОНА (Список видео на темном фоне) */
+  /* ОБРАТНАЯ СТОРОНА: Только список ссылок */
   .flip-card-back {
     background-color: #0f172a;
-    color: #ffffff;
     transform: rotateY(180deg);
-    border: 2px solid rgba(239, 68, 68, 0.7); /* Красный неоновый кант под стиль YouTube */
-    padding: 12px;
+    border: 2px solid rgba(239, 68, 68, 0.7);
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-  }
-
-  /* Шапка обратной стороны */
-  .back-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #2d3748;
-    padding-bottom: 6px;
-    margin-bottom: 8px;
-  }
-
-  .back-title {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #ef4444; /* Красный акцент */
-    letter-spacing: 0.5px;
-  }
-
-  /* Кнопка закрытия */
-  .btn-close {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 0 4px;
-    transition: color 0.2s;
-  }
-
-  .btn-close:hover {
-    color: #ffffff;
-  }
-
-  /* Список видеоматериалов скроллится внутри, если их много */
-  .video-list {
-    display: flex;
-    flex-direction: column;
+    justify-content: center; /* Центрируем список по вертикали */
     gap: 5px;
-    overflow-y: auto;
-    padding-right: 2px;
   }
-
-  /* Стилизация мини-скролла для видео-меню */
-  .video-list::-webkit-scrollbar { width: 4px; }
-  .video-list::-webkit-scrollbar-thumb { background: rgba(239, 68, 68, 0.4); border-radius: 2px; }
 
   .video-link {
     display: flex;
@@ -140,9 +89,10 @@
     background: rgba(255, 255, 255, 0.04);
     color: #e2e8f0;
     text-decoration: none;
-    padding: 6px 8px;
+    padding: 8px 10px;
     border-radius: 6px;
     font-size: 10px;
+    font-family: 'Segoe UI', Arial, sans-serif;
     line-height: 1.3;
     text-align: left;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -161,66 +111,51 @@
     background: rgba(239, 68, 68, 0.15);
     border-color: #ef4444;
     color: #ffffff;
-    transform: translateX(3px);
+    transform: translateX(4px);
   }
 </style>
 </head>
 <body>
 
-<div class="flip-card" id="cardContainer">
+<div class="flip-card" id="card">
   <div class="flip-card-inner">
     
-    <div class="flip-card-front" id="cardFront">
-      <img src="pic-video6.png" class="tile-img" alt="Видеоматериалы">
+    <!-- Лицевая сторона: Только картинка-кнопка -->
+    <div class="flip-card-front">
+      <img src="pic-video6.png" class="tile-img">
     </div>
 
+    <!-- Обратная сторона: Только список из видео -->
     <div class="flip-card-back">
-      <div class="back-header">
-        <span class="back-title">Видеоматериалы</span>
-        <button class="btn-close" id="btnClose" title="Назад">✕</button>
-      </div>
-      
-      <div class="video-list">
-        <a href="https://www.youtube.com/watch?v=NySt2EDS1Ik&t=78s" target="_blank" class="video-link">
-          Рыночные структуры и конкуренция (Часть 1)
-        </a>
-        <a href="https://www.youtube.com/watch?v=KZfIgh0EWRE" target="_blank" class="video-link">
-          Монополистическая конкуренция: Нюансы
-        </a>
-        <a href="https://www.youtube.com/watch?v=KTDGyhazTec" target="_blank" class="video-link">
-          Модели Олигополии и выбор стратегии
-        </a>
-        <a href="https://www.youtube.com/watch?v=YQcb73YMA6c" target="_blank" class="video-link">
-          Чистая монополия и максимизация прибыли
-        </a>
-        <a href="https://www.youtube.com/watch?v=diLKlYISOpw" target="_blank" class="video-link">
-          Индекс Херфиндаля-Хиршмана на практике
-        </a>
-      </div>
+      <a href="https://www.youtube.com/watch?v=NySt2EDS1Ik&t=78s" target="_blank" class="video-link">
+        Рыночные структуры и конкуренция (Часть 1)
+      </a>
+      <a href="https://www.youtube.com/watch?v=KZfIgh0EWRE" target="_blank" class="video-link">
+        Монополистическая конкуренция: Особенности
+      </a>
+      <a href="https://www.youtube.com/watch?v=KTDGyhazTec" target="_blank" class="video-link">
+        Модели Олигополии и стратегический выбор
+      </a>
+      <a href="https://www.youtube.com/watch?v=YQcb73YMA6c" target="_blank" class="video-link">
+        Чистая монополия и максимизация прибыли
+      </a>
+      <a href="https://www.youtube.com/watch?v=diLKlYISOpw" target="_blank" class="video-link">
+        Индекс Херфиндаля-Хиршмана и анализ рынков
+      </a>
     </div>
 
   </div>
 </div>
 
 <script>
-  const card = document.getElementById('cardContainer');
-  const cardFront = document.getElementById('cardFront');
-  const btnClose = document.getElementById('btnClose');
+  const card = document.getElementById('card');
 
-  cardFront.addEventListener('click', function(e) {
-    card.classList.add('flipped');
-  });
-
-  btnClose.addEventListener('click', function(e) {
-    e.stopPropagation();
-    card.classList.remove('flipped');
-  });
-
-  const links = document.querySelectorAll('.video-link');
-  links.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
+  card.addEventListener('click', function(e) {
+    // Если кликнули по ссылке, карту не переворачиваем назад
+    if (e.target.tagName === 'A') return;
+    
+    // В остальных случаях переключаем переворот туда-обратно
+    card.classList.toggle('flipped');
   });
 </script>
 
