@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Полностью убрана прокрутка */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
 
-  .card-button {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    /* Плавная анимация при наведении */
-    transition: transform 0.25s ease, filter 0.25s ease;
-    padding: 0;
-    box-sizing: border-box;
-    border-radius: 12px;
-  }
+        .lecture-link {
+            display: block;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            overflow: hidden; /* Обрезка картинки по радиусу кнопки */
+        }
 
-  .card-button:hover {
-    transform: scale(1.05);
-    /* Оранжевое свечение как в других кнопках */
-    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.8));
-  }
+        .lecture-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
-  .tile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Заполняет всю область кнопки */
-    border-radius: 12px;
-    display: block;
-  }
-</style>
+        /* Эффект свечения и анимация как в других кнопках */
+        .lecture-link:hover {
+            transform: scale(1.03);
+            filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.6));
+        }
+    </style>
 </head>
 <body>
 
-<!-- Ссылка на лекцию в новой вкладке -->
-<a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
-   target="_blank" 
-   class="card-button">
-   
-  <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-lecture6.png" 
-       class="tile-img" 
-       alt="Лекция 6">
-</a>
+    <a href="https://docs.google.com/document/d/1NWM2a3qc2xLVPJ9l0yU6tgeqCiS03pel/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
+       target="_blank" 
+       class="lecture-link">
+        <img src="https://ogaydv-prog.github.io/Simulator-NPV/pic-lecture6.png" 
+             alt="Лекция 6" 
+             class="lecture-img">
+    </a>
 
 </body>
 </html>
