@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная кнопка-видео</title>
+    <style>
+        :root {
+            --primary-glow: rgba(239, 68, 68, 0.6); /* Красное свечение для видеоконтента */
+            --bg-menu: #0f172a;
+            --text-color: #e2e8f0;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --hover-item-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Абсолютно такая же жесткая центровка по двум осям в пределах ячейки/iframe */
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Никаких полос прокрутки */
+            background-color: transparent;
+        }
+
+        body {
+            display: grid;
+            place-items: center; /* Намертво ставит контейнер в абсолютный геометрический центр */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Контейнер виджета с небольшими симметричными зазорами сверху и снизу */
+        .widget-container {
+            position: relative;
+            display: inline-block;
+            margin: 8px 0; /* Одинаковые небольшие расстояния сверху и снизу, как в btn-articles6 */
+        }
+
+        /* Кнопка-ячейка: строго повторяет размеры картинки */
+        .image-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                        filter 0.3s ease, 
+                        box-shadow 0.3s ease;
+            border-radius: 8px;
+        }
+
+        /* Картинка без искажений, надписей и прокруток */
+        .image-btn img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            pointer-events: none;
+        }
+
+        /* Эффект оживления и подсветки при наведении */
+        .image-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.15);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .image-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Выпадающий список видеолекций (центрирован строго под кнопкой) */
+        .links-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background-color: var(--bg-menu);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            min-width: 320px; /* Немного шире для длинных названий видеороликов */
+            z-index: 999;
+            padding: 6px 0;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .links-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Ссылки внутри меню */
+        .links-menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .links-menu a:hover {
+            background-color: var(--hover-item-bg);
+            color: #fff;
+            border-left-color: #ef4444; /* Красный маркер при наведении */
+        }
+
+        /* Красный значок ▶ перед названием видео для визуального акцента */
+        .links-menu a::before {
+            content: "▶";
+            color: #ef4444;
+            margin-right: 8px;
+            font-size: 10px;
+        }
+
+        .links-menu .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    <button class="image-btn" id="videoBtn" title="Просмотреть видеоматериалы">
+        <img src="pic-video6.png" alt="Видеолекции">
+    </button>
+
+    <div class="links-menu" id="videoMenu">
+        <a href="https://www.youtube.com/watch?v=NySt2EDS1Ik&t=78s" target="_blank">
+            Рыночные структуры и конкуренция (Часть 1)
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/watch?v=KZfIgh0EWRE" target="_blank">
+            Монополистическая конкуренция: Особенности
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/watch?v=KTDGyhazTec" target="_blank">
+            Модели Олигополии и стратегический выбор
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/watch?v=YQcb73YMA6c" target="_blank">
+            Чистая монополия и максимизация прибыли
+        </a>
+        <div class="divider"></div>
+        <a href="https://www.youtube.com/watch?v=diLKlYISOpw" target="_blank">
+            Индекс Херфиндаля-Хиршмана и анализ рынков
+        </a>
+    </div>
+</div>
+
+<script>
+    const btn = document.getElementById('videoBtn');
+    const menu = document.getElementById('videoMenu');
+
+    // Логика переключения меню по клику
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('show');
+    });
+
+    // Закрытие при клике мимо кнопки
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== btn) {
+            menu.classList.remove('show');
+        }
+    });
+</script>
+
+</body>
+</html>
