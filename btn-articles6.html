@@ -1,154 +1,473 @@
+Дмитрий Валерьевич, идея сделать карточки через 3D-переворот (flip-card) — это отличное интерактивное решение! Это полностью снимает проблему с обрезанием iframe, так как список ссылок открывается прямо внутри габаритов самой картинки, плавно разворачиваясь на 180 градусов.
+
+Ниже представлены два полностью готовых кода для btn-articles6.html и btn-video6.html. Я сохранил идеальную центровку по двум осям, темную премиальную подложку, неоновые канты (для статей — бирюзовый, для видео — красный), эффекты «оживления» при наведении и защиту от случайного закрытия при клике на ссылки.
+
+1. Код для статей: btn-articles6.html
+(Использует картинку pic-articles6.png и бирюзовый неоновый кант #14b8a6)
+
+HTML
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Интерактивная кнопка-статья</title>
-    <style>
-        :root {
-            --primary-glow: rgba(99, 102, 241, 0.6);
-            --bg-menu: #0f172a;
-            --text-color: #e2e8f0;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --hover-item-bg: rgba(255, 255, 255, 0.05);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интерактивная карточка-статья 6</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center; /* Центровка по горизонтали в ячейке */
+    align-items: center;     /* Центровка по вертикали в ячейке */
+    height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            background-color: transparent;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; /* Убираем любые прокрутки внутри фрейма */
-        }
+  /* 3D Контейнер карточки (размер идеально подстраивается под пропорции) */
+  .flip-card {
+    background-color: transparent;
+    width: 250px;
+    height: 250px;
+    perspective: 1000px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+  }
 
-        /* Основной контейнер: выстраивает кнопку и список РЯДЫШКОМ по горизонтали */
-        .widget-flex-container {
-            display: inline-flex;
-            align-items: center;
-            gap: 16px; /* Зазор между кнопкой и списком ссылок */
-            padding: 8px;
-        }
+  /* Эффект увеличения и неоновой подсветки при наведении (бирюзовый под цвет плашки статей) */
+  .flip-card:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(13, 148, 136, 0.5));
+  }
 
-        /* Кнопка-ячейка: строго центрована, без надписей */
-        .image-btn {
-            background: transparent;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            outline: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0; /* Кнопка не будет сжиматься */
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                        filter 0.3s ease, 
-                        box-shadow 0.3s ease;
-            border-radius: 8px;
-        }
+  /* Внутренняя оболочка для вращения */
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
 
-        /* Картинка: строго повторяет исходный размер */
-        .image-btn img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            pointer-events: none;
-        }
+  /* Класс для совершения переворота */
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
 
-        /* Эффект оживления при наведении */
-        .image-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.15);
-            box-shadow: 0 0 20px var(--primary-glow);
-        }
+  /* Общие стили для обеих сторон */
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
 
-        .image-btn:active {
-            transform: scale(0.98);
-        }
+  /* ЛИЦЕВАЯ СТОРОНА (Обложка кнопки) */
+  .flip-card-front {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-        /* Список ссылок: появляется РЯДОМ (справа), не перекрывая низ */
-        .links-menu {
-            display: none; /* Скрыт по умолчанию */
-            background-color: var(--bg-menu);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            padding: 6px 0;
-            min-width: 320px;
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
+  .tile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
-        /* Полноценное отображение ряда */
-        .links-menu.show {
-            display: block;
-            opacity: 1;
-            transform: translateX(0);
-        }
+  /* ОБРАТНАЯ СТОРОНА (Список статей на темном фоне) */
+  .flip-card-back {
+    background-color: #0f172a;
+    color: #ffffff;
+    transform: rotateY(180deg);
+    border: 2px solid rgba(13, 148, 136, 0.7); /* Бирюзовый неоновый кант */
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
 
-        /* Ссылки внутри меню */
-        .links-menu a {
-            display: block;
-            padding: 10px 16px;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.4;
-            transition: background-color 0.2s ease, color 0.2s ease;
-            border-left: 3px solid transparent;
-        }
+  /* Шапка обратной стороны */
+  .back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
 
-        .links-menu a:hover {
-            background-color: var(--hover-item-bg);
-            color: #fff;
-            border-left-color: #6366f1;
-        }
+  .back-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #14b8a6;
+    letter-spacing: 0.5px;
+  }
 
-        .links-menu .divider {
-            height: 1px;
-            background-color: var(--border-color);
-            margin: 4px 0;
-        }
-    </style>
+  /* Кнопка закрытия */
+  .btn-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 4px;
+    transition: color 0.2s;
+  }
+
+  .btn-close:hover {
+    color: #ffffff;
+  }
+
+  /* Список статей */
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .article-link {
+    display: block;
+    background: rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 10.5px;
+    line-height: 1.3;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+  }
+
+  .article-link:hover {
+    background: rgba(13, 148, 136, 0.2);
+    border-color: #14b8a6;
+    color: #ffffff;
+    transform: translateX(3px);
+  }
+</style>
 </head>
 <body>
 
-<div class="widget-flex-container">
-    <button class="image-btn" id="articlesBtn" title="Просмотреть аналитические материалы">
-        <img src="pic-articles6.png" alt="Статьи">
-    </button>
-
-    <div class="links-menu" id="articlesMenu">
-        <a href="https://kz.kursiv.media/2023-04-07/chto-oznachayut-indeksy/" target="_blank">
-            Что означают индексы концентрации рынка?
-        </a>
-        <div class="divider"></div>
-        <a href="https://stat.gov.kz/ru/news/byuro-zapustilo-novyy-instrument-dlya-analiza-konkurentsii-na-rynkakh/" target="_blank">
-            Новый инструмент Бюро для анализа конкуренции
-        </a>
-        <div class="divider"></div>
-        <a href="https://www.gov.kz/memleket/entities/zk/documents/details/318123?lang=ru" target="_blank">
-            Официальные документы АЗРК РК
-        </a>
+<div class="flip-card" id="cardContainer">
+  <div class="flip-card-inner">
+    
+    <div class="flip-card-front" id="cardFront">
+      <img src="pic-articles6.png" class="tile-img" alt="Статьи для ознакомления">
     </div>
+
+    <div class="flip-card-back">
+      <div class="back-header">
+        <span class="back-title">Аналитика рынков</span>
+        <button class="btn-close" id="btnClose" title="Назад">✕</button>
+      </div>
+      
+      <div class="article-list">
+        <a href="https://kz.kursiv.media/2023-04-07/chto-oznachayut-indeksy/" target="_blank" class="article-link">
+          <strong>1. Kursiv:</strong> Что означают индексы концентрации рынка и их применение.
+        </a>
+        <a href="https://stat.gov.kz/ru/news/byuro-zapustilo-novyy-instrument-dlya-analiza-konkurentsii-na-rynkakh/" target="_blank" class="article-link">
+          <strong>2. Бюро статистики:</strong> Запуск нового инструмента анализа конкуренции на рынках.
+        </a>
+        <a href="https://www.gov.kz/memleket/entities/zk/documents/details/318123?lang=ru" target="_blank" class="article-link">
+          <strong>3. АЗРК РК:</strong> Официальные документы ведомства по защите конкуренции.
+        </a>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-    const btn = document.getElementById('articlesBtn');
-    const menu = document.getElementById('articlesMenu');
+  const card = document.getElementById('cardContainer');
+  const cardFront = document.getElementById('cardFront');
+  const btnClose = document.getElementById('btnClose');
 
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('show');
-    });
+  cardFront.addEventListener('click', function(e) {
+    card.classList.add('flipped');
+  });
 
-    document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && e.target !== btn) {
-            menu.classList.remove('show');
-        }
+  btnClose.addEventListener('click', function(e) {
+    e.stopPropagation();
+    card.classList.remove('flipped');
+  });
+
+  const links = document.querySelectorAll('.article-link');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.stopPropagation();
     });
+  });
 </script>
 
 </body>
 </html>
+2. Код для видео: btn-video6.html
+(Использует картинку pic-video6.png и благородный красный неоновый кант #ef4444 под стиль YouTube)
+
+HTML
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Интерактивная карточка-видео 6</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    display: flex;
+    justify-content: center; /* Центровка по горизонтали в ячейке */
+    align-items: center;     /* Центровка по вертикали в ячейке */
+    height: 100vh;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* 3D Контейнер карточки (размер один в один как у статей) */
+  .flip-card {
+    background-color: transparent;
+    width: 250px;
+    height: 250px;
+    perspective: 1000px;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.25s ease;
+  }
+
+  /* Эффект увеличения и красной неоновой подсветки при наведении */
+  .flip-card:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.5));
+  }
+
+  /* Внутренняя оболочка для вращения */
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  /* Класс для совершения переворота */
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* Общие стили для обеих сторон */
+  .flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* ЛИЦЕВАЯ СТОРОНА (Обложка кнопки) */
+  .flip-card-front {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ОБРАТНАЯ СТОРОНА (Список видео на темном фоне) */
+  .flip-card-back {
+    background-color: #0f172a;
+    color: #ffffff;
+    transform: rotateY(180deg);
+    border: 2px solid rgba(239, 68, 68, 0.7); /* Красный неоновый кант под стиль YouTube */
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* Шапка обратной стороны */
+  .back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2d3748;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .back-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #ef4444; /* Красный акцент */
+    letter-spacing: 0.5px;
+  }
+
+  /* Кнопка закрытия */
+  .btn-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 4px;
+    transition: color 0.2s;
+  }
+
+  .btn-close:hover {
+    color: #ffffff;
+  }
+
+  /* Список видеоматериалов скроллится внутри, если их много */
+  .video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  /* Стилизация мини-скролла для видео-меню */
+  .video-list::-webkit-scrollbar { width: 4px; }
+  .video-list::-webkit-scrollbar-thumb { background: rgba(239, 68, 68, 0.4); border-radius: 2px; }
+
+  .video-link {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+    text-decoration: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 1.3;
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+  }
+
+  .video-link::before {
+    content: "▶";
+    color: #ef4444;
+    margin-right: 6px;
+    font-size: 8px;
+    flex-shrink: 0;
+  }
+
+  .video-link:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: translateX(3px);
+  }
+</style>
+</head>
+<body>
+
+<div class="flip-card" id="cardContainer">
+  <div class="flip-card-inner">
+    
+    <div class="flip-card-front" id="cardFront">
+      <img src="pic-video6.png" class="tile-img" alt="Видеоматериалы">
+    </div>
+
+    <div class="flip-card-back">
+      <div class="back-header">
+        <span class="back-title">Видеоматериалы</span>
+        <button class="btn-close" id="btnClose" title="Назад">✕</button>
+      </div>
+      
+      <div class="video-list">
+        <a href="https://www.youtube.com/watch?v=NySt2EDS1Ik&t=78s" target="_blank" class="video-link">
+          Рыночные структуры и конкуренция (Часть 1)
+        </a>
+        <a href="https://www.youtube.com/watch?v=KZfIgh0EWRE" target="_blank" class="video-link">
+          Монополистическая конкуренция: Нюансы
+        </a>
+        <a href="https://www.youtube.com/watch?v=KTDGyhazTec" target="_blank" class="video-link">
+          Модели Олигополии и выбор стратегии
+        </a>
+        <a href="https://www.youtube.com/watch?v=YQcb73YMA6c" target="_blank" class="video-link">
+          Чистая монополия и максимизация прибыли
+        </a>
+        <a href="https://www.youtube.com/watch?v=diLKlYISOpw" target="_blank" class="video-link">
+          Индекс Херфиндаля-Хиршмана на практике
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const card = document.getElementById('cardContainer');
+  const cardFront = document.getElementById('cardFront');
+  const btnClose = document.getElementById('btnClose');
+
+  cardFront.addEventListener('click', function(e) {
+    card.classList.add('flipped');
+  });
+
+  btnClose.addEventListener('click', function(e) {
+    e.stopPropagation();
+    card.classList.remove('flipped');
+  });
+
+  const links = document.querySelectorAll('.video-link');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+</script>
+
+</body>
+</html>
+Ссылки для интеграции в iframe вашего репозитория:
+Благодаря флип-механике, размеры iframe теперь фиксированные и аккуратные. Пропишите для обоих окон одинаковые размеры:
+
+Для статей:
+
+HTML
+
+
+<iframe src="https://ogaydv-prog.github.io/Simulator-NPV/btn-articles6.html" 
+        style="border:none; width:270px; height:270px; overflow:hidden;" 
+        scrolling="no">
+</iframe>
+Для видео:
+
+HTML
+
+
+<iframe src="https://ogaydv-prog.github.io/Simulator-NPV/btn-video6.html" 
+        style="border:none; width:270px; height:270px; overflow:hidden;" 
+        scrolling="no">
+</iframe>
+(Параметры width и height выставлены с запасом в 270px, чтобы тень и неоновое свечение при наведении плавно отображались, а сами кнопки стояли строго посередине своих ячеек).
