@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Сброс отступов и фиксация размеров под фрейм */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: transparent; /* Прозрачный фон вокруг картинки */
+        }
+        
+        .btn-link { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease; 
+            text-decoration: none;
+        }
+        
+        /* Эффект оживления: плавное увеличение и неоновая подсветка */
+        .btn-link:hover { 
+            transform: scale(1.02); 
+            filter: drop-shadow(0 0 12px rgba(52, 152, 219, 0.7)); /* Синеватая подсветка контура */
+        }
+        
+        /* Адаптивное растягивание картинки на весь размер фрейма */
+        .btn-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Картинка масштабируется без искажений */
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <a href="https://docs.google.com/presentation/d/1zRoh_J4kWQyW6-YwASS6Fa38u0a6Esjs/edit?usp=sharing&ouid=109725301150629205728&rtpof=true&sd=true" 
+       target="_blank" 
+       class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-preza7.png" 
+             alt="Открыть презентацию 7" class="btn-img">
+    </a>
+</body>
+</html>
