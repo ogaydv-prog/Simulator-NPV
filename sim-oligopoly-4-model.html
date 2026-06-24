@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA Симулятор | Модели Олигополии</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    
+        /* Делаем страницу на всю высоту и растягиваем контент */
+        body { 
+            background-color: #0a0a0a; 
+            color: #e2e8f0; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 14px; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            background-image: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050505 80%);
+        }
+        
+        /* Увеличиваем высоту блоков с графиками */
+        .chart-container { height: 400px !important; width: 100%; }
+
+        .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+        .tab-btn { transition: all 0.3s; border: 1px solid rgba(255,255,255,0.05); background: rgba(30, 41, 59, 0.4); }
+        .tab-btn.active { border-color: #d4af37; background: rgba(212, 175, 55, 0.1); color: #fff; box-shadow: 0 0 15px rgba(212, 175, 55, 0.15); }
+
+        /* ВИНТАЖНЫЕ ПОЛЗУНКИ (Стиль старой аппаратуры) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 15px 0;
+        }
+        
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        /* Темная механическая прорезь */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #111; 
+            border-radius: 4px;
+            border: 1px solid #2a2a2a;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+
+        /* Латунный/Золотой регулятор */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fde08b 0%, #d4af37 40%, #8a6d1c 100%);
+            border: 1px solid #4a3800;
+            box-shadow: 
+                0 4px 6px rgba(0,0,0,0.6), 
+                inset 0 2px 2px rgba(255,255,255,0.5),
+                inset 0 -2px 4px rgba(0,0,0,0.4);
+            cursor: pointer;
+            margin-top: -9px; /* (Track Height / 2) - (Thumb Height / 2) */
+            position: relative;
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(0.95);
+            background: radial-gradient(circle at 30% 30%, #fff0b3 0%, #e8c34f 40%, #a68424 100%);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col p-3">
+
+    <!-- HEADER -->
+    <header class="mb-3 flex justify-between items-end gap-2">
+        <div>
+            <h1 class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-500">
+                Стратегические Модели Олигополии
+            </h1>
+            <p class="text-slate-400 text-[11px]">MBA Практикум: Анализ стратегических взаимодействий:динамика цен, объемов, выручки и издержек.</p>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="grid grid-cols-4 gap-2 mb-3">
+        <button id="btn-cournot" class="tab-btn active rounded-lg p-1.5 flex flex-col items-center" onclick="switchTab('cournot')">
+            <span class="font-bold text-xs text-amber-500">Модель Курно</span>
+            <span class="text-[9px] text-slate-400">Шоколад (Объемы)</span>
+        </button>
+        <button id="btn-stackelberg" class="tab-btn opacity-60 rounded-lg p-1.5 flex flex-col items-center" onclick="switchTab('stackelberg')">
+            <span class="font-bold text-xs">Модель Штакельберга</span>
+            <span class="text-[9px] text-slate-400">Спортивная обувь (Лидерство)</span>
+        </button>
+        <button id="btn-bertrand" class="tab-btn opacity-60 rounded-lg p-1.5 flex flex-col items-center" onclick="switchTab('bertrand')">
+            <span class="font-bold text-xs">Модель Бертрана</span>
+            <span class="text-[9px] text-slate-400">Телеком (Цены)</span>
+        </button>
+        <button id="btn-sweezy" class="tab-btn opacity-60 rounded-lg p-1.5 flex flex-col items-center" onclick="switchTab('sweezy')">
+            <span class="font-bold text-xs">Sweezy</span>
+            <span class="text-[9px] text-slate-400">АЗС (Жесткость)</span>
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col min-h-0">
+        
+        <!-- TAB 1: COURNOT -->
+        <div id="tab-content-cournot" class="flex-grow grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div class="glass rounded-xl p-4 lg:col-span-3 flex flex-col">
+                <h2 class="text-xs font-bold mb-1 text-amber-400 flex justify-between">
+                    <span>Матрица объемов (Кривые реагирования)</span>
+                    <span class="text-slate-400 font-normal text-[10px]">Mars vs Mondelez</span>
+                </h2>
+                <div class="chart-container relative w-full"><canvas id="chart-cournot"></canvas></div>
+                <div class="mt-4 p-3 bg-slate-900/50 rounded text-xs border border-amber-500/20">
+                    <span class="font-bold text-amber-300">Инсайт (P&L):</span> В модели Курно компании управляют <b>объемами</b>. Обратите внимание на показатели: если оба игрока бездумно увеличат выпуск на максимум, их <b>Выручка</b> может даже вырасти, но <b>Издержки</b> вырастут быстрее, и они уничтожат свою <b>Прибыль</b> из-за падения рыночной цены.
+                </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col gap-3">
+                <div class="glass rounded-xl p-4">
+                    <div class="mb-2">
+                        <div class="flex justify-between text-xs mb-0.5"><span class="text-amber-200">Выпуск Mars (Q₁):</span><span id="cournot-val-q1" class="font-bold">30</span></div>
+                        <input type="range" id="cournot-slider-q1" min="0" max="50" value="30">
+                    </div>
+                    <div class="mb-2">
+                        <div class="flex justify-between text-xs mb-0.5"><span class="text-sky-300">Выпуск Mondelez (Q₂):</span><span id="cournot-val-q2" class="font-bold">30</span></div>
+                        <input type="range" id="cournot-slider-q2" min="0" max="50" value="30">
+                    </div>
+                    
+                    <div class="bg-black/60 p-2 text-center rounded text-xs mb-3 border border-slate-700">
+                        Рыночная цена плитки (формируется рынком): <span id="cournot-val-p" class="text-yellow-400 font-bold text-sm">1500</span> ₸
+                    </div>
+
+                    <!-- P&L БЛОК -->
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-amber-500/30">
+                            <div class="text-amber-400 font-bold mb-1 border-b border-amber-500/30 pb-1">ФИНАНСЫ MARS</div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка (TR):</span> <span id="cournot-tr1">0 ₸</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки (TC):</span> <span id="cournot-tc1">0 ₸</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ЧИСТАЯ ПРИБЫЛЬ:</span> <span id="cournot-val-pi1">0 ₸</span></div>
+                        </div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-sky-500/30">
+                            <div class="text-sky-400 font-bold mb-1 border-b border-sky-500/30 pb-1">ФИНАНСЫ MONDELEZ</div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка (TR):</span> <span id="cournot-tr2">0 ₸</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки (TC):</span> <span id="cournot-tc2">0 ₸</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ЧИСТАЯ ПРИБЫЛЬ:</span> <span id="cournot-val-pi2">0 ₸</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="cournot-panel" class="glass rounded-xl p-3 border text-[11px]"></div>
+            </div>
+        </div>
+
+        <!-- TAB 2: STACKELBERG -->
+        <div id="tab-content-stackelberg" class="hidden flex-grow grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div class="glass rounded-xl p-4 lg:col-span-3 flex flex-col">
+                <h2 class="text-xs font-bold mb-1 text-amber-400 flex justify-between">
+                    <span>Динамика доминирования на рынке</span>
+                    <span class="text-slate-400 font-normal text-[10px]">On Running vs Brooks</span>
+                </h2>
+                <div class="chart-container relative w-full"><canvas id="chart-stackelberg"></canvas></div>
+                <div class="mt-4 bg-slate-900/50 p-3 rounded text-xs border border-amber-500/20">
+                    <span class="font-bold text-amber-300">Инсайт (P&L):</span> В модели Штакельберга -лидер (On Running) сознательно завышает издержки на огромную партию товара. Ведомый видит это, понимает, что рынок перенасыщен (цена упадет), и вынужден снижать свой объем, чтобы спасти маржу. Лидер жертвует частью цены ради колоссальной выручки.
+                </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col gap-3">
+                <div class="glass rounded-xl p-4">
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs mb-0.5"><span class="text-amber-200">Выпуск Лидера On (Q₁):</span><span id="stack-val-q1" class="font-bold">45</span></div>
+                        <input type="range" id="stack-slider-q1" min="0" max="90" value="45">
+                    </div>
+                    <div class="bg-black/60 p-2 rounded mb-3 text-[11px] border border-slate-700">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Ответ Ведомого (Brooks):</span>
+                            <span class="font-bold text-sky-400">Q₂ = <span id="stack-val-q2">22.5</span></span>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-slate-400">Рыночная цена обуви:</span>
+                            <span class="font-bold text-yellow-400"><span id="stack-val-p">0</span> ₸</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-amber-500/30">
+                            <div class="text-amber-400 font-bold mb-1 border-b border-amber-500/30 pb-1">ФИНАНСЫ ON (ЛИДЕР)</div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка:</span> <span id="stack-tr1">0</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки:</span> <span id="stack-tc1">0</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ПРИБЫЛЬ:</span> <span id="stack-val-pi1">0</span></div>
+                        </div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-sky-500/30">
+                            <div class="text-sky-400 font-bold mb-1 border-b border-sky-500/30 pb-1">ФИНАНСЫ BROOKS</div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка:</span> <span id="stack-tr2">0</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки:</span> <span id="stack-tc2">0</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ПРИБЫЛЬ:</span> <span id="stack-val-pi2">0</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="stack-panel" class="glass rounded-xl p-3 border text-[11px]"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: BERTRAND -->
+        <div id="tab-content-bertrand" class="hidden flex-grow grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div class="glass rounded-xl p-4 lg:col-span-3 flex flex-col">
+                <h2 class="text-xs font-bold mb-1 text-amber-400 flex justify-between">
+                    <span>Перетекание долей при ценовой войне</span>
+                    <span class="text-slate-400 font-normal text-[10px]">Телеком-операторы</span>
+                </h2>
+                <div class="chart-container relative w-full"><canvas id="chart-bertrand"></canvas></div>
+                <div class="mt-4 bg-slate-900/50 p-3 rounded text-xs border border-rose-500/20">
+                    <span class="font-bold text-rose-300">Инсайт (P&L):</span> В модели Бертрана игроки управляют именно <b>Ценой</b>. Снижая цену, компания забирает весь рынок, ее Выручка может взлететь, но если цена опустится до уровня себестоимости (1500 ₸), огромная выручка будет полностью съедена такими же издержками на трафик. Прибыль станет нулем.
+                </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col gap-3">
+                <div class="glass rounded-xl p-4">
+                    <div class="mb-2">
+                        <div class="flex justify-between text-xs mb-0.5"><span class="text-rose-400">Тариф Оператора 1 (P₁):</span><span class="font-bold"><span id="bertrand-val-p1">3000</span> ₸</span></div>
+                        <input type="range" id="bertrand-slider-p1" min="1000" max="6000" value="3000" step="100">
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex justify-between text-xs mb-0.5"><span class="text-purple-400">Тариф Оператора 2 (P₂):</span><span class="font-bold"><span id="bertrand-val-p2">3500</span> ₸</span></div>
+                        <input type="range" id="bertrand-slider-p2" min="1000" max="6000" value="3500" step="100">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-rose-500/30">
+                            <div class="text-rose-400 font-bold mb-1 border-b border-rose-500/30 pb-1 flex justify-between"><span>ОПЕРАТОР 1</span> <span id="bertrand-val-share1">0%</span></div>
+                            <div class="flex justify-between text-slate-300"><span>Абоненты:</span> <span id="bertrand-q1">0</span></div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка:</span> <span id="bertrand-tr1">0</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки:</span> <span id="bertrand-tc1">0</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ПРИБЫЛЬ:</span> <span id="bertrand-profit1">0</span></div>
+                        </div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-purple-500/30">
+                            <div class="text-purple-400 font-bold mb-1 border-b border-purple-500/30 pb-1 flex justify-between"><span>ОПЕРАТОР 2</span> <span id="bertrand-val-share2">0%</span></div>
+                            <div class="flex justify-between text-slate-300"><span>Абоненты:</span> <span id="bertrand-q2">0</span></div>
+                            <div class="flex justify-between text-slate-300"><span>Выручка:</span> <span id="bertrand-tr2">0</span></div>
+                            <div class="flex justify-between text-rose-300"><span>Издержки:</span> <span id="bertrand-tc2">0</span></div>
+                            <div class="flex justify-between font-bold text-emerald-400 mt-1 pt-1 border-t border-slate-600/50"><span>ПРИБЫЛЬ:</span> <span id="bertrand-profit2">0</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="bertrand-panel" class="glass rounded-xl p-3 border text-[11px]"></div>
+            </div>
+        </div>
+
+        <!-- TAB 4: SWEEZY -->
+        <div id="tab-content-sweezy" class="hidden flex-grow grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div class="glass rounded-xl p-4 lg:col-span-3 flex flex-col">
+                <h2 class="text-xs font-bold mb-1 text-amber-400 flex justify-between">
+                    <span>Равновесие на изломе спроса</span>
+                    <span class="text-slate-400 font-normal text-[10px]">Сети АЗС</span>
+                </h2>
+                <div class="chart-container relative w-full"><canvas id="chart-sweezy"></canvas></div>
+                <div class="mt-4 bg-slate-900/50 p-3 rounded text-xs border border-cyan-500/20">
+                    <span class="font-bold text-cyan-300">Инсайт (P&L):</span> Подвигайте ползунок издержек закупки. Вы увидите, что в широком диапазоне издержек АЗС не меняют ни розничную цену, ни объемы. Почему? Потому что изменение цены приведет к такому падению выручки (TR), которое не перекроет экономию на издержках (TC).
+                </div>
+            </div>
+            <div class="lg:col-span-2 flex flex-col gap-3">
+                <div class="glass rounded-xl p-4">
+                    <div class="mb-4">
+                        <div class="flex justify-between text-xs mb-0.5">
+                            <span class="text-cyan-300">Оптовые издержки АЗС (MC):</span>
+                            <span class="font-bold"><span id="sweezy-val-mc">145</span> ₸</span>
+                        </div>
+                        <input type="range" id="sweezy-slider-mc" min="50" max="250" value="145" step="5">
+                    </div>
+                    
+                    <div class="bg-black/60 p-2 rounded mb-3 text-[11px] border border-slate-700 flex justify-around text-center">
+                        <div>
+                            <div class="text-slate-400 mb-1">Розничная цена (P)</div>
+                            <div id="sweezy-val-p" class="font-bold text-yellow-400 text-sm">205 ₸</div>
+                        </div>
+                        <div>
+                            <div class="text-slate-400 mb-1">Объем продаж (Q)</div>
+                            <div id="sweezy-val-q" class="font-bold text-yellow-400 text-sm">40 тыс. л.</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-cyan-500/30 text-[11px]">
+                        <div class="text-cyan-400 font-bold mb-2 border-b border-cyan-500/30 pb-1">ФИНАНСОВЫЙ РЕЗУЛЬТАТ АЗС</div>
+                        <div class="flex justify-between text-slate-300 mb-1"><span>Выручка (TR = P × Q):</span> <span id="sweezy-tr">0</span></div>
+                        <div class="flex justify-between text-rose-300 mb-1"><span>Издержки (TC = MC × Q):</span> <span id="sweezy-tc">0</span></div>
+                        <div class="flex justify-between font-bold text-emerald-400 mt-2 pt-2 border-t border-slate-600/50 text-xs"><span>ЧИСТАЯ ПРИБЫЛЬ:</span> <span id="sweezy-pi">0</span></div>
+                    </div>
+                </div>
+                <div id="sweezy-panel" class="glass rounded-xl p-3 border text-[11px]"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.font.size = 11;
+        const gridColor = 'rgba(255, 255, 255, 0.05)';
+        let cournotChart, stackChart, bertrandChart, sweezyChart;
+
+        function formatCurrency(num) {
+            return Math.round(num).toLocaleString('ru-RU') + ' ₸';
+        }
+
+        function switchTab(tabName) {
+            ['cournot', 'stackelberg', 'bertrand', 'sweezy'].forEach(t => {
+                document.getElementById(`btn-${t}`).classList.remove('active');
+                document.getElementById(`btn-${t}`).classList.add('opacity-60');
+                // Remove special styling for non-active tabs
+                document.getElementById(`btn-${t}`).querySelector('span').classList.remove('text-amber-500');
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+            });
+            
+            const activeBtn = document.getElementById(`btn-${tabName}`);
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('opacity-60');
+            activeBtn.querySelector('span').classList.add('text-amber-500');
+            
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+
+            if (tabName === 'cournot') { if (!cournotChart) initCournot(); updateCournot(); }
+            if (tabName === 'stackelberg') { if (!stackChart) initStackelberg(); updateStackelberg(); }
+            if (tabName === 'bertrand') { if (!bertrandChart) initBertrand(); updateBertrand(); }
+            if (tabName === 'sweezy') { if (!sweezyChart) initSweezy(); updateSweezy(); }
+        }
+
+        // --- COURNOT ---
+        function initCournot() {
+            const ctx = document.getElementById('chart-cournot').getContext('2d');
+            cournotChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Реакция Mars', data: [{x: 45, y: 0}, {x: 0, y: 90}], showLine: true, borderColor: '#d4af37', backgroundColor: 'transparent', pointRadius: 0, borderWidth: 2 },
+                        { label: 'Реакция Mondelez', data: [{x: 0, y: 45}, {x: 90, y: 0}], showLine: true, borderColor: '#38bdf8', backgroundColor: 'transparent', pointRadius: 0, borderWidth: 2 },
+                        { label: 'Текущие объемы', data: [{x: 30, y: 30}], backgroundColor: '#fff', pointRadius: 6, z: 10 },
+                        { label: 'Равновесие Нэша', data: [{x: 30, y: 30}], backgroundColor: '#10b981', pointStyle: 'triangle', pointRadius: 8 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', title: { display: true, text: 'Выпуск Mars (Q₁)' }, min: 0, max: 60, grid: { color: gridColor } },
+                        y: { title: { display: true, text: 'Выпуск Mondelez (Q₂)' }, min: 0, max: 60, grid: { color: gridColor } }
+                    }
+                }
+            });
+            document.getElementById('cournot-slider-q1').addEventListener('input', updateCournot);
+            document.getElementById('cournot-slider-q2').addEventListener('input', updateCournot);
+        }
+
+        function updateCournot() {
+            const q1 = parseInt(document.getElementById('cournot-slider-q1').value);
+            const q2 = parseInt(document.getElementById('cournot-slider-q2').value);
+            document.getElementById('cournot-val-q1').innerText = q1;
+            document.getElementById('cournot-val-q2').innerText = q2;
+
+            let p = 3000 - 25 * (q1 + q2);
+            p = Math.max(0, p);
+            document.getElementById('cournot-val-p').innerText = p;
+
+            const mc = 750;
+            const tr1 = p * q1 * 1000;
+            const tc1 = mc * q1 * 1000;
+            const pi1 = Math.max(0, tr1 - tc1);
+
+            const tr2 = p * q2 * 1000;
+            const tc2 = mc * q2 * 1000;
+            const pi2 = Math.max(0, tr2 - tc2);
+
+            document.getElementById('cournot-tr1').innerText = formatCurrency(tr1);
+            document.getElementById('cournot-tc1').innerText = formatCurrency(tc1);
+            document.getElementById('cournot-val-pi1').innerText = formatCurrency(pi1);
+
+            document.getElementById('cournot-tr2').innerText = formatCurrency(tr2);
+            document.getElementById('cournot-tc2').innerText = formatCurrency(tc2);
+            document.getElementById('cournot-val-pi2').innerText = formatCurrency(pi2);
+
+            if(cournotChart) { cournotChart.data.datasets[2].data = [{x: q1, y: q2}]; cournotChart.update(); }
+
+            const panel = document.getElementById('cournot-panel');
+            panel.className = 'glass rounded-xl p-3 border text-[11px]';
+            if(q1 === 30 && q2 === 30) {
+                panel.innerHTML = `<b>Равновесие Нэша!</b> Оптимальный баланс Выручки и Издержек достигнут. При отклонении одна из компаний потеряет прибыль.`;
+                panel.classList.add('border-emerald-500', 'bg-emerald-950/10');
+            } else {
+                panel.innerHTML = `Рынок несбалансирован. Избыток объема роняет цену, уничтожая маржинальность.`;
+                panel.classList.add('border-slate-700');
+            }
+        }
+
+        // --- STACKELBERG ---
+        function initStackelberg() {
+            const ctx = document.getElementById('chart-stackelberg').getContext('2d');
+            stackChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Реакция Brooks', data: [{x: 0, y: 45}, {x: 90, y: 0}], showLine: true, borderColor: '#94a3b8', borderDash: [4, 4], backgroundColor: 'transparent', pointRadius: 0 },
+                        { label: 'Выбор On (Лидер)', data: [{x: 45, y: 22.5}], backgroundColor: '#d4af37', pointRadius: 6, z: 10 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'linear', title: { display: true, text: 'Выпуск On (Q₁)' }, min: 0, max: 90, grid: { color: gridColor } },
+                        y: { title: { display: true, text: 'Выпуск Brooks (Q₂)' }, min: 0, max: 90, grid: { color: gridColor } }
+                    }
+                }
+            });
+            document.getElementById('stack-slider-q1').addEventListener('input', updateStackelberg);
+        }
+
+        function updateStackelberg() {
+            const q1 = parseInt(document.getElementById('stack-slider-q1').value);
+            const q2 = Math.max(0, 45 - 0.5 * q1);
+            document.getElementById('stack-val-q1').innerText = q1;
+            document.getElementById('stack-val-q2').innerText = q2.toFixed(1);
+
+            let p = 20000 - 150 * (q1 + q2);
+            document.getElementById('stack-val-p').innerText = Math.round(p);
+            
+            const mc = 2000;
+            const tr1 = p * q1 * 100;
+            const tc1 = mc * q1 * 100;
+            const pi1 = Math.max(0, tr1 - tc1);
+
+            const tr2 = p * q2 * 100;
+            const tc2 = mc * q2 * 100;
+            const pi2 = Math.max(0, tr2 - tc2);
+
+            document.getElementById('stack-tr1').innerText = formatCurrency(tr1);
+            document.getElementById('stack-tc1').innerText = formatCurrency(tc1);
+            document.getElementById('stack-val-pi1').innerText = formatCurrency(pi1);
+
+            document.getElementById('stack-tr2').innerText = formatCurrency(tr2);
+            document.getElementById('stack-tc2').innerText = formatCurrency(tc2);
+            document.getElementById('stack-val-pi2').innerText = formatCurrency(pi2);
+
+            if(stackChart) { stackChart.data.datasets[1].data = [{x: q1, y: q2}]; stackChart.update(); }
+
+            const panel = document.getElementById('stack-panel');
+            panel.className = 'glass rounded-xl p-3 border text-[11px]';
+            if(q1 === 45) {
+                panel.innerHTML = `<b>Оптимум лидера:</b> Обратите внимание на разрыв в прибыли. Лидер захватил львиную долю выручки.`;
+                panel.classList.add('border-amber-500', 'bg-amber-950/10');
+            } else {
+                panel.innerHTML = `Лидер действует неоптимально, уступая часть финансового пирога конкуренту.`;
+                panel.classList.add('border-slate-700');
+            }
+        }
+
+        // --- BERTRAND ---
+        function initBertrand() {
+            const ctx = document.getElementById('chart-bertrand').getContext('2d');
+            bertrandChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Оператор 1', 'Оператор 2'],
+                    datasets: [{ label: 'Доля рынка (%)', data: [50, 50], backgroundColor: ['#fb7185', '#c084fc'], borderRadius: 4 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100, title: { display: true, text: '%' }, grid: { color: gridColor } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+            document.getElementById('bertrand-slider-p1').addEventListener('input', updateBertrand);
+            document.getElementById('bertrand-slider-p2').addEventListener('input', updateBertrand);
+        }
+
+        function updateBertrand() {
+            const p1 = parseInt(document.getElementById('bertrand-slider-p1').value);
+            const p2 = parseInt(document.getElementById('bertrand-slider-p2').value);
+            document.getElementById('bertrand-val-p1').innerText = p1;
+            document.getElementById('bertrand-val-p2').innerText = p2;
+
+            const mc = 1500; 
+            const ms = 100000; // Market size (subscribers)
+            let s1 = 0, s2 = 0; 
+            let q1 = 0, q2 = 0;
+
+            if(p1 < p2) { s1 = 100; s2 = 0; q1 = ms; q2 = 0; }
+            else if (p2 < p1) { s1 = 0; s2 = 100; q1 = 0; q2 = ms; }
+            else { s1 = 50; s2 = 50; q1 = ms/2; q2 = ms/2; }
+
+            const tr1 = p1 * q1;
+            const tc1 = mc * q1;
+            const prof1 = Math.max(0, tr1 - tc1);
+
+            const tr2 = p2 * q2;
+            const tc2 = mc * q2;
+            const prof2 = Math.max(0, tr2 - tc2);
+
+            document.getElementById('bertrand-val-share1').innerText = `${s1}%`;
+            document.getElementById('bertrand-q1').innerText = q1.toLocaleString('ru-RU');
+            document.getElementById('bertrand-tr1').innerText = formatCurrency(tr1);
+            document.getElementById('bertrand-tc1').innerText = formatCurrency(tc1);
+            document.getElementById('bertrand-profit1').innerText = formatCurrency(prof1);
+
+            document.getElementById('bertrand-val-share2').innerText = `${s2}%`;
+            document.getElementById('bertrand-q2').innerText = q2.toLocaleString('ru-RU');
+            document.getElementById('bertrand-tr2').innerText = formatCurrency(tr2);
+            document.getElementById('bertrand-tc2').innerText = formatCurrency(tc2);
+            document.getElementById('bertrand-profit2').innerText = formatCurrency(prof2);
+
+            if(bertrandChart) { bertrandChart.data.datasets[0].data = [s1, s2]; bertrandChart.update(); }
+
+            const panel = document.getElementById('bertrand-panel');
+            panel.className = 'glass rounded-xl p-3 border text-[11px]';
+            if(p1 === mc && p2 === mc) {
+                panel.innerHTML = `<b>Катастрофа (Парадокс Бертрана):</b> Огромная выручка полностью поглощена такими же издержками на трафик. Прибыль равна нулю.`;
+                panel.classList.add('border-emerald-500', 'bg-emerald-950/10');
+            } else if (p1 !== p2) {
+                panel.innerHTML = `<b>Демпинг:</b> Победитель забрал 100% абонентов. Выручка взлетела, но маржинальность зависит от цены.`;
+                panel.classList.add('border-rose-500');
+            } else {
+                panel.innerHTML = `Доли равны (50/50). Но у каждой компании есть опасный стимул чуть снизить цену.`;
+                panel.classList.add('border-slate-700');
+            }
+        }
+
+        // --- SWEEZY ---
+        function initSweezy() {
+            const ctx = document.getElementById('chart-sweezy').getContext('2d');
+            sweezyChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Спрос (Sweezy)', data: [{x:0, y:245}, {x:40, y:205}, {x:80, y:125}], showLine: true, borderColor: '#22d3ee', backgroundColor: 'transparent', borderWidth: 2.5 },
+                        { label: 'Предельный доход (MR)', data: [{x:0, y:245}, {x:40, y:165}, {x:40, y:125}, {x:71.25, y:0}], showLine: true, borderColor: '#0ea5e9', borderDash: [4,4] },
+                        { label: 'Издержки (MC)', data: [{x:0, y:145}, {x:80, y:145}], showLine: true, borderColor: '#f43f5e', pointRadius: 0 },
+                        { label: 'Текущая точка P', data: [{x: 40, y: 205}], backgroundColor: '#d4af37', pointRadius: 6, z: 10 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 0, max: 80, title: { display: true, text: 'Объем (тыс. л.)' }, grid: { color: gridColor } },
+                        y: { min: 0, max: 260, title: { display: true, text: 'Цена (₸)' }, grid: { color: gridColor } }
+                    }
+                }
+            });
+            document.getElementById('sweezy-slider-mc').addEventListener('input', updateSweezy);
+        }
+
+        function updateSweezy() {
+            const mc = parseInt(document.getElementById('sweezy-slider-mc').value);
+            document.getElementById('sweezy-val-mc').innerText = mc;
+
+            let p = 205; let q = 40; let status = "stable";
+
+            if(mc > 165) {
+                q = (245 - mc) / 2; p = 245 - q; status = "high";
+            } else if(mc < 125) {
+                q = (285 - mc) / 4; p = 285 - 2 * q; status = "low";
+            }
+
+            document.getElementById('sweezy-val-p').innerText = `${Math.round(p)} ₸`;
+            document.getElementById('sweezy-val-q').innerText = `${q.toFixed(1)} тыс. л.`;
+
+            // P&L calculation
+            const tr = p * q * 1000;
+            const tc = mc * q * 1000;
+            const pi = tr - tc;
+
+            document.getElementById('sweezy-tr').innerText = formatCurrency(tr);
+            document.getElementById('sweezy-tc').innerText = formatCurrency(tc);
+            document.getElementById('sweezy-pi').innerText = formatCurrency(Math.max(0, pi));
+
+
+            if(sweezyChart) {
+                sweezyChart.data.datasets[2].data = [{x:0, y:mc}, {x:80, y:mc}];
+                sweezyChart.data.datasets[3].data = [{x: q, y: p}];
+                sweezyChart.update();
+            }
+
+            const panel = document.getElementById('sweezy-panel');
+            panel.className = 'glass rounded-xl p-3 border text-[11px]';
+            if(status === "stable") {
+                panel.innerHTML = `<b>Ценовая жесткость:</b> MC «гуляют» внутри разрыва MR. Менять цену невыгодно — потеря объемов (выручки) превысит экономию на издержках.`;
+                panel.classList.add('border-cyan-500', 'bg-cyan-950/10');
+            } else if (status === "high") {
+                panel.innerHTML = `<b>Вынужденный рост:</b> Издержки пробили потолок рентабельности. Приходится повышать цены, жертвуя объемами продаж.`;
+                panel.classList.add('border-rose-500');
+            } else {
+                panel.innerHTML = `Сверхнизкие издержки толкают цену вниз по неэластичной кривой.`;
+                panel.classList.add('border-amber-500/10');
+            }
+        }
+
+        window.onload = function() {
+            initCournot();
+            updateCournot();
+        };
+    </script>
+</body>
+</html>
