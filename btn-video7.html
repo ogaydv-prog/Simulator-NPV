@@ -4,97 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Идеальный сброс отступов и центрирование элементов по вертикали, как в оригинале */
+        /* Полное копирование базовых стилей из шаблона Презентации */
         html, body { 
             margin: 0; 
             padding: 0; 
-            display: flex; 
-            justify-content: flex-start; /* Оставляем общее выравнивание от левого края для ряда */
-            align-items: center; 
-            height: 100vh; 
-            background: transparent; 
+            width: 100%; 
+            height: 100%; 
             overflow: hidden; 
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: transparent; 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
-        /* Общий контейнер-ряд */
+        /* Главный контейнер, который в исходном состоянии не мешает центровке */
         .main-container {
             display: flex;
-            align-items: center;
             width: 100%;
             height: 100%;
-            gap: 20px;
-        }
-        
-        /* КНОПКА: Полное сохранение структуры, логики размеров и центровки из вашего шаблона */
-        .btn-box {
-            height: 100%;
-            aspect-ratio: 1 / 1; /* Делает область кнопки ровным квадратом на всю высоту фрейма */
-            display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* ОБЕРТКА КНОПКИ: По умолчанию занимает 100% пространства, как в Презентации */
+        .btn-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        /* Стили самой ссылки-кнопки (Полное совпадение с шаблоном) */
         .btn-link { 
             display: block; 
             width: 100%; 
             height: 100%; 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
-            cursor: pointer; 
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease; 
             text-decoration: none;
+            cursor: pointer;
         }
         
-        /* Эффект оживления кнопки (увеличение 1.05 и подсветка) */
+        /* Эффект оживления: плавное увеличение и неоновая подсветка */
         .btn-link:hover { 
-            transform: scale(1.05); 
-            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)); 
+            transform: scale(1.02); 
+            filter: drop-shadow(0 0 12px rgba(52, 152, 219, 0.7)); 
         }
 
-        /* Эффект нажатия (сжатие) */
         .btn-link:active {
             transform: scale(0.98);
         }
         
-        /* Картинка внутри кнопки: четко по центру, без искажений, с равными отступами */
+        /* Картинка-кнопка: масштабируется без искажений и строго по центру */
         .btn-img { 
-            display: block; 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
+            display: block; 
         }
 
         /* КАРТОЧКА «КИНОПЛЕНКА 80-Х» */
         .film-card {
-            flex-grow: 1;
-            max-width: 550px; /* Ограничение максимальной ширины карточки */
-            height: 90%; /* Оставляем небольшие зазоры сверху и снизу для реалистичности */
-            background: #151515;
-            border-left: 5px dashed #262626;
-            border-right: 5px dashed #262626;
+            width: 0;
+            height: 0;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+            background: #111111;
+            border-left: 0px dashed #333;
+            border-right: 0px dashed #333;
             position: relative;
-            border-radius: 4px;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255,255,255,0.02);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 10px 30px;
+            padding: 0;
             box-sizing: border-box;
-            
-            /* Плавное появление */
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            visibility: hidden;
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        opacity 0.4s ease, 
+                        padding 0.4s ease;
         }
 
-        /* Состояние активации карточки */
-        .film-card.active {
-            opacity: 1;
-            transform: translateX(0);
-            visibility: visible;
-        }
-
-        /* Перфорация старой кинопленки (сверху и снизу) */
+        /* Перфорационные отверстия старой кинопленки (сверху и снизу) */
         .film-card::before, .film-card::after {
             content: '';
             position: absolute;
@@ -103,75 +98,144 @@
             height: 10px;
             background-image: linear-gradient(to right, #000 0px, #000 12px, transparent 12px, transparent 24px);
             background-size: 24px 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .film-card::before { top: 6px; }
         .film-card::after { bottom: 6px; }
 
-        /* Стиль ретро-заголовка */
-        .film-card h3 {
-            margin: 0 0 14px 0;
-            color: #f1c40f; 
+        /* Заголовок кинопленки */
+        .film-title {
+            margin: 0 0 12px 0;
+            color: #f1c40f; /* Ретро-желтый цвет */
             font-size: 15px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            border-bottom: 1px solid #2a2a2a;
+            border-bottom: 1px solid #222;
             padding-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Список видео-ссылок */
+        /* Список видеоматериалов */
         .video-list {
             list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+        }
+
+        .video-item {
+            margin: 0;
         }
 
         .video-item a {
-            color: #dddddd;
+            color: #e0e0e0;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.2s ease;
+            line-height: 1.4;
         }
 
         .video-item a:hover {
             color: #3498db;
-            transform: translateX(6px);
+            transform: translateX(4px);
+        }
+
+        /* АКТИВНОЕ СОСТОЯНИЕ (При клике) */
+        .main-container.active {
+            gap: 20px;
+        }
+
+        /* Сжатие кнопки для освобождения места под кинопленку */
+        .main-container.active .btn-wrapper {
+            width: 200px;
+        }
+
+        /* Раскрытие кинопленки */
+        .main-container.active .film-card {
+            width: calc(100% - 220px);
+            height: 90%;
+            opacity: 1;
+            visibility: visible;
+            padding: 20px 25px;
+            border-left: 5px dashed #2a2a2a;
+            border-right: 5px dashed #2a2a2a;
+        }
+
+        .main-container.active .film-card::before, 
+        .main-container.active .film-card::after {
+            opacity: 1;
+        }
+
+        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ И УЗКИХ ФРЕЙМОВ */
+        @media (max-width: 550px) {
+            .main-container.active {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .main-container.active .btn-wrapper {
+                width: 100%;
+                height: 40%;
+            }
+            .main-container.active .film-card {
+                width: 100%;
+                height: 55%;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <div class="btn-box">
-            <div class="btn-link" id="videoBtn">
+    <div class="main-container" id="mainContainer">
+        <!-- Блок кнопки (по умолчанию занимает 100%) -->
+        <div class="btn-wrapper">
+            <div class="btn-link" id="videoBtn" title="Нажмите, чтобы открыть видео">
                 <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-video7.png" 
                      alt="Открыть видеоматериалы" class="btn-img">
             </div>
         </div>
 
+        <!-- Скрытая ретро-карточка кинопленки -->
         <div class="film-card" id="filmCard">
-            <h3>🎬 Видеоматериалы: Олигополия</h3>
+            <div class="film-title">🎬 Видеоматериалы: Олигополия</div>
             <ul class="video-list">
-                <li class="video-item"><a href="https://www.youtube.com/watch?v=c-yK5TnaQmo" target="_blank">▶️ Модели Курно и Бертранда — Анализ</a></li>
-                <li class="video-item"><a href="https://www.youtube.com/watch?v=PeQKddInz5c" target="_blank">▶️ Модель Штакельберга: Лидерство на рынке</a></li>
-                <li class="video-item"><a href="https://www.youtube.com/watch?v=GFF6rtk0z4c" target="_blank">▶️ Ломаная кривая спроса олигополии</a></li>
-                <li class="video-item"><a href="https://www.youtube.com/watch?v=U-miKGEyMhg" target="_blank">▶️ Теория игр и Стратегические взаимодействия</a></li>
-                <li class="video-item"><a href="https://www.youtube.com/watch?v=38kALMkU9K8" target="_blank">▶️ Практический кейс: Ценовые войны</a></li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=c-yK5TnaQmo" target="_blank" rel="noopener noreferrer">▶️ Модели Курно и Бертранда — Анализ</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=PeQKddInz5c" target="_blank" rel="noopener noreferrer">▶️ Модель Штакельберга: Лидерство</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=GFF6rtk0z4c" target="_blank" rel="noopener noreferrer">▶️ Ломаная кривая спроса олигополии</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=U-miKGEyMhg" target="_blank" rel="noopener noreferrer">▶️ Теория игр и Стратегии взаимодействия</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=38kALMkU9K8" target="_blank" rel="noopener noreferrer">▶️ Практический кейс: Ценовые войны</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://ru.euronews.com/my-europe/2026/06/19/game-changer-sweets-the-bavarian-start-up-making-sustainable-chocolate-from-sunflowers" target="_blank" rel="noopener noreferrer">🌱 Euronews: Экологичный шоколад из Баварии</a>
+                </li>
             </ul>
         </div>
     </div>
 
     <script>
-        const btn = document.getElementById('videoBtn');
-        const card = document.getElementById('filmCard');
+        const videoBtn = document.getElementById('videoBtn');
+        const mainContainer = document.getElementById('mainContainer');
 
-        btn.addEventListener('click', () => {
-            card.classList.toggle('active');
+        videoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            mainContainer.classList.toggle('active');
         });
     </script>
 </body>
