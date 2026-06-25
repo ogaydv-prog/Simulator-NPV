@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Полное копирование базовых стилей из шаблона Презентации */
+        /* Базовые стили из шаблона Презентации для идеальной центровки */
         html, body { 
             margin: 0; 
             padding: 0; 
@@ -15,7 +15,7 @@
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
-        /* Главный контейнер - теперь это абсолютное позиционирование для идеальной центровки */
+        /* Главный контейнер с абсолютным позиционированием */
         .main-container {
             position: relative;
             width: 100%;
@@ -31,10 +31,14 @@
             top: 0;
             width: 100%;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 2;
         }
         
-        /* Стили самой ссылки-кнопки (Точное совпадение с шаблоном презентации) */
+        /* Ссылочный контейнер кнопки */
         .btn-link { 
             display: block; 
             width: 100%; 
@@ -63,57 +67,86 @@
         }
 
         /* КАРТОЧКА «КИНОПЛЕНКА 80-Х» */
-        /* Изначально вынесена абсолютно за пределы экрана справа (-100%), чтобы никак не влиять на кнопку */
+        /* По умолчанию скрыта за правым краем экрана, чтобы не мешать кнопке */
         .film-card {
             position: absolute;
+            left: 100%;
             right: -100%;
-            top: 5%;
-            height: 90%;
-            width: calc(100% - 260px); /* Математический расчет: ширина экрана минус кнопка и отступы */
+            top: 4%;
+            height: 92%;
             opacity: 0;
             visibility: hidden;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto; /* Позволяет прокручивать список, если экран критически мал */
+            scrollbar-width: none; /* Скрытие скроллбара для Firefox */
             background: #111111;
             border-left: 5px dashed #2a2a2a;
             border-right: 5px dashed #2a2a2a;
             border-radius: 6px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255,255,255,0.05);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 20px 25px;
+            padding: 15px 25px;
             box-sizing: border-box;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
         }
 
-        /* Перфорационные отверстия старой кинопленки (сверху и снизу) */
+        /* Скрытие полосы прокрутки для Chrome/Safari */
+        .film-card::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Перфорация ретро-кинопленки сверху и снизу */
         .film-card::before, .film-card::after {
             content: '';
             position: absolute;
             left: 0;
             width: 100%;
-            height: 10px;
+            height: 8px;
             background-image: linear-gradient(to right, #000 0px, #000 12px, transparent 12px, transparent 24px);
-            background-size: 24px 10px;
+            background-size: 24px 8px;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        .film-card::before { top: 6px; }
-        .film-card::after { bottom: 6px; }
+        .film-card::before { top: 4px; }
+        .film-card::after { bottom: 4px; }
 
-        /* Заголовок кинопленки */
+        /* Шапка кинопленки */
+        .film-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+
         .film-title {
-            margin: 0 0 12px 0;
+            margin: 0;
             color: #f1c40f; 
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 6px;
+            letter-spacing: 1.2px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+        }
+
+        /* Кнопка закрытия карточки */
+        .close-btn {
+            color: #777;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #e74c3c;
         }
 
         /* Список видеоматериалов */
@@ -123,7 +156,7 @@
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px; /* Плотный шаг, чтобы помещались все 6 ссылок */
         }
 
         .video-item {
@@ -133,12 +166,12 @@
         .video-item a {
             color: #e0e0e0;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12.5px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s ease;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         .video-item a:hover {
@@ -148,14 +181,15 @@
 
         /* АКТИВНОЕ СОСТОЯНИЕ (При клике) */
 
-        /* Сжатие и смещение кнопки влево */
+        /* Сжатие и плавное смещение кнопки влево */
         .main-container.active .btn-wrapper {
-            width: 220px; /* Кнопка аккуратно уменьшается до компактного размера */
+            width: 210px; /* Фиксированный компактный размер в открытом состоянии */
         }
 
-        /* Плавное выезжание кинопленки на экран */
+        /* Выезжание кинопленки справа на экран */
         .main-container.active .film-card {
-            right: 20px; /* Позиционируется с отступом 20px справа */
+            left: 230px; /* Отступ от кнопки в 20px (210px + 20px) */
+            right: 15px; /* Аккуратный зазор от правого края фрейма */
             opacity: 1;
             visibility: visible;
         }
@@ -165,20 +199,20 @@
             opacity: 1;
         }
 
-        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ ИЛИ ОЧЕНЬ УЗКИХ СТОЛБЦОВ */
+        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ И УЗКИХ СТОЛБЦОВ */
         @media (max-width: 550px) {
             .main-container.active .btn-wrapper {
                 width: 100%;
-                height: 40%;
+                height: 38%;
                 top: 0;
                 left: 0;
             }
             .main-container.active .film-card {
-                left: 5%;
-                right: 5%;
-                width: 90%;
-                height: 55%;
-                top: 42%;
+                left: 4%;
+                right: 4%;
+                width: 92%;
+                height: 58%;
+                top: 40%;
             }
         }
     </style>
@@ -186,8 +220,8 @@
 <body>
 
     <div class="main-container" id="mainContainer">
-        <!-- Блок кнопки (в закрытом состоянии занимает честные 90% без смещений) -->
-        <div class="btn-wrapper">
+        <!-- Блок кнопки (в закрытом состоянии занимает честные 100% без смещений) -->
+        <div class="btn-wrapper" id="btnWrapper">
             <div class="btn-link" id="videoBtn" title="Нажмите, чтобы открыть видео">
                 <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-video7.png" 
                      alt="Открыть видеоматериалы" class="btn-img">
@@ -196,7 +230,10 @@
 
         <!-- Скрытая ретро-карточка кинопленки -->
         <div class="film-card" id="filmCard">
-            <div class="film-title">🎬 Видеоматериалы: Олигополия</div>
+            <div class="film-header">
+                <div class="film-title">🎬 Видеоматериалы: Олигополия</div>
+                <span class="close-btn" id="closeCardBtn" title="Закрыть">&times;</span>
+            </div>
             <ul class="video-list">
                 <li class="video-item">
                     <a href="https://www.youtube.com/watch?v=c-yK5TnaQmo" target="_blank" rel="noopener noreferrer">▶️ Модели Курно и Бертранда — Анализ</a>
@@ -222,12 +259,20 @@
 
     <script>
         const videoBtn = document.getElementById('videoBtn');
+        const closeCardBtn = document.getElementById('closeCardBtn');
         const mainContainer = document.getElementById('mainContainer');
 
-        videoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+        // Функция переключения состояния
+        function toggleCard(e) {
+            if (e) e.preventDefault();
             mainContainer.classList.toggle('active');
-        });
+        }
+
+        // Клик по кнопке-картинке открывает/закрывает карточку
+        videoBtn.addEventListener('click', toggleCard);
+
+        // Клик по крестику на карточке закрывает её
+        closeCardBtn.addEventListener('click', toggleCard);
     </script>
 </body>
 </html>
