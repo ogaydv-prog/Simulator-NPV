@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background: transparent; 
+            overflow: hidden; 
+        }
+        .btn-link { 
+            display: block; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
+            cursor: pointer; 
+            width: 100%; 
+            height: 100%;
+            text-decoration: none;
+        }
+        /* Эффект оживления: увеличение, повышение яркости и мягкое белое свечение вокруг */
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)); 
+        }
+        /* Эффект при клике (сжатие) */
+        .btn-link:active { 
+            transform: scale(0.98); 
+        }
+        .btn-img { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Сохраняет пропорции вашей картинки */
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://sites.google.com/view/managerial-economics-mba/%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8F/%D0%BE%D0%BB%D0%B8%D0%B3%D0%BE%D0%BF%D0%BE%D0%BB%D0%B8%D1%8F" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-topic7.png" 
+             class="btn-img" 
+             alt="Тема 7: Олигополия">
+    </a>
+
+</body>
+</html>
