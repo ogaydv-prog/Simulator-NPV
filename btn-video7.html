@@ -15,29 +15,26 @@
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
-        /* Главный контейнер, который в исходном состоянии не мешает центровке */
+        /* Главный контейнер - теперь это абсолютное позиционирование для идеальной центровки */
         .main-container {
-            display: flex;
+            position: relative;
             width: 100%;
             height: 100%;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
             box-sizing: border-box;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* ОБЕРТКА КНОПКИ: По умолчанию занимает 100% пространства, как в Презентации */
+        /* ОБЕРТКА КНОПКИ: По умолчанию занимает 100% пространства, один в один как в Презентации */
         .btn-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         
-        /* Стили самой ссылки-кнопки (Полное совпадение с шаблоном) */
+        /* Стили самой ссылки-кнопки (Точное совпадение с шаблоном презентации) */
         .btn-link { 
             display: block; 
             width: 100%; 
@@ -57,7 +54,7 @@
             transform: scale(0.98);
         }
         
-        /* Картинка-кнопка: масштабируется без искажений и строго по центру */
+        /* Картинка-кнопка: масштабируется без искажений и строго по центру, доходя до краев */
         .btn-img { 
             width: 100%; 
             height: 100%; 
@@ -66,27 +63,27 @@
         }
 
         /* КАРТОЧКА «КИНОПЛЕНКА 80-Х» */
+        /* Изначально вынесена абсолютно за пределы экрана справа (-100%), чтобы никак не влиять на кнопку */
         .film-card {
-            width: 0;
-            height: 0;
+            position: absolute;
+            right: -100%;
+            top: 5%;
+            height: 90%;
+            width: calc(100% - 260px); /* Математический расчет: ширина экрана минус кнопка и отступы */
             opacity: 0;
             visibility: hidden;
             overflow: hidden;
             background: #111111;
-            border-left: 0px dashed #333;
-            border-right: 0px dashed #333;
-            position: relative;
+            border-left: 5px dashed #2a2a2a;
+            border-right: 5px dashed #2a2a2a;
             border-radius: 6px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0;
+            padding: 20px 25px;
             box-sizing: border-box;
-            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
-                        height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
-                        opacity 0.4s ease, 
-                        padding 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         /* Перфорационные отверстия старой кинопленки (сверху и снизу) */
@@ -107,7 +104,7 @@
         /* Заголовок кинопленки */
         .film-title {
             margin: 0 0 12px 0;
-            color: #f1c40f; /* Ретро-желтый цвет */
+            color: #f1c40f; 
             font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
@@ -150,24 +147,17 @@
         }
 
         /* АКТИВНОЕ СОСТОЯНИЕ (При клике) */
-        .main-container.active {
-            gap: 20px;
-        }
 
-        /* Сжатие кнопки для освобождения места под кинопленку */
+        /* Сжатие и смещение кнопки влево */
         .main-container.active .btn-wrapper {
-            width: 200px;
+            width: 220px; /* Кнопка аккуратно уменьшается до компактного размера */
         }
 
-        /* Раскрытие кинопленки */
+        /* Плавное выезжание кинопленки на экран */
         .main-container.active .film-card {
-            width: calc(100% - 220px);
-            height: 90%;
+            right: 20px; /* Позиционируется с отступом 20px справа */
             opacity: 1;
             visibility: visible;
-            padding: 20px 25px;
-            border-left: 5px dashed #2a2a2a;
-            border-right: 5px dashed #2a2a2a;
         }
 
         .main-container.active .film-card::before, 
@@ -175,19 +165,20 @@
             opacity: 1;
         }
 
-        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ И УЗКИХ ФРЕЙМОВ */
+        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ ИЛИ ОЧЕНЬ УЗКИХ СТОЛБЦОВ */
         @media (max-width: 550px) {
-            .main-container.active {
-                flex-direction: column;
-                gap: 10px;
-            }
             .main-container.active .btn-wrapper {
                 width: 100%;
                 height: 40%;
+                top: 0;
+                left: 0;
             }
             .main-container.active .film-card {
-                width: 100%;
+                left: 5%;
+                right: 5%;
+                width: 90%;
                 height: 55%;
+                top: 42%;
             }
         }
     </style>
@@ -195,7 +186,7 @@
 <body>
 
     <div class="main-container" id="mainContainer">
-        <!-- Блок кнопки (по умолчанию занимает 100%) -->
+        <!-- Блок кнопки (в закрытом состоянии занимает честные 100% без смещений) -->
         <div class="btn-wrapper">
             <div class="btn-link" id="videoBtn" title="Нажмите, чтобы открыть видео">
                 <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-video7.png" 
