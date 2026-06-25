@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Базовые настройки адаптивности */
+        /* Идеальный сброс отступов и центрирование элементов по вертикали, как в оригинале */
         html, body { 
             margin: 0; 
             padding: 0; 
-            width: 100%; 
-            height: 100%; 
+            display: flex; 
+            justify-content: flex-start; /* Оставляем общее выравнивание от левого края для ряда */
+            align-items: center; 
+            height: 100vh; 
+            background: transparent; 
             overflow: hidden; 
-            background-color: transparent; 
             font-family: 'Segoe UI', Arial, sans-serif;
         }
 
-        /* Общий контейнер, выстраивающий элементы в ряд */
+        /* Общий контейнер-ряд */
         .main-container {
             display: flex;
             align-items: center;
@@ -24,65 +26,71 @@
             gap: 20px;
         }
         
-        /* ЗОНА КНОПКИ (Сохранена логика вашего шаблона презентации) */
+        /* КНОПКА: Полное сохранение структуры, логики размеров и центровки из вашего шаблона */
         .btn-box {
-            flex-shrink: 0;
-            width: 220px; /* Фиксированная ширина кнопки-картинки */
             height: 100%;
+            aspect-ratio: 1 / 1; /* Делает область кнопки ровным квадратом на всю высоту фрейма */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .btn-link { 
             display: block; 
             width: 100%; 
             height: 100%; 
-            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease; 
-            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
+            cursor: pointer; 
+            text-decoration: none;
         }
         
-        /* Эффект оживления кнопки при наведении */
+        /* Эффект оживления кнопки (увеличение 1.05 и подсветка) */
         .btn-link:hover { 
-            transform: scale(1.03); 
-            filter: drop-shadow(0 0 12px rgba(52, 152, 219, 0.7)); 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)); 
         }
 
+        /* Эффект нажатия (сжатие) */
         .btn-link:active {
             transform: scale(0.98);
         }
         
-        /* Точное копирование подгонки картинки из шаблона */
+        /* Картинка внутри кнопки: четко по центру, без искажений, с равными отступами */
         .btn-img { 
+            display: block; 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            display: block; 
         }
 
         /* КАРТОЧКА «КИНОПЛЕНКА 80-Х» */
         .film-card {
             flex-grow: 1;
-            height: calc(100% - 40px); /* Отступы сверху/снизу */
-            background: #1a1a1a;
-            border-left: 4px dashed #333;
-            border-right: 4px dashed #333;
+            max-width: 550px; /* Ограничение максимальной ширины карточки */
+            height: 90%; /* Оставляем небольшие зазоры сверху и снизу для реалистичности */
+            background: #151515;
+            border-left: 5px dashed #262626;
+            border-right: 5px dashed #262626;
             position: relative;
-            border-radius: 6px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255,255,255,0.05);
+            border-radius: 4px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255,255,255,0.02);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 10px 25px;
+            padding: 10px 30px;
+            box-sizing: border-box;
             
-            /* Анимация плавного появления */
+            /* Плавное появление */
             opacity: 0;
-            transform: translateX(-30px) scale(0.95);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateX(-20px);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             visibility: hidden;
         }
 
-        /* Состояние когда карточка открыта */
+        /* Состояние активации карточки */
         .film-card.active {
             opacity: 1;
-            transform: translateX(0) scale(1);
+            transform: translateX(0);
             visibility: visible;
         }
 
@@ -92,48 +100,47 @@
             position: absolute;
             left: 0;
             width: 100%;
-            height: 12px;
-            background-image: linear-gradient(to right, #000 0px, #000 10px, transparent 10px, transparent 20px);
-            background-size: 20px 12px;
+            height: 10px;
+            background-image: linear-gradient(to right, #000 0px, #000 12px, transparent 12px, transparent 24px);
+            background-size: 24px 10px;
         }
-        .film-card::before { top: 4px; }
-        .film-card::after { bottom: 4px; }
+        .film-card::before { top: 6px; }
+        .film-card::after { bottom: 6px; }
 
-        /* Заголовок внутри карточки */
+        /* Стиль ретро-заголовка */
         .film-card h3 {
-            margin: 0 0 12px 0;
-            color: #f1c40f; /* Ретро-желтый оттенок */
-            font-size: 16px;
+            margin: 0 0 14px 0;
+            color: #f1c40f; 
+            font-size: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+            letter-spacing: 1.5px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 6px;
         }
 
-        /* Список ссылок */
+        /* Список видео-ссылок */
         .video-list {
             list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .video-item a {
-            color: #ecf0f1;
+            color: #dddddd;
             text-decoration: none;
             font-size: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.2s ease;
         }
 
-        /* Подсветка ссылок при наведении внутри карточки */
         .video-item a:hover {
             color: #3498db;
-            transform: translateX(5px);
+            transform: translateX(6px);
         }
     </style>
 </head>
@@ -160,7 +167,6 @@
     </div>
 
     <script>
-        // Скрипт для открытия карточки по клику
         const btn = document.getElementById('videoBtn');
         const card = document.getElementById('filmCard');
 
