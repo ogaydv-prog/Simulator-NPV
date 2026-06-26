@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практические примеры теории игр | Управленческая экономика МВА-В26-МД </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    
+        body { 
+            background-color: #030303; 
+            color: #f1f5f9; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(31, 41, 55, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(17, 24, 39, 0.5) 0%, transparent 50%);
+            overflow-x: hidden;
+        }
+
+        .font-chess { font-family: 'Cinzel', serif; }
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Стеклянные панели */
+        .glass {
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Навигация как фишки */
+        .game-card-tab {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+        }
+        .game-card-tab:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.2);
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.05);
+        }
+        .game-card-tab.active {
+            border-color: #f59e0b;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+            background: linear-gradient(135deg, #1e1b4b 0%, #030712 100%);
+        }
+
+        /* ВИНТАЖНЫЙ ПОЛЗУНОК */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            height: 24px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: -8px;
+            background: 
+                linear-gradient(to bottom, transparent 42%, #ef4444 42%, #ef4444 58%, transparent 58%),
+                linear-gradient(to right, #4a4a4a, #7a7a7a, #3a3a3a);
+            border: 1px solid #111;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.8), 2px 0 5px rgba(0,0,0,0.8);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #090d16;
+            border-radius: 4px;
+            border: 1px solid #1e293b;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.9);
+        }
+
+        /* 3D КАРТОЧКИ (ПОВОРОТ) */
+        .card-3d {
+            perspective: 1200px;
+        }
+        .card-inner-3d {
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .card-3d.flipped .card-inner-3d {
+            transform: rotateY(180deg);
+        }
+        .card-front-3d, .card-back-3d {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem;
+        }
+        .card-back-3d {
+            transform: rotateY(180deg);
+        }
+
+        /* Свечение */
+        .neon-glow-green {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .neon-glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2), inset 0 0 15px rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- HEADER -->
+    <header class="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <i data-lucide="crown" class="text-amber-500 w-8 h-8 animate-pulse"></i>
+                <h1 class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-yellow-400 to-orange-500 font-chess uppercase">
+                    Практическое применение теории игр
+                </h1>
+            </div>
+            <p class="text-slate-400 text-xs font-mono-custom mt-2">Управленческая экономика МВА-В26-МД </p>
+        </div>
+        <div class="glass px-4 py-2 rounded-lg border border-amber-500/20 text-xs flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="text-slate-300 font-mono-custom">Сценарии: Активны</span>
+        </div>
+    </header>
+
+    <!-- ИГРОВЫЕ КАРТОЧКИ (НАВИГАЦИЯ) -->
+    <nav class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <button onclick="switchTab('game-dilemma')" class="game-card-tab active rounded-2xl p-6 text-left relative overflow-hidden" data-target="game-dilemma">
+            <div class="absolute right-4 top-4 opacity-10 text-rose-500"><i data-lucide="swords" class="w-12 h-12"></i></div>
+            <span class="text-[10px] uppercase font-mono-custom text-rose-400 tracking-widest font-bold">Игра №1 // Допрос</span>
+            <h3 class="text-xl font-bold text-white mt-1">Дилемма заключенных</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">Классическая дилемма подозреваемых, перенесенная на заблокированное поле 2х2.</p>
+        </button>
+        <button onclick="switchTab('game-coffee')" class="game-card-tab rounded-2xl p-6 text-left relative overflow-hidden" data-target="game-coffee">
+            <div class="absolute right-4 top-4 opacity-10 text-emerald-500"><i data-lucide="coffee" class="w-12 h-12"></i></div>
+            <span class="text-[10px] uppercase font-mono-custom text-emerald-400 tracking-widest font-bold">Игра №2 // Сговор</span>
+            <h3 class="text-xl font-bold text-white mt-1">Кофейные картели Южной Америки</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">Дисциплина квот Бразилии и Колумбии. Выдержит ли картель тайный демпинг?</p>
+        </button>
+        <button onclick="switchTab('game-mover')" class="game-card-tab rounded-2xl p-6 text-left relative overflow-hidden" data-target="game-mover">
+            <div class="absolute right-4 top-4 opacity-10 text-sky-500"><i data-lucide="play" class="w-12 h-12"></i></div>
+            <span class="text-[10px] uppercase font-mono-custom text-sky-400 tracking-widest font-bold">Игра №3 // Дуэль</span>
+            <h3 class="text-xl font-bold text-white mt-1">Лидер и Последователь</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">Битва на Таймс-Сквер: Starbucks против локального крафта. Право первого хода.</p>
+        </button>
+    </nav>
+
+    <!-- ИГРОВОЕ ПОЛЕ -->
+    <main class="max-w-7xl mx-auto glass rounded-3xl p-6 md:p-8 min-h-[500px] relative">
+        
+        <!-- ================= ИГРА 1: Дилемма заключенных ================= -->
+        <div id="game-dilemma" class="game-tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Описание и Слайдеры параметров -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="border-b border-slate-800 pb-4">
+                        <span class="text-xs font-mono-custom text-rose-400">Сценарий</span>
+                        <h2 class="text-2xl font-black font-chess text-white mt-1">Дело №26</h2>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Вас и сообщника задержали. Вы находитесь в изолированных комнатах. У вас есть выбор: хранить обет молчания (<b class="text-emerald-400">Альянс</b>) или выдать напарника (<b class="text-rose-500">Предать</b>).
+                        </p>
+                    </div>
+
+                    <div class="bg-black/40 p-4 rounded-xl space-y-4 border border-slate-800">
+                        <span class="text-xs font-mono-custom text-slate-400 uppercase">Настройка сроков заключения (лет):</span>
+                        
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Сговор (Оба молчат)</span>
+                                <span id="lbl-d-coop" class="font-bold text-emerald-400">1 год</span>
+                            </div>
+                            <input type="range" id="param-d-coop" min="1" max="4" value="1" oninput="runDilemmaCalculation()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Срок при предательстве</span>
+                                <span id="lbl-d-cheat" class="font-bold text-rose-400">10 лет</span>
+                            </div>
+                            <input type="range" id="param-d-cheat" min="5" max="15" value="10" oninput="runDilemmaCalculation()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Оба предали (Война)</span>
+                                <span id="lbl-d-both" class="font-bold text-amber-500">5 лет</span>
+                            </div>
+                            <input type="range" id="param-d-both" min="3" max="8" value="5" oninput="runDilemmaCalculation()">
+                        </div>
+                    </div>
+
+                    <!-- Пульт принятия решений -->
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <span class="text-xs font-mono-custom text-slate-400 uppercase">Сделайте свой выбор скрытно:</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="playDilemma('silent')" class="py-3 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 font-bold text-xs tracking-wider transition-all">
+                                🤐 МОЛЧАТЬ
+                            </button>
+                            <button onclick="playDilemma('betray')" class="py-3 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/40 text-rose-200 font-bold text-xs tracking-wider transition-all">
+                                🔪 ПРЕДАТЬ
+                            </button>
+                        </div>
+                        <button onclick="resetDilemma()" class="w-full py-2 text-[11px] font-mono-custom text-slate-400 hover:text-white flex items-center justify-center gap-1 transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Сбросить завесу тайны
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Шахматное интерактивное поле карт -->
+                <div class="lg:col-span-8 flex flex-col items-center justify-center">
+                    <span class="text-xs font-mono-custom text-slate-500 mb-4">ИНТЕРАКТИВНАЯ КАРТА ДОПРОСА (НАЖМИТЕ НА КАРТУ, ЧТОБЫ ОТКРЫТЬ ЕЁ ВРУЧНУЮ ИЛИ СДЕЛАЙТЕ ХОД)</span>
+                    
+                    <div class="grid grid-cols-2 gap-4 w-full max-w-xl">
+                        
+                        <!-- Карточка 1 (Черная): Молчать / Молчать -->
+                        <div class="card-3d h-40" id="card-cell-ss" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-center p-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center mb-2">
+                                        <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                                    </div>
+                                    <span class="text-[10px] text-emerald-400 font-bold tracking-widest">Оба Молчат</span>
+                                    <span class="text-[9px] text-slate-500 mt-1">Тайное дело // Черная клетка</span>
+                                </div>
+                                <div class="card-back-3d bg-emerald-950/40 border-2 border-emerald-500 p-4 flex flex-col justify-between h-full neon-glow-green">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-emerald-400">ИДЕАЛЬНЫЙ СГОВОР</span>
+                                        <i data-lucide="shield" class="w-5 h-5 text-emerald-400"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-300">Оба сохранили верность. Вы получите минимальный срок по <span class="val-txt-coop">1</span> году.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">(Вы: <span class="val-num-coop">1</span>, Напарник: <span class="val-num-coop">1</span>)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Карточка 2 (Белая): Молчать / Предать -->
+                        <div class="card-3d h-40" id="card-cell-sb" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-100 border border-slate-300 flex flex-col items-center justify-center text-center p-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 border border-slate-400 flex items-center justify-center mb-2">
+                                        <i data-lucide="lock" class="w-5 h-5 text-slate-600"></i>
+                                    </div>
+                                    <span class="text-[10px] text-rose-600 font-bold tracking-widest">Вы: Молчите // Он: Предает</span>
+                                    <span class="text-[9px] text-slate-400 mt-1">Тайное дело // Белая клетка</span>
+                                </div>
+                                <div class="card-back-3d bg-rose-950/40 border-2 border-rose-500 p-4 flex flex-col justify-between h-full neon-glow-red">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-rose-400">ЖЕРТВА ОБМАНА</span>
+                                        <i data-lucide="skull" class="w-5 h-5 text-rose-400"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-300">Вас предали. Вы отправляетесь за решетку на <span class="val-txt-cheat">10</span> лет, напарник на свободе.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">(Вы: <span class="val-num-cheat">10</span>, Напарник: 0)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Карточка 3 (Белая): Предать / Молчать -->
+                        <div class="card-3d h-40" id="card-cell-bs" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-100 border border-slate-300 flex flex-col items-center justify-center text-center p-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 border border-slate-400 flex items-center justify-center mb-2">
+                                        <i data-lucide="lock" class="w-5 h-5 text-slate-600"></i>
+                                    </div>
+                                    <span class="text-[10px] text-rose-600 font-bold tracking-widest">Вы: Предаете // Он: Молчит</span>
+                                    <span class="text-[9px] text-slate-400 mt-1">Тайное дело // Белая клетка</span>
+                                </div>
+                                <div class="card-back-3d bg-rose-950/40 border-2 border-rose-500 p-4 flex flex-col justify-between h-full neon-glow-red">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-rose-400">ВЫ СВОБОДНЫ</span>
+                                        <i data-lucide="sun" class="w-5 h-5 text-rose-400"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-300">Вы сдали напарника. Вы выходите сухим из воды (0 лет), напарник сядет на <span class="val-txt-cheat">10</span> лет.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">(Вы: 0, Напарник: <span class="val-num-cheat">10</span>)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Карточка 4 (Черная): Предать / Предать -->
+                        <div class="card-3d h-40" id="card-cell-bb" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-center p-4">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center mb-2">
+                                        <i data-lucide="lock" class="w-5 h-5 text-slate-500"></i>
+                                    </div>
+                                    <span class="text-[10px] text-emerald-400 font-bold tracking-widest">Оба Предали</span>
+                                    <span class="text-[9px] text-slate-500 mt-1">Тайное дело // Черная клетка</span>
+                                </div>
+                                <div class="card-back-3d bg-amber-950/40 border-2 border-amber-500 p-4 flex flex-col justify-between h-full">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-amber-400">ЦЕНОВАЯ ВОЙНА</span>
+                                        <i data-lucide="swords" class="w-5 h-5 text-amber-400"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-300">Никто не доверял партнеру. Вы оба получаете средний срок по <span class="val-txt-both">5</span> лет.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">(Вы: <span class="val-num-both">5</span>, Напарник: <span class="val-num-both">5</span>)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Табло исхода хода -->
+                    <div id="dilemma-turn-status" class="mt-6 p-3 rounded-lg border text-xs text-slate-300 max-w-xl w-full text-center bg-black/40 border-slate-800 hidden">
+                        <!-- Заполняется динамически -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= ИГРА 2: КАРТЕЛЬ КОФЕ ================= -->
+        <div id="game-coffee" class="game-tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="border-b border-slate-800 pb-4">
+                        <span class="text-xs font-mono-custom text-emerald-400">Сговор // Квотирование</span>
+                        <h2 class="text-2xl font-black font-chess text-white mt-1">Синдикат «Бразилия-Колумбия»</h2>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Вы контролируете экспорт Арабики. Если обе страны соблюдают квоты, маржинальность высока. Но если кто-то тайно выбросит мешки на биржу — наступит крах.
+                        </p>
+                    </div>
+
+                    <div class="bg-black/40 p-4 rounded-xl border border-slate-800 space-y-4">
+                        <span class="text-xs font-mono-custom text-slate-400 uppercase">Рыночные параметры за фунт (lb) кофе:</span>
+                        
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Премия квоты (высокая цена)</span>
+                                <span id="lbl-c-price" class="font-bold text-emerald-400">$2.5</span>
+                            </div>
+                            <input type="range" id="param-c-price" min="2" max="5" step="0.5" value="2.5" oninput="runCoffeeCalculation()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Демпинг (Тайные поставки)</span>
+                                <span id="lbl-c-dump" class="font-bold text-rose-400">$1.2</span>
+                            </div>
+                            <input type="range" id="param-c-dump" min="0.8" max="1.8" step="0.1" value="1.2" oninput="runCoffeeCalculation()">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <span class="text-xs font-mono-custom text-slate-400 uppercase">Действия Бразилии (Вы):</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="playCoffee('coop')" class="py-3 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-200 font-bold text-xs tracking-wider transition-all">
+                                🤝 ДЕРЖАТЬ КВОТУ
+                            </button>
+                            <button onclick="playCoffee('cheat')" class="py-3 rounded-lg bg-rose-600/20 hover:bg-rose-600/40 border border-rose-500/40 text-rose-200 font-bold text-xs tracking-wider transition-all">
+                                🌾 ДЕМПИНГОВАТЬ
+                            </button>
+                        </div>
+                        <button onclick="resetCoffee()" class="w-full py-2 text-[11px] font-mono-custom text-slate-400 hover:text-white flex items-center justify-center gap-1 transition-colors">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Восстановить картельные мешки
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-8 flex flex-col items-center justify-center">
+                    <span class="text-xs font-mono-custom text-slate-500 mb-4">СОСТОЯНИЕ КАРТЕЛЬНЫХ СКЛАДОВ (ИНТРИГА ОТКРЫТИЯ КАРТОЧЕК)</span>
+
+                    <div class="grid grid-cols-2 gap-6 w-full max-w-xl">
+                        
+                        <!-- Мешок 1: Соблюдение квот -->
+                        <div class="card-3d h-48" id="card-coffee-coop" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-gradient-to-br from-slate-950 to-slate-900 border border-emerald-800/30 flex flex-col items-center justify-center p-4">
+                                    <div class="text-4xl mb-2">📦</div>
+                                    <span class="text-xs font-bold text-emerald-400 tracking-wider">План «Арабика Голд»</span>
+                                    <span class="text-[9px] text-slate-500 mt-2">Обе страны сдерживают выпуск</span>
+                                </div>
+                                <div class="card-back-3d bg-emerald-950/30 border-2 border-emerald-500 p-4 flex flex-col justify-between h-full neon-glow-green">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-emerald-400">МАРЖИНАЛЬНЫЙ КАРТЕЛЕК</span>
+                                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">Обе страны сдерживают напор. Мировая цена стабильно высокая: <span class="val-txt-coffee-high">$2.5</span>/lb.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">Бразилия: +$120k // Колумбия: +$120k</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Мешок 2: Предательство -->
+                        <div class="card-3d h-48" id="card-coffee-cheat" onclick="this.classList.toggle('flipped')">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-gradient-to-br from-slate-950 to-slate-900 border border-rose-800/30 flex flex-col items-center justify-center p-4">
+                                    <div class="text-4xl mb-2">⚠️</div>
+                                    <span class="text-xs font-bold text-rose-400 tracking-wider">Договор сорван</span>
+                                    <span class="text-[9px] text-slate-500 mt-2">Тайные мешки на рынке</span>
+                                </div>
+                                <div class="card-back-3d bg-rose-950/30 border-2 border-rose-500 p-4 flex flex-col justify-between h-full neon-glow-red">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-rose-400">ОБВАЛ БИРЖИ</span>
+                                        <i data-lucide="trending-down" class="w-5 h-5 text-rose-400"></i>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">Кто-то предал соглашение. Мешки высыпаны на биржу, цена обвалилась до <span class="val-txt-coffee-low">$1.2</span>/lb.</p>
+                                    <span class="text-xs font-mono-custom text-white font-bold">Нарушитель: +$160k // Жертва: +$30k</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Динамический статус кофе -->
+                    <div id="coffee-turn-status" class="mt-6 p-3 rounded-lg border text-xs text-slate-300 max-w-xl w-full text-center bg-black/40 border-slate-800 hidden">
+                        <!-- Заполняется динамически -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= ИГРА 3: БИТВА НА ТАЙМС-СКВЕР (ЛЕР-ПОСЛЕДОВАТЕЛЬ) ================= -->
+        <div id="game-mover" class="game-tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="border-b border-slate-800 pb-4">
+                        <span class="text-xs font-mono-custom text-sky-400">Преимущество первого хода</span>
+                        <h2 class="text-2xl font-black font-chess text-white mt-1">Times Square Duel</h2>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Вы играете за **Starbucks** (Лидер). Вы делаете ход первыми на золотой площадке Манхэттена. Локальный бренд **Андеграунд Кофе** (ИИ-Последователь) ждет вашего хода, чтобы подстроиться.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+                        <span class="text-xs font-mono-custom text-slate-400 uppercase">Ваша стратегия (Лидер):</span>
+                        
+                        <div class="flex flex-col gap-3">
+                            <button onclick="playMover('massive')" class="p-3 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/30 text-sky-200 text-left text-xs transition-all flex items-center justify-between">
+                                <span>🏢 1. ГИГАНТСКИЙ ФЛАГМАН (Агрессия)</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="playMover('niche')" class="p-3 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-200 text-left text-xs transition-all flex items-center justify-between">
+                                <span>🎯 2. ЛОКАЛЬНЫЙ ТРЕНД (Нишевой упор)</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <p class="text-[10px] text-slate-500 italic">
+                            * После вашего выбора, система подсветит путь реакции ИИ-конкурента в реальном времени.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 flex flex-col items-center justify-center">
+                    <span class="text-xs font-mono-custom text-slate-500 mb-4">КАРТОЧКИ РЕАКЦИИ АНДЕГРАУНД КОФЕ (СКРЫТЫ ДО ВАШЕГО ХОДА)</span>
+
+                    <div class="grid grid-cols-2 gap-6 w-full max-w-xl">
+                        
+                        <!-- Карточка реакции на Агрессию -->
+                        <div class="card-3d h-56" id="card-mover-agg">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-950 border border-slate-800 flex flex-col items-center justify-center p-4">
+                                    <div class="text-4xl mb-2">👁️‍🗨️</div>
+                                    <span class="text-xs font-bold text-slate-400">Реакция на Флагман</span>
+                                    <span class="text-[9px] text-slate-600 mt-2">Заблокировано Лидером</span>
+                                </div>
+                                <div class="card-back-3d bg-sky-950/40 border-2 border-sky-400 p-4 flex flex-col justify-between h-full">
+                                    <div>
+                                        <span class="text-[10px] text-sky-400 font-bold uppercase block">Реакция: Отступление</span>
+                                        <h4 class="text-sm font-bold text-white mt-1">Конкурент уходит в нишу</h4>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">Вы заняли весь пешеходный трафик. Андеграунд открывает тихий переулок, выжимая остатки спроса.</p>
+                                    <div class="pt-2 border-t border-slate-800 flex justify-between text-xs font-mono-custom font-bold">
+                                        <span class="text-sky-300">Вы: $220k</span>
+                                        <span class="text-slate-400">ИИ: $45k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Карточка реакции на Нишу -->
+                        <div class="card-3d h-56" id="card-mover-niche">
+                            <div class="card-inner-3d w-full h-full">
+                                <div class="card-front-3d bg-slate-950 border border-slate-800 flex flex-col items-center justify-center p-4">
+                                    <div class="text-4xl mb-2">👁️‍🗨️</div>
+                                    <span class="text-xs font-bold text-slate-400">Реакция на Тренд</span>
+                                    <span class="text-[9px] text-slate-600 mt-2">Заблокировано Лидером</span>
+                                </div>
+                                <div class="card-back-3d bg-indigo-950/40 border-2 border-indigo-500 p-4 flex flex-col justify-between h-full">
+                                    <div>
+                                        <span class="text-[10px] text-indigo-400 font-bold uppercase block">Реакция: Лобовой удар</span>
+                                        <h4 class="text-sm font-bold text-white mt-1">Конкурент открывает мега-стор</h4>
+                                    </div>
+                                    <p class="text-[11px] text-slate-300">Почувствовав вашу мягкую позицию, Андеграунд берет Times Square силой, забирая большую часть маржи.</p>
+                                    <div class="pt-2 border-t border-slate-800 flex justify-between text-xs font-mono-custom font-bold">
+                                        <span class="text-sky-300">Вы: $90k</span>
+                                        <span class="text-indigo-400">ИИ: $180k</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Табло преимуществ -->
+                    <div id="mover-turn-status" class="mt-6 p-3 rounded-lg border text-xs text-slate-300 max-w-xl w-full text-center bg-black/40 border-slate-800 hidden">
+                        <!-- Динамический статус -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-6 text-center text-slate-600 text-[11px]">
+        Арена теории игр создана в академических целях // MBA Бизнес-симуляции v26md // 2026
+    </footer>
+
+    <script>
+        // Инициализация иконок
+        lucide.createIcons();
+
+        // ------------------ НАВИГАЦИЯ ------------------
+        function switchTab(tabId) {
+            document.querySelectorAll('.game-card-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-target="${tabId}"]`).classList.add('active');
+
+            document.querySelectorAll('.game-tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // ================== ИГРА 1: ШАХМАТНЫЙ ДОПРОС ==================
+        let dilemaParamCoop = 1;
+        let dilemaParamCheat = 10;
+        let dilemaParamBoth = 5;
+
+        function runDilemmaCalculation() {
+            dilemaParamCoop = parseInt(document.getElementById('param-d-coop').value);
+            dilemaParamCheat = parseInt(document.getElementById('param-d-cheat').value);
+            dilemaParamBoth = parseInt(document.getElementById('param-d-both').value);
+
+            // Обновляем метки
+            document.getElementById('lbl-d-coop').innerText = dilemaParamCoop + ' ' + getNoun(dilemaParamCoop, 'год', 'года', 'лет');
+            document.getElementById('lbl-d-cheat').innerText = dilemaParamCheat + ' ' + getNoun(dilemaParamCheat, 'год', 'года', 'лет');
+            document.getElementById('lbl-d-both').innerText = dilemaParamBoth + ' ' + getNoun(dilemaParamBoth, 'год', 'года', 'лет');
+
+            // Обновляем значения на обратных сторонах карточек
+            document.querySelectorAll('.val-txt-coop').forEach(el => el.innerText = dilemaParamCoop);
+            document.querySelectorAll('.val-num-coop').forEach(el => el.innerText = dilemaParamCoop);
+
+            document.querySelectorAll('.val-txt-cheat').forEach(el => el.innerText = dilemaParamCheat);
+            document.querySelectorAll('.val-num-cheat').forEach(el => el.innerText = dilemaParamCheat);
+
+            document.querySelectorAll('.val-txt-both').forEach(el => el.innerText = dilemaParamBoth);
+            document.querySelectorAll('.val-num-both').forEach(el => el.innerText = dilemaParamBoth);
+        }
+
+        function playDilemma(userMove) {
+            // Закрываем все карточки сначала
+            resetDilemma();
+
+            // Скрытый ход оппонента (ИИ играет равновесную эгоистичную стратегию)
+            let aiMove = 'betray'; // Доминирующая стратегия в 90% случаев
+            if (dilemaParamCoop > dilemaParamCheat) {
+                // Если сломать дилемму параметрами
+                aiMove = 'silent';
+            }
+
+            const status = document.getElementById('dilemma-turn-status');
+            status.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (userMove === 'silent' && aiMove === 'silent') {
+                    document.getElementById('card-cell-ss').classList.add('flipped');
+                    status.innerHTML = `<span class="text-emerald-400 font-bold">🤝 Идеальный союз:</span> Вы оба промолчали. Вы получаете по <b class="text-white">${dilemaParamCoop}</b> году тюрьмы. Но в одношаговой игре этот исход крайне нестабилен!`;
+                } else if (userMove === 'silent' && aiMove === 'betray') {
+                    document.getElementById('card-cell-sb').classList.add('flipped');
+                    status.innerHTML = `<span class="text-rose-400 font-bold">❌ Напарник вас сдал!</span> Вы промолчали, а он совершил демпинг. Вы получаете <b class="text-rose-400">${dilemaParamCheat} лет</b>, а он выходит свободным.`;
+                } else if (userMove === 'betray' && aiMove === 'silent') {
+                    document.getElementById('card-cell-bs').classList.add('flipped');
+                    status.innerHTML = `<span class="text-emerald-400 font-bold">🔥 Вы предали напарника!</span> Вы выходите свободным (0 лет), а он садится на <b class="text-rose-400">${dilemaParamCheat} лет</b>. Чистый эгоизм торжествует.`;
+                } else {
+                    document.getElementById('card-cell-bb').classList.add('flipped');
+                    status.innerHTML = `<span class="text-amber-400 font-bold">⚔️ Обоюдное предательство:</span> Никто не поверил другому. Напарник пытался сдать вас, а вы его. Вы оба получаете по <b class="text-white">${dilemaParamBoth} лет</b>. Равновесие Нэша в действии.`;
+                }
+            }, 300);
+        }
+
+        function resetDilemma() {
+            document.getElementById('card-cell-ss').classList.remove('flipped');
+            document.getElementById('card-cell-sb').classList.remove('flipped');
+            document.getElementById('card-cell-bs').classList.remove('flipped');
+            document.getElementById('card-cell-bb').classList.remove('flipped');
+            document.getElementById('dilemma-turn-status').classList.add('hidden');
+        }
+
+        // ================== ИГРА 2: КАРТЕЛЬ КОФЕ ==================
+        let coffeePrice = 2.5;
+        let coffeeDump = 1.2;
+
+        function runCoffeeCalculation() {
+            coffeePrice = parseFloat(document.getElementById('param-c-price').value);
+            coffeeDump = parseFloat(document.getElementById('param-c-dump').value);
+
+            document.getElementById('lbl-c-price').innerText = '$' + coffeePrice.toFixed(2);
+            document.getElementById('lbl-c-dump').innerText = '$' + coffeeDump.toFixed(2);
+
+            document.querySelectorAll('.val-txt-coffee-high').forEach(el => el.innerText = '$' + coffeePrice.toFixed(2));
+            document.querySelectorAll('.val-txt-coffee-low').forEach(el => el.innerText = '$' + coffeeDump.toFixed(2));
+        }
+
+        function playCoffee(userAction) {
+            resetCoffee();
+            
+            // Логика ИИ Колумбии: пытается сжульничать, если куш велик
+            let aiAction = 'cheat';
+
+            const status = document.getElementById('coffee-turn-status');
+            status.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (userAction === 'coop' && aiAction === 'coop') {
+                    document.getElementById('card-coffee-coop').classList.add('flipped');
+                    status.innerHTML = `<span class="text-emerald-400 font-bold">☕ Квоты сохранены:</span> Колумбия и Бразилия удержали мешки на складах. Цена Арабики взлетает до <b class="text-white">$${coffeePrice}</b>. Вы заработали по <b class="text-emerald-400">+$120k</b>.`;
+                } else if (userAction === 'coop' && aiAction === 'cheat') {
+                    document.getElementById('card-coffee-cheat').classList.add('flipped');
+                    status.innerHTML = `<span class="text-rose-400 font-bold">📉 Колумбия тайно демпинговала!</span> Вы держали квоту, а они выбросили излишки. Цена упала до <b class="text-white">$${coffeeDump}</b>. Колумбия забирает <b class="text-emerald-400 font-bold">+$160k</b>, вы теряете клиентов (<b class="text-rose-400">+$30k</b>).`;
+                } else if (userAction === 'cheat' && aiAction === 'coop') {
+                    document.getElementById('card-coffee-cheat').classList.add('flipped');
+                    status.innerHTML = `<span class="text-emerald-400 font-bold">💰 Вы обхитрили партнера:</span> Вы тайно продали больше мешков, пока Колумбия верила вам. Вы сорвали куш <b class="text-emerald-400">+$160k</b>, а партнер разорен.`;
+                } else {
+                    document.getElementById('card-coffee-cheat').classList.add('flipped');
+                    status.innerHTML = `<span class="text-rose-500 font-bold">🔥 Обвал кофейной биржи:</span> Никто не сдержал обещание. Рынок перенасыщен Арабикой, цена рухнула. Вы оба фиксируете минимальную маржу <b class="text-rose-400">+$50k</b>.`;
+                }
+            }, 300);
+        }
+
+        function resetCoffee() {
+            document.getElementById('card-coffee-coop').classList.remove('flipped');
+            document.getElementById('card-coffee-cheat').classList.remove('flipped');
+            document.getElementById('coffee-turn-status').classList.add('hidden');
+        }
+
+        // ================== ИГРА 3: БИТВА НА ТАЙМС-СКВЕР ==================
+        function playMover(leaderStrategy) {
+            resetMover();
+
+            const status = document.getElementById('mover-turn-status');
+            status.classList.remove('hidden');
+
+            setTimeout(() => {
+                if (leaderStrategy === 'massive') {
+                    document.getElementById('card-mover-agg').classList.add('flipped');
+                    status.innerHTML = `<span class="text-sky-400 font-bold">🏢 Вы выбрали агрессию:</span> Starbucks открывает флагман. Конкурент Андеграунд понимает бессмысленность лобовой ценовой войны и уходит в узкую нишу. Вы забрали лучшую часть рынка!`;
+                } else {
+                    document.getElementById('card-mover-niche').classList.add('flipped');
+                    status.innerHTML = `<span class="text-indigo-400 font-bold">🎯 Вы ушли в нишу:</span> Starbucks занял осторожную позицию. Конкурент Андеграунд пользуется вашей слабостью, открывает огромный корнер на углу и забирает лидерство по трафику!`;
+                }
+            }, 300);
+        }
+
+        function resetMover() {
+            document.getElementById('card-mover-agg').classList.remove('flipped');
+            document.getElementById('card-mover-niche').classList.remove('flipped');
+            document.getElementById('mover-turn-status').classList.add('hidden');
+        }
+
+        // Вспомогательная функция для числительных
+        function getNoun(number, one, two, five) {
+            let n = Math.abs(number);
+            n %= 100;
+            if (n >= 5 && n <= 20) {
+                return five;
+            }
+            n %= 10;
+            if (n === 1) {
+                return one;
+            }
+            if (n >= 2 && n <= 4) {
+                return two;
+            }
+            return five;
+        }
+
+        // Стартовый расчет параметров
+        runDilemmaCalculation();
+        runCoffeeCalculation();
+
+    </script>
+</body>
+</html>
