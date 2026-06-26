@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA Симулятор | Теория Игр</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+    
+        body { 
+            background-color: #050505; 
+            color: #e2e8f0; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 80%);
+            overflow-x: hidden;
+        }
+        
+        /* Стеклянные панели */
+        .glass {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Игровые карточки (Навигация) */
+        .tab-btn {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+        }
+
+        /* ВИНТАЖНЫЙ ПОЛЗУНОК (Ретро-тумблер с красной полосой) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            height: 24px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        /* Сам бегунок (Thumb) */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 14px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: -8px;
+            /* Металлическая текстура с красной горизонтальной полоской по центру */
+            background: 
+                linear-gradient(to bottom, transparent 42%, #ef4444 42%, #ef4444 58%, transparent 58%),
+                linear-gradient(to right, #4a4a4a, #7a7a7a, #3a3a3a);
+            border: 1px solid #111;
+            box-shadow: 
+                -2px 0 5px rgba(0,0,0,0.8), 
+                2px 0 5px rgba(0,0,0,0.8), 
+                inset 0 1px 2px rgba(255,255,255,0.4);
+            z-index: 10;
+            position: relative;
+        }
+        /* Трек (Дорожка) */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #0a0a0a;
+            border-radius: 4px;
+            border: 1px solid #222;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        /* Игровая матрица */
+        .matrix-cell {
+            transition: all 0.3s ease;
+        }
+        .nash-eq {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid #10b981 !important;
+            box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.3), 0 0 15px rgba(16, 185, 129, 0.3);
+            z-index: 10;
+        }
+        .best-response {
+            text-decoration: underline;
+            text-decoration-color: #38bdf8;
+            text-decoration-thickness: 2px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* Анимация переворота карточки */
+        .flip-card {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Заголовок и Интро PAPI -->
+    <header class="max-w-7xl mx-auto mb-8">
+        <div class="flex items-center gap-3 mb-4">
+            <i data-lucide="network" class="text-sky-400 w-8 h-8"></i>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 uppercase tracking-wide">
+                 Концептуальный каркас теории игр
+            </h1>
+        </div>
+        <div class="glass rounded-xl p-5 border-l-4 border-l-sky-500">
+            <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-sky-400"></i> Управленческая экономика МВА-В26-МД
+            </h2>
+            <p class="text-gray-300 text-sm leading-relaxed mb-3">
+                Изучите 5 базовых математических моделей стратегического взаимодействия компаний на рынке олигополии, а затем примените полученные знания на практике в Интерактивной Игре во вкладке 6 </b>, где вам предстоит обыграть ИИ-конкурента.
+            </p>
+        </div>
+    </header>
+
+    <!-- Игровые карточки (Навигация) -->
+    <nav class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-3 mb-6" id="tabs">
+        <button onclick="switchTab('sim-dilemma')" class="tab-btn active glass rounded-xl p-4 flex flex-col items-center text-center gap-2" data-target="sim-dilemma">
+            <i data-lucide="swords" class="text-rose-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm">Ценовая дилемма</span>
+            <span class="text-[9px] md:text-[10px] text-gray-400 uppercase">Одношаговые</span>
+        </button>
+        <button onclick="switchTab('sim-coord')" class="tab-btn glass rounded-xl p-4 flex flex-col items-center text-center gap-2" data-target="sim-coord">
+            <i data-lucide="plug-zap" class="text-amber-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm">Координация</span>
+            <span class="text-[9px] md:text-[10px] text-gray-400 uppercase">Стандарты</span>
+        </button>
+        <button onclick="switchTab('sim-mixed')" class="tab-btn glass rounded-xl p-4 flex flex-col items-center text-center gap-2" data-target="sim-mixed">
+            <i data-lucide="eye" class="text-purple-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm">Мониторинг</span>
+            <span class="text-[9px] md:text-[10px] text-gray-400 uppercase">Смешанные</span>
+        </button>
+        <button onclick="switchTab('sim-repeated')" class="tab-btn glass rounded-xl p-4 flex flex-col items-center text-center gap-2" data-target="sim-repeated">
+            <i data-lucide="coffee" class="text-emerald-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm">Картель Кофе</span>
+            <span class="text-[9px] md:text-[10px] text-gray-400 uppercase">Повторяющиеся</span>
+        </button>
+        <button onclick="switchTab('sim-sequential')" class="tab-btn glass rounded-xl p-4 flex flex-col items-center text-center gap-2" data-target="sim-sequential">
+            <i data-lucide="git-merge" class="text-blue-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm">Барьеры входа</span>
+            <span class="text-[9px] md:text-[10px] text-gray-400 uppercase">Последовательные</span>
+        </button>
+        <button onclick="switchTab('sim-game')" class="tab-btn glass rounded-xl p-4 flex flex-col items-center text-center gap-2 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]" data-target="sim-game">
+            <i data-lucide="gamepad-2" class="text-yellow-400 w-6 h-6"></i>
+            <span class="font-semibold text-xs md:text-sm text-yellow-100">ИГРА: Лидер</span>
+            <span class="text-[9px] md:text-[10px] text-yellow-500 uppercase font-bold">Штакельберг</span>
+        </button>
+    </nav>
+
+    <!-- ОСНОВНОЙ КОНТЕЙНЕР СИМУЛЯТОРОВ -->
+    <main class="max-w-7xl mx-auto glass rounded-2xl p-6 mb-10">
+        
+        <!-- 1. ЦЕНОВАЯ ДИЛЕММА -->
+        <div id="sim-dilemma" class="sim-content block">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold text-white border-b border-gray-700 pb-2">Дилемма в ценообразовании</h3>
+                    <p class="text-sm text-gray-300">
+                        Одновременная одношаговая игра. В классической экономике рынки эффективны. Но теория игр доказывает: эгоистичные действия часто ведут к убыткам для всех.
+                    </p>
+                    <div class="bg-gray-900/50 p-4 rounded-lg text-xs text-gray-400 space-y-2">
+                        <p><b>Доминирующая стратегия:</b> Ход, который математически выгоден при <i>любых</i> действиях оппонента.</p>
+                        <p><b>Равновесие Нэша:</b> Исход, где ни одному игроку не выгодно менять решение (выделен <span class="text-emerald-400 font-bold">зеленым</span>).</p>
+                    </div>
+                    
+                    <div class="space-y-6 pt-4 border-t border-gray-800">
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Прибыль при всеобщем сговоре (Высокая/Высокая) <span id="val-d-hh" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">50</span>
+                            </label>
+                            <input type="range" id="slider-d-hh" min="20" max="100" value="50" oninput="updateDilemma()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Сверхприбыль при демпинге (Низкая/Высокая) <span id="val-d-lh" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">80</span>
+                            </label>
+                            <input type="range" id="slider-d-lh" min="50" max="120" value="80" oninput="updateDilemma()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Прибыль при ценовой войне (Низкая/Низкая) <span id="val-d-ll" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">20</span>
+                            </label>
+                            <input type="range" id="slider-d-ll" min="0" max="40" value="20" oninput="updateDilemma()">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 flex flex-col items-center justify-center">
+                    <div class="w-full max-w-lg">
+                        <div class="grid grid-cols-3 gap-1 mb-1 text-center font-semibold text-sm">
+                            <div></div>
+                            <div class="bg-slate-800 rounded-t py-2 text-sky-300">Ф2: Высокая цена</div>
+                            <div class="bg-slate-800 rounded-t py-2 text-sky-300">Ф2: Низкая цена</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 h-24">
+                            <div class="bg-slate-800 rounded-l flex items-center justify-center text-center font-semibold text-sm text-rose-300">Ф1: Высокая</div>
+                            <div id="cell-hh" class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg relative">
+                                (<span id="p1-hh">50</span>, <span id="p2-hh">50</span>)
+                            </div>
+                            <div id="cell-hl" class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg relative">
+                                (<span id="p1-hl">10</span>, <span id="p2-hl">80</span>)
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 h-24 mt-1">
+                            <div class="bg-slate-800 rounded-l flex items-center justify-center text-center font-semibold text-sm text-rose-300">Ф1: Низкая</div>
+                            <div id="cell-lh" class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg relative">
+                                (<span id="p1-lh">80</span>, <span id="p2-lh">10</span>)
+                            </div>
+                            <div id="cell-ll" class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg relative">
+                                (<span id="p1-ll">20</span>, <span id="p2-ll">20</span>)
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dilemma-insight" class="mt-8 p-4 rounded border text-sm text-center max-w-lg w-full transition-all duration-300 shadow-lg">
+                        <!-- Динамический текст из JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ИГРЫ НА КООРДИНАЦИЮ -->
+        <div id="sim-coord" class="sim-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold text-white border-b border-gray-700 pb-2">Игры на координацию</h3>
+                    <p class="text-sm text-gray-300">
+                        Ситуация, когда доминирующих стратегий нет. Выигрыш достигается только при синхронизации действий игроков на рынке.
+                    </p>
+                    <div class="bg-gray-900/50 p-4 rounded-lg text-xs text-gray-400 space-y-2 border border-amber-900/50">
+                        <p>Здесь <b>ДВА</b> равновесия Нэша. Проблема менеджмента — «координационный тупик», требующий подачи сильных рыночных сигналов.</p>
+                        <p class="mt-2 text-amber-200"><b>Современный пример (Tesla vs Европа):</b> Битва за стандарт зарядок для электромобилей. Tesla продвигает свой стандарт NACS, остальные — CCS. Автопроизводителям (Ford, GM) важно выбрать <b>единый</b> стандарт с лидером, чтобы не строить две разные сети.</p>
+                    </div>
+                    
+                    <div class="space-y-6 pt-4 border-t border-gray-800">
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Ценность стандарта А (NACS Tesla) <span id="val-c-a" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">100</span>
+                            </label>
+                            <input type="range" id="slider-c-a" min="50" max="200" value="100" oninput="updateCoord()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Ценность стандарта Б (CCS Европа) <span id="val-c-b" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">100</span>
+                            </label>
+                            <input type="range" id="slider-c-b" min="50" max="200" value="100" oninput="updateCoord()">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 flex flex-col items-center justify-center">
+                    <div class="w-full max-w-lg">
+                        <div class="grid grid-cols-3 gap-1 mb-1 text-center font-semibold text-sm">
+                            <div></div>
+                            <div class="bg-slate-800 rounded-t py-2 text-amber-300">Ф2: Стандарт NACS</div>
+                            <div class="bg-slate-800 rounded-t py-2 text-amber-300">Ф2: Стандарт CCS</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 h-24">
+                            <div class="bg-slate-800 rounded-l flex items-center justify-center text-center font-semibold text-sm text-purple-300">Ф1: NACS (Tesla)</div>
+                            <div id="cell-aa" class="matrix-cell nash-eq bg-slate-900 rounded flex items-center justify-center text-lg relative">
+                                (<span class="best-response" id="p1-aa">100</span>, <span class="best-response" id="p2-aa">100</span>)
+                            </div>
+                            <div class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg text-gray-500">
+                                (0, 0)
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1 h-24 mt-1">
+                            <div class="bg-slate-800 rounded-l flex items-center justify-center text-center font-semibold text-sm text-purple-300">Ф1: CCS</div>
+                            <div class="matrix-cell bg-slate-900 border border-slate-700 rounded flex items-center justify-center text-lg text-gray-500">
+                                (0, 0)
+                            </div>
+                            <div id="cell-bb" class="matrix-cell nash-eq bg-slate-900 rounded flex items-center justify-center text-lg relative">
+                                (<span class="best-response" id="p1-bb">100</span>, <span class="best-response" id="p2-bb">100</span>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. СМЕШАННЫЕ СТРАТЕГИИ -->
+        <div id="sim-mixed" class="sim-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold text-white border-b border-gray-700 pb-2">Мониторинг (Смешанные стратегии)</h3>
+                    <p class="text-sm text-gray-300">
+                        Когда равновесия в чистых стратегиях нет, игроки рандомизируют поведение. Менеджер не может проверять всегда (дорого), а Работник пользуется этим.
+                    </p>
+                    
+                    <div class="space-y-6 pt-4">
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Выигрыш работника от безделья <span id="val-m-shirk" class="text-rose-400 font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">200</span>
+                            </label>
+                            <input type="range" id="slider-m-shirk" min="110" max="300" value="200" oninput="updateMixed()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Штраф работнику при поимке <span id="val-m-penalty" class="text-rose-400 font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">-50</span>
+                            </label>
+                            <input type="range" id="slider-m-penalty" min="-100" max="0" value="-50" oninput="updateMixed()">
+                        </div>
+                    </div>
+                    
+                    <div class="border-l-4 border-purple-500 bg-purple-900/20 p-3 rounded mt-4 text-xs text-purple-200">
+                        <b>Решение для менеджмента:</b> Менеджер выбирает случайную частоту проверок <b>(q)</b>. Чтобы снизить (q) и сэкономить, менеджеру необходимо: <br>1) Перевести мотивацию на KPI (штраф за срыв дедлайна). <br>2) Автоматизировать надзор (AI-трекинг), что повысит риск поимки.
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 flex flex-col justify-center space-y-8 pl-0 md:pl-8">
+                    <!-- Прогресс бары вероятностей -->
+                    <div class="space-y-6 bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl">
+                        <h4 class="text-center font-bold text-gray-400 mb-4">Оптимальные вероятности по Нэшу</h4>
+                        
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-emerald-400 font-semibold">Вероятность Работать (p)</span>
+                                <span id="val-p" class="font-bold">83%</span>
+                            </div>
+                            <div class="w-full bg-black rounded-full h-4 relative overflow-hidden border border-gray-700">
+                                <div id="bar-p" class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-4 rounded-full transition-all duration-500" style="width: 83%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-purple-400 font-semibold">Требуемая частота Мониторинга (q)</span>
+                                <span id="val-q" class="font-bold text-xl drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]">40%</span>
+                            </div>
+                            <div class="w-full bg-black rounded-full h-4 relative overflow-hidden border border-gray-700">
+                                <div id="bar-q" class="bg-gradient-to-r from-purple-600 to-purple-400 h-4 rounded-full transition-all duration-500" style="width: 40%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-sm text-gray-400">
+                        Математика балансировки выгоды работника: <br>
+                        <span class="font-mono text-xs text-gray-500 mt-1 inline-block bg-black/50 px-3 py-1 rounded border border-gray-800">100q + 100(1-q) = Штраф*q + Безделье*(1-q)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ПОВТОРЯЮЩИЕСЯ ИГРЫ (КАРТЕЛЬ КОФЕ) -->
+        <div id="sim-repeated" class="sim-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold text-white border-b border-gray-700 pb-2">Картель: Кофейные войны</h3>
+                    <p class="text-sm text-gray-300">
+                        Глобальный рынок кофе. Страны-производители (Бразилия, Колумбия) договариваются об экспортных квотах, чтобы искусственно держать мировую цену на Арабику высокой.
+                    </p>
+                    
+                    <div class="bg-amber-900/20 p-4 rounded-lg text-xs text-gray-300 border border-amber-900/50 shadow-inner">
+                        <p>Если Колумбия тайно выбросит на биржу лишние миллионы мешков кофе, она сорвет огромный разовый куш. Но как только Бразилия узнает об этом, она отменит все квоты и зальет рынок дешевым кофе. <b>Удержит ли страх перед будущим обвалом цен от предательства сегодня?</b></p>
+                    </div>
+
+                    <div class="space-y-6 pt-2">
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Тайный доп. экспорт (куш сверх квоты) <span id="val-r-cheat" class="text-rose-400 font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">150</span>
+                            </label>
+                            <input type="range" id="slider-r-cheat" min="110" max="250" value="150" oninput="updateRepeated()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Ставка дисконтирования / Риски (i) <span id="val-r-rate" class="text-white font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">10%</span>
+                            </label>
+                            <input type="range" id="slider-r-rate" min="1" max="100" value="10" oninput="updateRepeated()">
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-gray-400 italic mt-2 bg-black/30 p-2 rounded">
+                        * Цена по квоте: <b>~$2.5/фунт</b> (Высокая маржа)<br>
+                        * Цена при войне: <b>~$1.0/фунт</b> (Работа в ноль)
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 flex flex-col justify-center items-center">
+                    
+                    <!-- Табло результатов Картеля -->
+                    <div id="cartel-status" class="w-full max-w-md p-6 rounded-2xl border-2 transition-all duration-500 flex flex-col items-center justify-center text-center">
+                        <i id="cartel-icon" data-lucide="coffee" class="w-16 h-16 mb-4"></i>
+                        <h2 id="cartel-title" class="text-2xl font-bold mb-2 tracking-wider">КАРТЕЛЬ СТАБИЛЕН</h2>
+                        <p id="cartel-desc" class="text-sm opacity-80 h-10 flex items-center">Долгосрочная выгода перевешивает разовый обман.</p>
+                        
+                        <div class="w-full mt-4 grid grid-cols-2 gap-4 text-left">
+                            <div class="bg-black/40 p-3 rounded border border-gray-800">
+                                <div class="text-[10px] text-emerald-400 uppercase font-bold">Долгосрочный союз (PV)</div>
+                                <div id="pv-coop" class="text-2xl font-black text-white drop-shadow-md">1100</div>
+                                <div class="text-[9px] text-gray-400">Мировые цены стабильны</div>
+                            </div>
+                            <div class="bg-black/40 p-3 rounded border border-gray-800">
+                                <div class="text-[10px] text-rose-400 uppercase font-bold">Срыв квоты + Война</div>
+                                <div id="pv-cheat" class="text-2xl font-black text-white drop-shadow-md">650</div>
+                                <div class="text-[9px] text-gray-400">Обвал цен на бирже ICE</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-[11px] font-mono bg-gray-900 border border-gray-800 px-4 py-3 rounded text-gray-400 text-center shadow-lg">
+                        Условие стабильности: <br>
+                        <span class="text-white text-sm font-bold">i ≤ (π_coop - π_nash) / (π_cheat - π_coop)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. ПОСЛЕДОВАТЕЛЬНЫЕ ИГРЫ (ДЕРЕВО) -->
+        <div id="sim-sequential" class="sim-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="col-span-1 space-y-4">
+                    <h3 class="text-xl font-bold text-white border-b border-gray-700 pb-2">Предотвращение входа (Барьеры)</h3>
+                    <p class="text-sm text-gray-300">
+                        <b>Инкумбент</b> (действующий монополист рынка) пытается отпугнуть <b>Новичка</b> (потенциального конкурента) от входа.
+                    </p>
+                    <div class="bg-gray-900/50 p-4 rounded-lg text-xs text-gray-300 shadow-inner">
+                        Если монополист просто на словах грозит торговой войной — это <b>недостоверная угроза</b> (математически ему выгоднее поделить рынок, чем демпинговать).<br><br>
+                        Но если он построит гигантский избыточный завод (Сделает невозвратные инвестиции - Sunk Costs), делить рынок станет убыточно из-за огромных издержек простоя. Угроза демпинга становится реальной, и Новичок остается вне рынка.
+                    </div>
+                    
+                    <div class="space-y-6 pt-4 border-t border-gray-800">
+                        <div>
+                            <label class="text-xs text-gray-400 flex justify-between mb-2">
+                                Инвестиции в мощности (Невозвратные) <span id="val-s-inv" class="text-sky-400 font-bold bg-black/50 px-2 py-0.5 rounded border border-gray-700">$0</span>
+                            </label>
+                            <input type="range" id="slider-s-inv" min="0" max="60000" step="10000" value="0" oninput="updateSeq()">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 relative flex flex-col items-center justify-center overflow-visible min-h-[350px]">
+                    
+                    <!-- SVG Дерево (Математически точное, без HTML кривых) -->
+                    <div class="relative w-full max-w-lg h-64">
+                        <svg class="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
+                            <path id="svg-path-out" d="M 60 128 L 140 32" stroke="#4b5563" stroke-width="4" fill="none" class="transition-all duration-300" />
+                            <path id="svg-path-in" d="M 60 128 L 180 128" stroke="#4b5563" stroke-width="4" fill="none" class="transition-all duration-300" />
+                            <path id="svg-path-war" d="M 230 128 L 360 48" stroke="#4b5563" stroke-width="4" fill="none" class="transition-all duration-300" />
+                            <path id="svg-path-share" d="M 230 128 L 360 208" stroke="#4b5563" stroke-width="4" fill="none" class="transition-all duration-300" />
+                        </svg>
+
+                        <!-- Узлы поверх SVG -->
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 text-center z-10">
+                            <div class="bg-amber-600 font-bold px-3 py-1 rounded-full text-sm mb-1 shadow-[0_0_15px_rgba(217,119,6,0.8)] border border-amber-400">Новичок</div>
+                            <div class="text-[10px] text-gray-400 font-bold bg-black/60 rounded px-1">Ход 1</div>
+                        </div>
+
+                        <!-- Label Stay Out -->
+                        <div class="absolute left-[70px] top-[15%] text-[11px] font-bold text-gray-200 leading-tight text-center bg-black/50 px-2 py-1 rounded">Остаться вне<br><span class="text-[9px] font-normal text-gray-400">(Отказ от входа)</span></div>
+                        
+                        <!-- End Node Stay Out -->
+                        <div id="outcome-out" class="absolute left-[140px] top-[-5%] bg-slate-900 border-2 border-slate-700 p-2 rounded-lg text-sm z-10 transition-all duration-300 shadow-lg">
+                            <span class="text-amber-400 font-bold">$0</span> , <span class="text-sky-400 font-bold" id="seq-out-pay">$100k</span>
+                        </div>
+
+                        <!-- Label Enter -->
+                        <div class="absolute left-[100px] top-[43%] text-xs font-bold text-gray-200 bg-black/50 px-2 py-1 rounded">Войти</div>
+
+                        <!-- Node 2: Incumbent -->
+                        <div class="absolute left-[180px] top-1/2 -translate-y-1/2 text-center z-10">
+                            <div class="bg-sky-600 font-bold px-3 py-1 rounded-full text-sm mb-1 shadow-[0_0_15px_rgba(2,132,199,0.8)] border border-sky-400">Инкумбент</div>
+                            <div class="text-[10px] text-gray-400 font-bold bg-black/60 rounded px-1">Ход 2</div>
+                        </div>
+
+                        <!-- Labels -->
+                        <div class="absolute left-[260px] top-[20%] text-[11px] font-bold text-rose-300 leading-tight text-center bg-black/50 px-2 py-1 rounded">Война<br><span class="text-[9px] font-normal text-gray-400">(Демпинг цен)</span></div>
+                        <div class="absolute left-[250px] top-[68%] text-[11px] font-bold text-emerald-300 leading-tight text-center bg-black/50 px-2 py-1 rounded">Делить<br><span class="text-[9px] font-normal text-gray-400">(Дуополия)</span></div>
+
+                        <!-- End Nodes -->
+                        <div id="outcome-war" class="absolute left-[360px] top-[5%] bg-slate-900 border-2 border-slate-700 p-2 rounded-lg text-sm z-10 transition-all duration-300 shadow-lg">
+                            <span class="text-amber-400 font-bold">-$10k</span> , <span class="text-sky-400 font-bold" id="seq-war-pay">-$10k</span>
+                        </div>
+                        <div id="outcome-share" class="absolute left-[360px] top-[75%] bg-slate-900 border-2 border-slate-700 p-2 rounded-lg text-sm z-10 transition-all duration-300 shadow-lg">
+                            <span class="text-amber-400 font-bold">$40k</span> , <span class="text-sky-400 font-bold" id="seq-share-pay">$40k</span>
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="absolute bottom-[-40px] right-0 text-[11px] font-bold text-gray-400 bg-black/60 px-3 py-1.5 rounded border border-gray-700">Выигрыши: (<span class="text-amber-400">Новичок</span>, <span class="text-sky-400">Инкумбент</span>)</div>
+                    </div>
+                    
+                    <div id="seq-commentary" class="mt-12 text-sm text-center text-gray-300 max-w-lg bg-gray-900/80 p-4 rounded-xl border border-gray-700 shadow-xl transition-all duration-300">
+                        <!-- Динамический текст -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. ИГРА (БИТВА ЗА РЫНОК - БЕСКОНЕЧНАЯ) -->
+        <div id="sim-game" class="sim-content hidden">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-yellow-400 mb-2 drop-shadow-md tracking-wide uppercase">Игра: Лидерство (Штакельберг)</h3>
+                <p class="text-sm text-gray-300 max-w-3xl mx-auto">
+                    Вы — Лидер рынка. Каждый раунд спрос (D) непредсказуемо меняется. Вы фиксируете свой объем (Q1) первым. ИИ узнает ваш выбор и оптимизирует свой выпуск (Q2).
+                </p>
+                <div class="mt-3 text-xs text-yellow-100 max-w-2xl mx-auto bg-yellow-900/30 p-3 rounded-lg border border-yellow-700/50 shadow-inner">
+                    <b>Почему Лидер выигрывает математически?</b> Занимая львиную долю рынка первым, вы вынуждаете конкурента производить меньше (иначе цена рухнет для обоих). Но будьте жадными в меру: если произвести слишком много, общая <b>Рыночная Цена (P)</b> упадет до нуля, и вы уйдете в минус!
+                </div>
+            </div>
+            
+            <!-- Табло игры -->
+            <div class="bg-black/60 rounded-xl p-4 mb-6 border border-gray-800 flex justify-between items-center max-w-3xl mx-auto shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                <div class="text-center">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Раунд</div>
+                    <div id="game-round-display" class="text-xl font-bold text-white">1</div>
+                </div>
+                <div class="text-center px-6 border-l border-r border-gray-700">
+                    <div class="text-[10px] text-yellow-500 uppercase font-bold animate-pulse">Текущий рыночный спрос (D)</div>
+                    <div id="game-demand-display" class="text-3xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">100</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Ваш счет (Прибыль)</div>
+                    <div id="total-user-profit" class="text-xl font-bold text-emerald-400">$0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
+                <!-- Панель Игрока -->
+                <div class="glass p-6 rounded-xl border border-sky-500/30 relative shadow-[0_0_30px_rgba(2,132,199,0.15)]">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-sky-600 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider shadow-lg">ВЫ (ЛИДЕР)</div>
+                    
+                    <div class="w-full mb-8 relative mt-4">
+                        <label class="text-sm text-gray-300 flex justify-between mb-4">
+                            Установите Ваш выпуск (Q1): <span id="game-q-display" class="text-sky-300 font-bold text-2xl bg-black/50 px-3 py-1 rounded border border-sky-900 shadow-inner">50</span>
+                        </label>
+                        <input type="range" id="game-user-q" min="0" max="150" value="50" oninput="document.getElementById('game-q-display').innerText=this.value">
+                    </div>
+
+                    <button onclick="playDynamicGame()" id="btn-make-move" class="w-full py-4 bg-gradient-to-b from-sky-500 to-blue-700 hover:from-sky-400 hover:to-blue-600 rounded-xl text-white font-black tracking-wider shadow-[0_5px_15px_rgba(2,132,199,0.5)] border border-sky-400 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-5 h-5"></i> СДЕЛАТЬ ХОД
+                    </button>
+                </div>
+
+                <!-- Панель ИИ и Результата -->
+                <div class="glass p-6 rounded-xl border border-rose-500/30 relative flex flex-col items-center shadow-[0_0_30px_rgba(225,29,72,0.1)] min-h-[220px]">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-rose-600 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider shadow-lg">ИИ (ПОСЛЕДОВАТЕЛЬ)</div>
+                    
+                    <div class="w-full h-full flex flex-col items-center justify-center pt-2">
+                        
+                        <!-- Карточка ответа ИИ (с анимацией переворота) -->
+                        <div class="flip-card w-full max-w-[200px] h-32 mb-4" id="dynamic-ai-card">
+                            <div class="flip-card-inner w-full h-full relative">
+                                <!-- Лицевая сторона (Ожидание) -->
+                                <div class="flip-card-front absolute w-full h-full bg-slate-800 border-2 border-dashed border-slate-600 rounded-xl flex items-center justify-center flex-col shadow-inner">
+                                    <i data-lucide="bot" class="w-8 h-8 text-slate-500 mb-2"></i>
+                                    <span class="text-xs text-slate-400 font-bold">Ожидает ваш ход...</span>
+                                </div>
+                                <!-- Обратная сторона (Результат) -->
+                                <div class="flip-card-back absolute w-full h-full bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-rose-500/50 rounded-xl flex items-center justify-center flex-col shadow-[0_0_20px_rgba(225,29,72,0.3)]">
+                                    <span class="text-[10px] text-rose-300 font-bold mb-1 uppercase tracking-wider">Ответный выпуск (Q2)</span>
+                                    <span id="dynamic-ai-q" class="text-4xl font-black text-rose-400 drop-shadow-md">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Рыночная цена -->
+                        <div class="w-full bg-black/60 border border-yellow-500/40 p-3 rounded-lg text-center shadow-inner">
+                            <div class="text-[10px] text-gray-400 uppercase font-bold">Итоговая Рыночная Цена (P)</div>
+                            <div id="dynamic-price-display" class="text-2xl font-black text-yellow-400 tracking-wider">--</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- История раундов -->
+            <div class="max-w-4xl mx-auto mt-8 bg-black/40 rounded-xl border border-gray-800 overflow-hidden shadow-lg">
+                <div class="bg-gray-900 px-4 py-2 text-xs font-bold text-gray-400 uppercase border-b border-gray-800">История раундов</div>
+                <div class="overflow-y-auto max-h-48 custom-scrollbar">
+                    <table class="w-full text-left text-xs text-gray-300">
+                        <thead class="bg-gray-800/50 sticky top-0">
+                            <tr>
+                                <th class="px-4 py-2 font-semibold">Раунд</th>
+                                <th class="px-4 py-2 font-semibold">Спрос (D)</th>
+                                <th class="px-4 py-2 font-semibold text-sky-400">Ваш (Q1)</th>
+                                <th class="px-4 py-2 font-semibold text-rose-400">ИИ (Q2)</th>
+                                <th class="px-4 py-2 font-semibold text-yellow-400">Цена (P)</th>
+                                <th class="px-4 py-2 font-semibold text-emerald-400">Ваш $</th>
+                                <th class="px-4 py-2 font-semibold text-gray-500">ИИ $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="game-history-body" class="divide-y divide-gray-800/50">
+                            <!-- Строки добавляются через JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        
+    </main>
+
+    <script>
+        // Инициализация иконок
+        lucide.createIcons();
+
+        // Логика переключения вкладок
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-target="${tabId}"]`).classList.add('active');
+
+            document.querySelectorAll('.sim-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // 1. ЦЕНОВАЯ ДИЛЕММА
+        function updateDilemma() {
+            const hh = parseInt(document.getElementById('slider-d-hh').value);
+            const lh = parseInt(document.getElementById('slider-d-lh').value);
+            const ll = parseInt(document.getElementById('slider-d-ll').value);
+            const hl = 10; 
+
+            document.getElementById('val-d-hh').innerText = hh;
+            document.getElementById('val-d-lh').innerText = lh;
+            document.getElementById('val-d-ll').innerText = ll;
+
+            document.getElementById('p1-hh').innerText = hh; document.getElementById('p2-hh').innerText = hh;
+            document.getElementById('p1-hl').innerText = hl; document.getElementById('p2-hl').innerText = lh;
+            document.getElementById('p1-lh').innerText = lh; document.getElementById('p2-lh').innerText = hl;
+            document.getElementById('p1-ll').innerText = ll; document.getElementById('p2-ll').innerText = ll;
+
+            document.querySelectorAll('#sim-dilemma .best-response').forEach(el => el.classList.remove('best-response'));
+            document.querySelectorAll('#sim-dilemma .nash-eq').forEach(el => el.classList.remove('nash-eq'));
+
+            let br1_H = lh > hh ? 'lh' : 'hh'; 
+            let br1_L = ll > hl ? 'll' : 'hl'; 
+            let br2_H = lh > hh ? 'hl' : 'hh'; 
+            let br2_L = ll > hl ? 'll' : 'lh';
+
+            document.getElementById(`p1-${br1_H}`).classList.add('best-response');
+            document.getElementById(`p1-${br1_L}`).classList.add('best-response');
+            document.getElementById(`p2-${br2_H}`).classList.add('best-response');
+            document.getElementById(`p2-${br2_L}`).classList.add('best-response');
+
+            let nashCell = '';
+            const cells = ['hh', 'hl', 'lh', 'll'];
+            cells.forEach(cell => {
+                const p1 = document.getElementById(`p1-${cell}`);
+                const p2 = document.getElementById(`p2-${cell}`);
+                if (p1.classList.contains('best-response') && p2.classList.contains('best-response')) {
+                    document.getElementById(`cell-${cell}`).classList.add('nash-eq');
+                    nashCell = cell;
+                }
+            });
+
+            const insight = document.getElementById('dilemma-insight');
+            if (nashCell === 'll' && lh > hh) {
+                insight.innerHTML = `<b class="text-rose-400">Парадокс Дилеммы:</b> Обеим фирмам выгоднее держать цену высокой (Прибыль ${hh}), но огромный стимул к тайному демпингу (${lh}) заставляет их предать друг друга. Итог: неизбежная ценовая война и падение прибыли обеих до ${ll}.`;
+                insight.className = "mt-8 p-4 rounded bg-rose-950/30 border border-rose-900 text-rose-200 text-sm text-center max-w-lg w-full transition-all duration-300 shadow-[0_0_15px_rgba(225,29,72,0.2)]";
+            } else if (nashCell === 'hh') {
+                insight.innerHTML = `<b class="text-emerald-400">Сговор стабилен:</b> Сверхприбыль от демпинга слишком мала (${lh} < ${hh}). Фирмам нет экономического смысла начинать ценовые войны, они спокойно держат монопольно высокие цены.`;
+                insight.className = "mt-8 p-4 rounded bg-emerald-950/30 border border-emerald-900 text-emerald-200 text-sm text-center max-w-lg w-full transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
+            } else {
+                insight.innerHTML = `<b class="text-amber-400">Рынок перекошен:</b> Выигрыши распределены нестандартно. Обратите внимание на подчеркнутые цифры (наилучшие ответы) — они показывают логику жадности.`;
+                insight.className = "mt-8 p-4 rounded bg-amber-950/30 border border-amber-900 text-amber-200 text-sm text-center max-w-lg w-full transition-all duration-300 shadow-[0_0_15px_rgba(245,158,11,0.2)]";
+            }
+        }
+
+        // 2. ИГРЫ НА КООРДИНАЦИЮ
+        function updateCoord() {
+            const a = parseInt(document.getElementById('slider-c-a').value);
+            const b = parseInt(document.getElementById('slider-c-b').value);
+            
+            document.getElementById('val-c-a').innerText = a;
+            document.getElementById('val-c-b').innerText = b;
+            
+            document.getElementById('p1-aa').innerText = a; document.getElementById('p2-aa').innerText = a;
+            document.getElementById('p1-bb').innerText = b; document.getElementById('p2-bb').innerText = b;
+        }
+
+        // 3. СМЕШАННЫЕ СТРАТЕГИИ
+        function updateMixed() {
+            const shirk = parseInt(document.getElementById('slider-m-shirk').value);
+            const penalty = parseInt(document.getElementById('slider-m-penalty').value);
+            
+            document.getElementById('val-m-shirk').innerText = shirk;
+            document.getElementById('val-m-penalty').innerText = penalty;
+
+            let q = (100 - shirk) / (penalty - shirk);
+            q = Math.max(0, Math.min(1, q)); 
+            
+            let qPercent = (q * 100).toFixed(1);
+            
+            document.getElementById('val-q').innerText = qPercent + '%';
+            document.getElementById('bar-q').style.width = qPercent + '%';
+        }
+
+        // 4. ПОВТОРЯЮЩИЕСЯ ИГРЫ (КАРТЕЛЬ КОФЕ)
+        function updateRepeated() {
+            const cheat = parseInt(document.getElementById('slider-r-cheat').value);
+            const rate = parseInt(document.getElementById('slider-r-rate').value);
+            const coop = 100; 
+            const nash = 50;  
+
+            document.getElementById('val-r-cheat').innerText = cheat;
+            document.getElementById('val-r-rate').innerText = rate + '%';
+
+            const i = rate / 100;
+            const pv_coop = coop + (coop / i);
+            const pv_cheat = cheat + (nash / i);
+
+            document.getElementById('pv-coop').innerText = pv_coop.toFixed(0);
+            document.getElementById('pv-cheat').innerText = pv_cheat.toFixed(0);
+
+            const statusBox = document.getElementById('cartel-status');
+            const icon = document.getElementById('cartel-icon');
+            const title = document.getElementById('cartel-title');
+            const desc = document.getElementById('cartel-desc');
+
+            if (pv_coop >= pv_cheat) {
+                statusBox.className = "w-full max-w-md p-6 rounded-2xl border-2 transition-all duration-500 flex flex-col items-center justify-center text-center bg-emerald-900/20 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.3)]";
+                icon.outerHTML = '<i id="cartel-icon" data-lucide="coffee" class="w-16 h-16 mb-4 text-emerald-400"></i>';
+                title.innerText = "КВОТЫ СОБЛЮДАЮТСЯ";
+                title.className = "text-2xl font-bold mb-2 text-emerald-400 tracking-wider";
+                desc.innerText = `Ценность союза (${pv_coop.toFixed(0)}) больше куша от демпинга. Бразилия и Колумбия честно держат объемы, цена $2.5/фунт сохраняется.`;
+            } else {
+                statusBox.className = "w-full max-w-md p-6 rounded-2xl border-2 transition-all duration-500 flex flex-col items-center justify-center text-center bg-rose-900/20 border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.3)]";
+                icon.outerHTML = '<i id="cartel-icon" data-lucide="bomb" class="w-16 h-16 mb-4 text-rose-400"></i>';
+                title.innerText = "КРАХ КАРТЕЛЯ";
+                title.className = "text-2xl font-bold mb-2 text-rose-400 tracking-wider";
+                desc.innerText = `Колумбии выгоднее тайно вылить на биржу миллионы мешков кофе (Куш: ${pv_cheat.toFixed(0)} > ${pv_coop.toFixed(0)}). Итог: мировая цена рушится до $1.0/фунт.`;
+            }
+            lucide.createIcons();
+        }
+
+        // 5. ПОСЛЕДОВАТЕЛЬНЫЕ ИГРЫ
+        function updateSeq() {
+            const inv = parseInt(document.getElementById('slider-s-inv').value);
+            document.getElementById('val-s-inv').innerText = '$' + (inv/1000).toFixed(0) + 'k';
+
+            const base_out = 100000;
+            const base_war = -10000;
+            const base_share = 40000;
+
+            const pay_out = base_out - inv;
+            const pay_war = base_war; 
+            const pay_share = base_share - inv; 
+
+            document.getElementById('seq-out-pay').innerText = '$' + (pay_out/1000).toFixed(0) + 'k';
+            document.getElementById('seq-war-pay').innerText = '-$10k';
+            document.getElementById('seq-share-pay').innerText = '$' + (pay_share/1000).toFixed(0) + 'k';
+
+            // SVG Logic
+            const svgWar = document.getElementById('svg-path-war');
+            const svgShare = document.getElementById('svg-path-share');
+            const svgIn = document.getElementById('svg-path-in');
+            const svgOut = document.getElementById('svg-path-out');
+
+            // Reset SVG
+            [svgWar, svgShare, svgIn, svgOut].forEach(el => {
+                el.setAttribute('stroke', '#4b5563'); // gray
+                el.style.filter = 'none';
+            });
+            ['out', 'war', 'share'].forEach(p => {
+                document.getElementById(`outcome-${p}`).classList.remove('border-emerald-500', 'shadow-[0_0_15px_rgba(16,185,129,0.5)]');
+                document.getElementById(`outcome-${p}`).classList.add('border-slate-700');
+            });
+
+            // Backward Induction
+            let incumbentChoosesWar = pay_war > pay_share;
+            let entrantPayoffIfIn = incumbentChoosesWar ? -10000 : 40000;
+            let entrantEnters = entrantPayoffIfIn > 0;
+
+            const commentary = document.getElementById('seq-commentary');
+            const activeStroke = '#10b981'; // emerald
+            const activeGlow = 'drop-shadow(0 0 5px rgba(16,185,129,0.8))';
+            
+            if (entrantEnters) {
+                svgIn.setAttribute('stroke', activeStroke);
+                svgIn.style.filter = activeGlow;
+                
+                if (incumbentChoosesWar) {
+                    svgWar.setAttribute('stroke', activeStroke);
+                    svgWar.style.filter = activeGlow;
+                    document.getElementById('outcome-war').classList.replace('border-slate-700', 'border-emerald-500');
+                    document.getElementById('outcome-war').classList.add('shadow-[0_0_15px_rgba(16,185,129,0.5)]');
+                } else {
+                    svgShare.setAttribute('stroke', activeStroke);
+                    svgShare.style.filter = activeGlow;
+                    document.getElementById('outcome-share').classList.replace('border-slate-700', 'border-emerald-500');
+                    document.getElementById('outcome-share').classList.add('shadow-[0_0_15px_rgba(16,185,129,0.5)]');
+                }
+                commentary.innerHTML = "<b class='text-emerald-400'>Угроза недостоверна.</b> Инкумбенту математически выгоднее поделиться рынком, чем воевать (уйти в минус). Новичок применяет метод обратной индукции, понимает, что угроза — это блеф, и смело заходит на рынок.";
+            } else {
+                svgOut.setAttribute('stroke', activeStroke);
+                svgOut.style.filter = activeGlow;
+                document.getElementById('outcome-out').classList.replace('border-slate-700', 'border-emerald-500');
+                document.getElementById('outcome-out').classList.add('shadow-[0_0_15px_rgba(16,185,129,0.5)]');
+                commentary.innerHTML = "<b class='text-rose-400'>Угроза стала достоверной!</b> Построив дорогой завод (Sunk Costs), Инкумбент сделал деление рынка убыточным (завод простаивает). Теперь при входе Новичка Инкумбенту <i>действительно</i> придется воевать. Новичок просчитывает это и отказывается от входа (Остается вне).";
+            }
+        }
+
+        // 6. ИГРА (ДИНАМИЧЕСКАЯ)
+        let gameActive = true;
+        let round = 1;
+        let currentDemand = 100;
+        let totalUserProfit = 0;
+        let totalAiProfit = 0;
+
+        function playDynamicGame() {
+            if(!gameActive) return;
+            gameActive = false;
+
+            const userQ = parseInt(document.getElementById('game-user-q').value);
+            const btn = document.getElementById('btn-make-move');
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin inline w-5 h-5 mr-2"></i> РАСЧЕТ...';
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const aiCard = document.getElementById('dynamic-ai-card');
+            aiCard.classList.remove('flipped'); 
+
+            setTimeout(() => {
+                // Best response ИИ (Штакельберг: Q2 = (a - Q1)/2 )
+                let aiQ = Math.max(0, Math.floor((currentDemand - userQ) / 2));
+                
+                // Формирование итоговой рыночной цены P = a - Q1 - Q2
+                let price = Math.max(0, currentDemand - userQ - aiQ);
+                
+                let userProfit = userQ * price;
+                let aiProfit = aiQ * price;
+
+                totalUserProfit += userProfit;
+                totalAiProfit += aiProfit;
+
+                // Обновление UI
+                document.getElementById('dynamic-ai-q').innerText = aiQ;
+                document.getElementById('dynamic-price-display').innerText = `$${price}`; 
+                aiCard.classList.add('flipped');
+
+                document.getElementById('total-user-profit').innerText = `$${totalUserProfit}`;
+
+                // Добавление в историю
+                const tbody = document.getElementById('game-history-body');
+                const row = `
+                    <tr class="hover:bg-gray-800/50 transition-colors">
+                        <td class="px-4 py-2">${round}</td>
+                        <td class="px-4 py-2 font-bold text-yellow-500">${currentDemand}</td>
+                        <td class="px-4 py-2 text-sky-300 font-bold">${userQ}</td>
+                        <td class="px-4 py-2 text-rose-300">${aiQ}</td>
+                        <td class="px-4 py-2 font-bold text-yellow-400">$${price}</td>
+                        <td class="px-4 py-2 text-emerald-400 font-bold">+$${userProfit}</td>
+                        <td class="px-4 py-2 text-gray-400">+$${aiProfit}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('afterbegin', row);
+
+                // Подготовка к новому раунду
+                setTimeout(() => {
+                    round++;
+                    // Случайный шок спроса от 80 до 150
+                    currentDemand = Math.floor(Math.random() * (150 - 80 + 1)) + 80;
+                    document.getElementById('game-round-display').innerText = round;
+                    document.getElementById('game-demand-display').innerText = currentDemand;
+                    
+                    // Обновляем ползунок под новый макс. спрос, чтобы игрок мог занять весь рынок
+                    const slider = document.getElementById('game-user-q');
+                    slider.max = currentDemand;
+                    
+                    aiCard.classList.remove('flipped');
+                    document.getElementById('dynamic-price-display').innerText = `--`; 
+
+                    btn.innerHTML = '<i data-lucide="play" class="w-5 h-5 inline mr-2"></i> СДЕЛАТЬ ХОД';
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    lucide.createIcons();
+                    gameActive = true;
+                }, 2500);
+
+            }, 800);
+        }
+
+        // Инициализация при загрузке
+        updateDilemma();
+        updateCoord();
+        updateMixed();
+        updateRepeated();
+        updateSeq();
+
+    </script>
+</body>
+</html>
