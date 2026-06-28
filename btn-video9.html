@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Базовые стили из шаблона Презентации для идеальной центровки */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background-color: transparent; 
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        /* Главный контейнер с абсолютным позиционированием */
+        .main-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* ОБЕРТКА КНОПКИ: По умолчанию занимает 100% пространства, один в один как в Презентации */
+        .btn-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 2;
+        }
+        
+        /* Ссылочный контейнер кнопки */
+        .btn-link { 
+            display: block; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease; 
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        /* Эффект оживления: плавное увеличение и неоновая подсветка */
+        .btn-link:hover { 
+            transform: scale(1.02); 
+            filter: drop-shadow(0 0 12px rgba(52, 152, 219, 0.7)); 
+        }
+
+        .btn-link:active {
+            transform: scale(0.98);
+        }
+        
+        /* Картинка-кнопка: масштабируется без искажений и строго по центру, доходя до краев */
+        .btn-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            display: block; 
+        }
+
+        /* КАРТОЧКА «КИНОПЛЕНКА 80-Х» */
+        /* По умолчанию скрыта за правым краем экрана, чтобы не мешать кнопке */
+        .film-card {
+            position: absolute;
+            left: 100%;
+            right: -100%;
+            top: 2%;
+            height: 96%; /* Увеличена высота карточки для максимального использования пространства */
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden; /* Убираем любые скроллы, всё должно помещаться */
+            background: #111111;
+            border-left: 5px dashed #2a2a2a;
+            border-right: 5px dashed #2a2a2a;
+            border-radius: 6px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 20px; /* Снижены вертикальные отступы для экономии места */
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
+        }
+
+        /* @keyframes или статические перфорации ретро-кинопленки сверху и снизу */
+        .film-card::before, .film-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background-image: linear-gradient(to right, #000 0px, #000 12px, transparent 12px, transparent 24px);
+            background-size: 24px 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .film-card::before { top: 4px; }
+        .film-card::after { bottom: 4px; }
+
+        /* Шапка кинопленки */
+        .film-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+        }
+
+        .film-title {
+            margin: 0;
+            color: #f1c40f; 
+            font-size: 13.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Кнопка закрытия карточки */
+        .close-btn {
+            color: #777;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+
+        /* Список видеоматериалов */
+        .video-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Идеальный плотный шаг для размещения всех 6 ссылок */
+        }
+
+        .video-item {
+            margin: 0;
+        }
+
+        .video-item a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 12px; /* Оптимальный размер шрифта, чтобы ничего не переносилось */
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            line-height: 1.25;
+            white-space: nowrap; /* Предотвращает некрасивые переносы строк */
+        }
+
+        .video-item a:hover {
+            color: #3498db;
+            transform: translateX(4px);
+        }
+
+        /* АКТИВНОЕ СОСТОЯНИЕ (При клике) */
+
+        /* Сжатие и плавное смещение кнопки влево */
+        .main-container.active .btn-wrapper {
+            width: 160px; /* Уменьшено до 160px, чтобы дать кинопленке максимум ширины */
+        }
+
+        /* Выезжание кинопленки справа на экран */
+        .main-container.active .film-card {
+            left: 175px; /* Сдвинута левее (160px + 15px зазор) */
+            right: 10px; /* Минимальный зазор справа для максимальной ширины */
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .main-container.active .film-card::before, 
+        .main-container.active .film-card::after {
+            opacity: 1;
+        }
+
+        /* АДАПТИВНОСТЬ ДЛЯ ДЕВАЙСОВ И УЗКИХ СТОЛБЦОВ */
+        @media (max-width: 550px) {
+            .main-container.active .btn-wrapper {
+                width: 100%;
+                height: 35%;
+                top: 0;
+                left: 0;
+            }
+            .main-container.active .film-card {
+                left: 2%;
+                right: 2%;
+                width: 96%;
+                height: 62%;
+                top: 36%;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="mainContainer">
+        <!-- Блок кнопки (в закрытом состоянии занимает честные 100% без смещений) -->
+        <div class="btn-wrapper" id="btnWrapper">
+            <div class="btn-link" id="videoBtn" title="Нажмите, чтобы открыть видео">
+                <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-video9.png" 
+                     alt="Открыть видеоматериалы" class="btn-img">
+            </div>
+        </div>
+
+        <!-- Скрытая ретро-карточка кинопленки -->
+        <div class="film-card" id="filmCard">
+            <div class="film-header">
+                <div class="film-title">🎬 Гос. регулирование экономики</div>
+                <span class="close-btn" id="closeCardBtn" title="Закрыть">&times;</span>
+            </div>
+            <ul class="video-list">
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=Lp9cvR6LNrE" target="_blank" rel="noopener noreferrer">▶️ 1. Фиаско рынка и необходимость госрегулирования</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=Itgtg8-Q2ys" target="_blank" rel="noopener noreferrer">▶️ 2. Введение налогов и субсидий: последствия</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=XiSVECjcFLU" target="_blank" rel="noopener noreferrer">▶️ 3. Контроль цен: потолки и полы спроса</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=wJSOooBchD4" target="_blank" rel="noopener noreferrer">▶️ 4. Внешние эффекты и экономика экстерналий</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=NGNg_-besmY" target="_blank" rel="noopener noreferrer">▶️ 5. Общественные блага и роль государства</a>
+                </li>
+                <li class="video-item">
+                    <a href="https://www.youtube.com/watch?v=OvsLvg_uL7s" target="_blank" rel="noopener noreferrer">▶️ 6. Антимонопольное регулирование рынков</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const videoBtn = document.getElementById('videoBtn');
+        const closeCardBtn = document.getElementById('closeCardBtn');
+        const mainContainer = document.getElementById('mainContainer');
+
+        // Функция переключения состояния
+        function toggleCard(e) {
+            if (e) e.preventDefault();
+            mainContainer.classList.toggle('active');
+        }
+
+        // Клик по кнопке-картинке открывает/закрывает карточку
+        videoBtn.addEventListener('click', toggleCard);
+
+        // Клик по крестику на карточке закрывает её
+        closeCardBtn.addEventListener('click', toggleCard);
+    </script>
+</body>
+</html>
