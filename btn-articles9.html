@@ -5,41 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>btn-articles9</title>
     <style>
-        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: transparent; }
-        .flip-card { width: 250px; height: 250px; perspective: 1000px; cursor: pointer; }
-        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
-        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
-        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; overflow: hidden; box-sizing: border-box; }
-        .flip-card-front { display: flex; align-items: center; justify-content: center; transition: transform 0.25s ease, filter 0.25s ease; }
-        .flip-card:not(.flipped):hover .flip-card-front { transform: scale(1.04); filter: drop-shadow(0 0 12px rgba(13, 148, 136, 0.6)); }
-        .tile-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .flip-card-back { background-color: #0f172a; transform: rotateY(180deg); border: 2px solid rgba(13, 148, 136, 0.7); padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
-        .article-link { display: block; background: rgba(255, 255, 255, 0.04); color: #e2e8f0; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 11px; font-family: sans-serif; border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.2s ease; }
-        .article-link:hover { background: rgba(13, 148, 136, 0.2); border-color: #14b8a6; color: #ffffff; transform: translateX(4px); }
+        /* Идеальное центрирование карточки во фрейме и предотвращение скроллбаров */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: transparent; 
+            overflow: hidden; 
+        }
+
+        /* 3D Контейнер карточки с запасом под центровку в iframe (250x250) */
+        .flip-card { 
+            width: 220px; 
+            height: 220px; 
+            perspective: 1000px; 
+            cursor: pointer; 
+        }
+
+        .flip-card-inner { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform-style: preserve-3d; 
+        }
+
+        /* Эффект переворота */
+        .flip-card.flipped .flip-card-inner { 
+            transform: rotateY(180deg); 
+        }
+
+        .flip-card-front, .flip-card-back { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-sizing: border-box; 
+        }
+
+        /* Лицевая сторона с картинкой */
+        .flip-card-front { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: transparent; 
+            transition: transform 0.25s ease, filter 0.25s ease; 
+        }
+
+        /* Мягкое белое неоновое свечение и увеличение при наведении */
+        .flip-card:not(.flipped):hover .flip-card-front { 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)); 
+        }
+
+        /* Сжатие при клике */
+        .flip-card:not(.flipped):active .flip-card-front {
+            transform: scale(0.98);
+        }
+
+        /* Сохранение картинки в оригинальном масштабе без искажений */
+        .tile-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            display: block; 
+        }
+
+        /* Обратная сторона со списком статей */
+        .flip-card-back { 
+            background-color: #0f172a; 
+            transform: rotateY(180deg); 
+            border: 2px solid #14b8a6; 
+            padding: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            gap: 8px; 
+            box-sizing: border-box; 
+        }
+
+        /* Стили ссылок на статьи */
+        .article-link { 
+            display: block; 
+            background: rgba(255, 255, 255, 0.05); 
+            color: #e2e8f0; 
+            text-decoration: none; 
+            padding: 8px 10px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            line-height: 1.35; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            transition: all 0.2s ease; 
+            text-align: left; 
+        }
+
+        .article-link:hover { 
+            background: rgba(20, 184, 166, 0.15); 
+            border-color: #14b8a6; 
+            color: #ffffff; 
+            transform: translateX(4px); 
+        }
     </style>
 </head>
 <body>
 
 <div class="flip-card" id="card">
     <div class="flip-card-inner">
+        <!-- Лицевая сторона -->
         <div class="flip-card-front">
-            <!-- Ссылка на ваше изображение в репозитории -->
             <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-articles9.png" class="tile-img" alt="Статьи 9">
         </div>
+        <!-- Обратная сторона -->
         <div class="flip-card-back">
-            <a href="https://www.breakfreefromplastic.org/ru/2025/06/23/what-is-sachet-economy/" target="_blank" class="article-link">Что такое саше-экономика?</a>
-            <a href="https://tengrinews.kz/article/kazaxstan-ne-alkogolnaia-strana-kulturolog-logike-trezvogo-4021/" target="_blank" class="article-link">Казахстан — не алкогольная страна?</a>
-            <a href="https://ru.euronews.com/2023/03/28/the-worlds-richest-country-made-public-transport-free-heres-what-happened-next" target="_blank" class="article-link">Бесплатный транспорт: опыт Люксембурга</a>
+            <a href="https://www.breakfreefromplastic.org/ru/2025/06/23/what-is-sachet-economy/" target="_blank" class="article-link">
+                1. Саше-экономика: вызовы и риски
+            </a>
+            <a href="https://tengrinews.kz/article/kazaxstan-ne-alkogolnaia-strana-kulturolog-logike-trezvogo-4021/" target="_blank" class="article-link">
+                2. Культура трезвого образа жизни
+            </a>
+            <a href="https://ru.euronews.com/2023/03/28/the-worlds-richest-country-made-public-transport-free-heres-what-happened-next" target="_blank" class="article-link">
+                3. Бесплатный транспорт Люксембурга
+            </a>
         </div>
     </div>
 </div>
 
 <script>
     const card = document.getElementById('card');
+    
+    // Переворот по клику (за исключением клика по самим ссылкам)
     card.addEventListener('click', function(e) {
         if (e.target.tagName === 'A') return;
         card.classList.toggle('flipped');
     });
 </script>
+
 </body>
+</html>
 </html>
