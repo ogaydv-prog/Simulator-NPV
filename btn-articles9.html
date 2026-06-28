@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>btn-articles9</title>
 <style>
-  body {
+  html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -13,14 +13,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
     height: 100vh;
   }
 
-  /* 3D Контейнер */
+  /* 3D Контейнер: уменьшен до 220px для гарантированного отсутствия скроллбаров при наведении */
   .flip-card {
     background-color: transparent;
-    width: 250px;
-    height: 250px;
+    width: 220px;
+    height: 220px;
     perspective: 1000px;
     cursor: pointer;
   }
@@ -60,7 +61,7 @@
 
   /* Эффект подсветки и оживления только при наведении на лицевую сторону */
   .flip-card:not(.flipped):hover .flip-card-front {
-    transform: scale(1.04);
+    transform: scale(1.05);
     filter: drop-shadow(0 0 12px rgba(13, 148, 136, 0.6));
   }
 
@@ -88,11 +89,11 @@
     background: rgba(255, 255, 255, 0.04);
     color: #e2e8f0;
     text-decoration: none;
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-radius: 8px;
     font-size: 11px;
     font-family: 'Segoe UI', Arial, sans-serif;
-    line-height: 1.4;
+    line-height: 1.35;
     text-align: left;
     border: 1px solid rgba(255, 255, 255, 0.06);
     transition: all 0.2s ease;
