@@ -4,20 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Идеальное центрирование и сброс отступов под фрейм — СТРОГО ИЗ btn-articles8 */
+        /* Устраняем схлопывание контейнера: убираем flex с body и задаем жесткие 100% как в btn-video7 */
         html, body { 
             margin: 0; 
             padding: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            background: transparent; 
+            width: 100%; 
+            height: 100%; 
             overflow: hidden; 
+            background-color: transparent; 
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
         }
 
-        /* Главный контейнер с абсолютным позиционированием */
+        /* Главный контейнер во весь экран */
         .main-container {
             position: relative;
             width: 100%;
@@ -26,7 +24,7 @@
             box-sizing: border-box;
         }
 
-        /* ОБЕРТКА КНОПКИ: По умолчанию занимает 100% пространства */
+        /* ОБЕРТКА КНОПКИ: Центрирует кнопку через flex внутри абсолютного контейнера */
         .btn-wrapper {
             position: absolute;
             left: 0;
