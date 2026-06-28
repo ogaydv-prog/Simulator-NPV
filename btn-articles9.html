@@ -4,60 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Идеальное центрирование и сброс отступов под фрейм */
         html, body { 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            background: transparent; 
-            overflow: hidden; 
+            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; 
+            height: 100vh; background: transparent; overflow: visible; font-family: sans-serif;
         }
-        
-        .btn-link { 
-            display: block; 
-            width: 100%; 
-            height: 100%;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
-            cursor: pointer; 
-            text-decoration: none;
-        }
-        
-        /* Эффект оживления: плавное увеличение, повышение яркости и мягкое неоновое свечение */
-        .btn-link:hover { 
-            transform: scale(1.05); 
-            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.3)); 
-        }
-        
-        /* Эффект нажатия (сжатие кнопки) */
-        .btn-link:active { 
-            transform: scale(0.98); 
-        }
-        
-        /* Адаптивное масштабирование картинки без деформаций */
+
+        /* Обертка для позиционирования */
+        .wrapper { position: relative; display: flex; align-items: center; }
+
         .btn-img { 
-            display: block; 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
+            width: 100px; height: 100px; cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
         }
+        .btn-img:hover { transform: scale(1.1); filter: brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+        .btn-img:active { transform: scale(0.95); }
+
+        /* Карточка с перечнем */
+        .card {
+            display: none; position: absolute; left: 120px; top: -50px;
+            width: 300px; background: #1a1a1f; border: 1px solid #444; border-radius: 12px;
+            padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
+        }
+        .card.active { display: block; }
+
+        .card a { 
+            display: block; color: #ccc; text-decoration: none; margin-bottom: 10px; font-size: 13px;
+            transition: color 0.2s; border-bottom: 1px solid #333; padding-bottom: 5px;
+        }
+        .card a:hover { color: #fff; }
     </style>
 </head>
 <body>
 
-    <!-- Ссылка на материал для чтения (откроется в новой вкладке) -->
-    <!-- Обновите URL в href на нужный вам -->
-    <a href="https://www.breakfreefromplastic.org/ru/2025/06/23/what-is-sachet-economy/" 
-       target="_blank" 
-       rel="noopener noreferrer"
-       class="btn-link">
-        <!-- Картинка статей из вашего репозитория Simulator-NPV -->
+    <div class="wrapper">
+        <!-- Кнопка -->
         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-articles9.png" 
-             class="btn-img" 
-             alt="Читать материалы по Теории Игр">
-    </a>
+             class="btn-img" id="toggleBtn" alt="Статьи">
 
+        <!-- Карточка -->
+        <div class="card" id="articleCard">
+            <h4 style="color:#fff; margin-top:0; font-size: 14px;">Материалы для чтения:</h4>
+            <a href="https://www.breakfreefromplastic.org/ru/2025/06/23/what-is-sachet-economy/" target="_blank">1. Экономика саше: вызовы и риски</a>
+            <a href="https://tengrinews.kz/article/kazaxstan-ne-alkogolnaia-strana-kulturolog-logike-trezvogo-4021/" target="_blank">2. Культурология трезвого образа жизни</a>
+            <a href="https://ru.euronews.com/2023/03/28/the-worlds-richest-country-made-public-transport-free-heres-what-happened-next" target="_blank">3. Экономика бесплатного транспорта</a>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('toggleBtn');
+        const card = document.getElementById('articleCard');
+
+        btn.addEventListener('click', () => {
+            card.classList.toggle('active');
+        });
+
+        // Закрытие при клике вне кнопки/карточки
+        document.addEventListener('click', (e) => {
+            if (!btn.contains(e.target) && !card.contains(e.target)) {
+                card.classList.remove('active');
+            }
+        });
+    </script>
 </body>
+</html>
 </html>
