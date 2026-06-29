@@ -4,67 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Полный сброс отступов и скрытие прокрутки */
         html, body { 
             margin: 0; 
             padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background: transparent; 
             display: flex; 
             justify-content: center; 
-            align-items: flex-start; /* ВЫРАВНИВАНИЕ ПО ВЕРХНЕМУ КРАЮ, чтобы кнопка не падала вниз */
-        }
-        
-        /* Ссылочный контейнер с анимацией */
-        .btn-link { 
-            display: flex; 
             align-items: center; 
-            justify-content: center; 
+            height: 100vh; 
+            background: transparent; 
+            overflow: hidden; 
+        }
+        .btn-link { 
+            display: block; 
             width: 100%; 
-            height: 100%; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            height: 100%;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
             cursor: pointer; 
             text-decoration: none;
-            border-radius: 12px;
-            overflow: hidden;
-            
-            /* ТОЧЕЧНАЯ НАСТРОЙКА: Если кнопка ВСЁ ЕЩЕ чуть ниже, уменьши этот минус (например, -4px). 
-               Если нужно опустить — сделай плюс (например, 4px) */
-            margin-top: 0px; 
         }
-        
-        /* Эффект оживления и свечения при наведении */
+        /* Твой эффект оживления: увеличение и неоновая подсветка */
         .btn-link:hover { 
-            transform: scale(1.08); 
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5)); 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
         }
-        
-        /* Эффект нажатия (сжатие) */
+        /* Эффект нажатия */
         .btn-link:active { 
             transform: scale(0.98); 
         }
-        
-        /* Масштабирование картинки */
         .btn-img { 
-            max-width: 95%; 
-            max-height: 95%; 
-            object-fit: contain; 
             display: block; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
         }
     </style>
 </head>
 <body>
 
-    <a href="https://ogaydv-prog.github.io/Simulator-NPV/gosudarstvennoe-regulirovanie-ekonomiki.html" 
+    <a href="https://sites.google.com/view/managerial-economics-mba/%D0%B7%D0%B0%D0%BD%D1%8F%D1%82%D0%B8%D1%8F/%D0%B3%D0%BE%D1%81%D1%83%D0%B4%D0%B0%D1%80%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B5-%D1%80%D0%B5%D0%B3%D1%83%D0%BB%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D1%8D%D0%BA%D0%BE%D0%BD%D0%BE%D0%BC%D0%B8%D0%BA%D0%B8" 
        target="_top" 
        class="btn-link">
-         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-topic9.png" 
-              class="btn-img" 
-              alt="Раздел: Государственное регулирование экономики">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-topic9.png" 
+             class="btn-img" 
+             alt="Тема 9: Государственное регулирование экономики">
     </a>
 
 </body>
-</html>
 </html>
