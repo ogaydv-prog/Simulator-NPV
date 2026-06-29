@@ -2,101 +2,97 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Симулятор: Антимонопольное регулирование</title>
+    <title>Кнопка Симулятора</title>
     <style>
-        /* Обнуление отступов для корректного отображения во фрейме */
-        body {
+        /* Убираем любые отступы и полосы прокрутки на уровне документа */
+        html, body {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
             background-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Контейнер кнопки (ячейка) */
-        .btn-container {
+        /* Центрирование кнопки в ячейке без лишнего пространства */
+        .btn-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 350px; /* Можно настроить желаемую ширину кнопки */
-            padding: 10px;
+            height: 100vh; /* Занимает ровно пространство фрейма */
             box-sizing: border-box;
         }
 
-        /* Стили самой интерактивной кнопки */
-        .sim-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* Интерактивная ссылка-кнопка */
+        .sim-btn {
+            display: block;
             width: 100%;
-            padding: 15px;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
+            max-width: 280px; /* Предотвращает чрезмерное растягивание */
+            margin: 0 auto;   /* Строгое центрирование слева и справа */
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
+            padding: 12px;
             text-decoration: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease-in-out;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.25s ease-in-out;
             box-sizing: border-box;
         }
 
-        /* Контейнер для картинки (обеспечивает центрирование и скрывает выход за границы при увеличении) */
-        .image-wrapper {
-            width: 100%;
+        /* Контейнер картинки: центрирует и прячет края при увеличении */
+        .img-container {
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             border-radius: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            background-color: #f8fafc;
         }
 
-        /* Стили изображения */
-        .sim-button img {
+        /* Картинка: строго по центру с одинаковыми отступами */
+        .sim-btn img {
+            display: block;
             max-width: 100%;
             height: auto;
+            margin: 0 auto;
+            transition: transform 0.25s ease-in-out;
+        }
+
+        /* Текст под картинкой */
+        .sim-btn span {
             display: block;
-            margin: 0 auto; /* Центрирование: отступы справа и слева одинаковые */
-            transition: transform 0.3s ease-in-out;
-        }
-
-        /* Стили текста под картинкой */
-        .sim-button span {
-            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 14px;
             font-weight: 600;
-            color: #2c3e50;
-            text-align: center;
-            transition: color 0.3s ease;
+            color: #1e293b;
+            margin-top: 4px;
+            transition: color 0.25s ease-in-out;
         }
 
-        /* Эффекты при наведении (оживление и подсветка) */
-        .sim-button:hover {
-            transform: translateY(-5px); /* Кнопка приподнимается */
-            border-color: #3498db; /* Меняется цвет рамки */
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.25); /* Эффект свечения */
+        /* Эффект при наведении (Оживление и Подсветка) */
+        .sim-btn:hover {
+            transform: translateY(-3px); /* Легкое приподнятие */
+            border-color: #10b981;       /* Зеленая рамка (GRE) */
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); /* Зеленое свечение */
         }
 
         /* Оживление картинки при наведении */
-        .sim-button:hover img {
-            transform: scale(1.05); /* Картинка плавно увеличивается */
+        .sim-btn:hover img {
+            transform: scale(1.04);
         }
 
         /* Изменение цвета текста при наведении */
-        .sim-button:hover span {
-            color: #3498db;
+        .sim-btn:hover span {
+            color: #10b981;
         }
     </style>
 </head>
 <body>
 
-    <div class="btn-container">
-        <a href="sim-antitrust-regulation.html" target="_top" class="sim-button">
-            <div class="image-wrapper">
+    <div class="btn-wrapper">
+        <a href="sim-antitrust-regulation.html" target="_top" class="sim-btn">
+            <div class="img-container">
                 <img src="pic-case9.png" alt="Антимонопольное регулирование">
             </div>
             <span>Открыть симулятор</span>
@@ -104,4 +100,5 @@
     </div>
 
 </body>
+</html>
 </html>
