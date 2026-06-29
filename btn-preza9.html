@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { 
+        /* Полный сброс отступов и жесткое скрытие прокрутки */
+        html, body { 
             margin: 0; 
             padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
-            background: transparent; 
         }
+        
+        /* Ссылочный контейнер с твоей плавной анимацией */
         .btn-link { 
             display: flex; 
             align-items: center; 
@@ -24,24 +29,32 @@
             border-radius: 12px;
             overflow: hidden;
         }
+        
+        /* Эффект оживления и свечения при наведении (увеличение на 1.08) */
         .btn-link:hover { 
             transform: scale(1.08); 
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
         }
+        
+        /* Идеальное масштабирование и центрирование картинки */
         .btn-img { 
             max-width: 95%; 
             max-height: 95%; 
             object-fit: contain; 
+            display: block;
         }
     </style>
 </head>
 <body>
+
     <a href="https://docs.google.com/presentation/d/1stX-mkcUYBy6hNQXsNonOZbKO6YZj51F/edit?usp=drive_link&ouid=109725301150629205728&rtpof=true&sd=true" 
        target="_blank" 
+       rel="noopener noreferrer"
        class="btn-link">
-        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-preza9.png" 
-             alt="Презентация: Государственное регулирование экономики" 
-             class="btn-img">
+         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-preza9.png" 
+              alt="Презентация: Государственное регулирование экономики" 
+              class="btn-img">
     </a>
+
 </body>
 </html>
