@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+        }
+        .btn-link { 
+            display: flex; /* Используем flex для центрирования */
+            align-items: center;
+            justify-content: center;
+            width: 100%; 
+            height: 100%; 
+            transition: all 0.3s ease; 
+            background-color: transparent;
+        }
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+        .btn-img { 
+            max-width: 90%; /* Отступ по бокам */
+            max-height: 90%; 
+            object-fit: contain; 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <a href="sim-public.html" target="_blank" class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-gre.png" 
+             alt="Симулятор: Государственное регулирование экономики" 
+             class="btn-img">
+    </a>
+</body>
+</html>
