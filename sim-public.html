@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор: Государство и Рынки</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    
+        body { 
+            background-color: #0c0c0e; /* Более глубокий черный/графит */
+            color: #f8fafc; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%);
+        }
+
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .tab-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+        }
+        .tab-btn:hover {
+            color: #cbd5e1;
+            background: rgba(255,255,255,0.02);
+        }
+        .tab-btn.active {
+            border-bottom-color: #ef4444; /* Красный акцент */
+            color: #f8fafc;
+            background: linear-gradient(to top, rgba(239, 68, 68, 0.1), transparent);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            height: 24px;
+            margin: 10px 0;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; cursor: pointer;
+            background: #09090b; border: 1px solid #2d2d30; border-radius: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 28px; width: 14px; border-radius: 2px;
+            background: linear-gradient(to right, #71717a 0%, #52525b 40%, #ef4444 43%, #ef4444 57%, #52525b 60%, #3f3f46 100%);
+            border: 1px solid #18181b; cursor: pointer; -webkit-appearance: none; margin-top: -11px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 8px rgba(239, 68, 68, 0.5); 
+            transition: box-shadow 0.1s ease;
+        }
+        input[type=range]:active::-webkit-slider-thumb {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 12px rgba(239, 68, 68, 0.8);
+        }
+
+        canvas {
+            background-color: #0f172a;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            /* Адаптивность холста */
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            aspect-ratio: 3/2;
+            display: block;
+        }
+
+        .info-panel {
+            background: #1e293b;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.25rem 0.5rem 0.5rem 0.25rem;
+            position: relative;
+        }
+        .info-panel::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; 
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+        }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="p-4 md:p-8 selection:bg-red-500/30">
+
+     <header class="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-black tracking-tight text-white uppercase">
+                    Государство & Рынки
+                </h1>
+            </div>
+            <p class="text-slate-400 text-xs font-mono-custom tracking-widest mt-2 uppercase"> Общественные блага, Квоты и Тарифы</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto glass rounded-2xl overflow-hidden shadow-2xl">
+        
+        <div class="flex border-b border-slate-700/50 bg-slate-900/50">
+            <button onclick="switchTab('tab-public-goods')" class="tab-btn active flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2" data-target="tab-public-goods">
+                <i data-lucide="users" class="w-4 h-4"></i> Общественные блага
+            </button>
+            <button onclick="switchTab('tab-quotas')" class="tab-btn flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2" data-target="tab-quotas">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i> Квоты на импорт
+            </button>
+            <button onclick="switchTab('tab-tariffs')" class="tab-btn flex-1 py-4 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2" data-target="tab-tariffs">
+                <i data-lucide="coins" class="w-4 h-4"></i> Импортные тарифы
+            </button>
+        </div>
+
+        <div class="p-6 md:p-8">
+
+            <div id="tab-public-goods" class="tab-content block fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-4 flex flex-col gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-cyan-400 mb-2">Вертикальное суммирование</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                                Из-за свойства <span class="text-white font-semibold">несоперничества</span>, совокупный спрос (ΣD) на общественное благо вычисляется путем сложения готовности платить (цен) каждого потребителя при одном и том же объеме Q.
+                            </p>
+                            <div class="bg-slate-900 p-4 rounded border border-slate-700/50 text-xs font-mono-custom space-y-2 text-slate-400">
+                                <div class="flex justify-between"><span>Спрос A:</span> <span class="text-white">Pa = 30 - Q</span></div>
+                                <div class="flex justify-between"><span>Спрос B:</span> <span class="text-white">Pb = 30 - Q</span></div>
+                                <div class="border-t border-slate-700 pt-2 flex justify-between mt-1"><span class="font-bold text-cyan-400">Общий (ΣP):</span> <span class="text-cyan-400 font-bold">P = 60 - 2Q</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-black/30 p-5 rounded-lg border border-slate-700/50">
+                            <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Параметр стоимости производства:</label>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-slate-300">Предельные издержки (MC)</span>
+                                <span class="text-lg font-black text-amber-400" id="val-mc">$15</span>
+                            </div>
+                             <input type="range" id="slider-mc" min="5" max="50" step="1" value="15" oninput="drawPublicGoods()">
+                        </div>
+                    </div>
+                    <div class="lg:col-span-8 flex flex-col items-center">
+                        <span class="text-xs font-mono-custom text-slate-500 uppercase tracking-widest mb-3 block w-full max-w-[600px] text-left">Осциллограф рынка (График 14-7)</span>
+                        <canvas id="canvas-pg" width="600" height="400"></canvas>
+                        <div class="flex gap-4 mt-4 text-[10px] font-mono-custom text-slate-400 uppercase w-full max-w-[600px]">
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-cyan-400"></span> Инд. спрос</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-rose-500"></span> ΣD (Общий)</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-amber-400"></span> MC (Издержки)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ВЫНЕСЕННЫЙ ВНИЗ БЛОК АНАЛИТИКИ -->
+                <div class="mt-8 info-panel p-6 bg-slate-900/80 rounded-lg shadow-xl border-l-4 border-cyan-500">
+                    <span class="text-sm uppercase font-black text-cyan-400 tracking-widest block mb-4 flex items-center gap-2">
+                        📊 Управленческий вердикт и анализ рынка
+                    </span>
+                    <div id="pg-dynamic-text" class="text-sm text-slate-300 font-mono-custom leading-relaxed space-y-3">
+                        <!-- Заполняется через JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-quotas" class="tab-content hidden fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-4 flex flex-col gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-emerald-400 mb-2">Шок импортной квоты</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Правительство ограничивает ввоз иностранного товара. Иностранное предложение фиксируется. Чтобы покрыть избыточный спрос, на рынок выходят менее эффективные местные производители.
+                            </p>
+                        </div>
+
+                        <div class="bg-black/30 p-5 rounded-lg border border-slate-700/50">
+                            <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Инструмент протекционизма:</label>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-slate-300">Размер квоты (ед.)</span>
+                                <span class="text-lg font-black text-emerald-400" id="val-quota">20</span>
+                            </div>
+                            <input type="range" id="slider-quota" min="0" max="60" step="5" value="20" oninput="drawQuotas()">
+                        </div>
+
+                        <!-- Динамический блок аналитики -->
+                        <div class="info-panel p-4 border-l-emerald-500 mt-auto">
+                            <span class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider block mb-1">Анализ равновесия:</span>
+                            <div class="grid grid-cols-2 gap-2 mb-3 border-b border-slate-700/50 pb-3">
+                                <div><span class="text-[10px] text-slate-400 block">Мировая цена:</span> <span class="font-bold text-white">$20.0</span></div>
+                                <div><span class="text-[10px] text-slate-400 block">Цена с квотой:</span> <span class="font-bold text-rose-400" id="quota-new-price">$35.0</span></div>
+                            </div>
+                            <div id="quota-dynamic-text" class="text-xs text-slate-300 font-mono-custom leading-relaxed">
+                                <!-- Заполняется через JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-8 flex flex-col items-center">
+                        <span class="text-xs font-mono-custom text-slate-500 uppercase tracking-widest mb-3 block w-full max-w-[600px] text-left">Рыночная динамика (График 14-10)</span>
+                        <canvas id="canvas-quota" width="600" height="400"></canvas>
+                        <div class="flex gap-4 mt-4 text-[10px] font-mono-custom text-slate-400 uppercase w-full max-w-[600px]">
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-indigo-400"></span> Местное (Sd)</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-0.5 border-b border-dashed border-slate-400"></span> Мировое (Sf)</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-1 bg-emerald-400"></span> Итоговое (S_total)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-tariffs" class="tab-content hidden fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 flex flex-col gap-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-amber-400 mb-2">Тарифное регулирование</h2>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Модель малой открытой экономики. Налог на импорт поднимает внутреннюю цену до уровня <b>P<sub>w</sub> + Тариф</b>. Это стимулирует местных производителей, но бьет по потребителям.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-black/30 p-5 rounded-lg border border-slate-700/50">
+                            <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Фискальный инструмент:</label>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-slate-300">Тариф (T) на единицу</span>
+                                <span class="text-lg font-black text-amber-400" id="val-tariff">$2.0</span>
+                            </div>
+                            <input type="range" id="slider-tariff" min="0" max="5" step="0.5" value="2" oninput="drawTariffs()">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 text-center mt-2">
+                            <div class="bg-slate-800/80 border border-slate-700 p-3 rounded">
+                                <span class="block text-[10px] text-slate-400 uppercase tracking-widest">Местное пр-во</span>
+                                <span class="text-2xl font-black text-indigo-400" id="tar-local">30</span>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700 p-3 rounded">
+                                <span class="block text-[10px] text-slate-400 uppercase tracking-widest">Импорт</span>
+                                <span class="text-2xl font-black text-cyan-400" id="tar-import">40</span>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700 p-3 rounded col-span-2 flex justify-between items-center px-4">
+                                <span class="block text-xs text-slate-400 uppercase tracking-widest text-left">Сбор в госбюджет<br><span class="text-[9px]">(Тариф × Импорт)</span></span>
+                                <span class="text-3xl font-black text-amber-400" id="tar-rev">$80.0</span>
+                            </div>
+                        </div>
+
+                        <!-- Динамический блок аналитики -->
+                        <div class="info-panel p-4 border-l-rose-500 mt-auto">
+                            <span class="text-[10px] uppercase font-bold text-rose-500 tracking-wider block mb-1">Потери общества (DWL):</span>
+                            <div id="tar-dynamic-text" class="text-xs text-slate-300 font-mono-custom leading-relaxed">
+                                <!-- Заполняется через JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 flex flex-col items-center relative">
+                        <span class="text-xs font-mono-custom text-slate-500 uppercase tracking-widest mb-3 block w-full max-w-[600px] text-left">Распределение излишков (Рынок Шоколада)</span>
+                        <canvas id="canvas-tariff" width="600" height="400"></canvas>
+                        
+                        <!-- Легенда внутри области холста -->
+                        <div class="absolute bottom-6 right-8 bg-slate-900/90 p-3 rounded border border-slate-700 text-[10px] font-mono-custom space-y-2 backdrop-blur-sm shadow-xl">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-amber-500/60 border border-amber-500"></div> Доход государства</div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-rose-500/60 border border-rose-500"></div> Потери (DWL)</div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-0.5 bg-slate-400 border-b border-dashed border-slate-400"></div> Pw (Мировая цена)</div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-1 bg-rose-500"></div> Pw + Тариф</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-target="${tabId}"]`).classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('block', 'hidden'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+
+            // Перерисовка графиков при переключении (чтобы избежать багов с размерами canvas)
+            setTimeout(() => {
+                if(tabId === 'tab-public-goods') drawPublicGoods();
+                if(tabId === 'tab-quotas') drawQuotas();
+                if(tabId === 'tab-tariffs') drawTariffs();
+            }, 50);
+        }
+
+        // Продвинутый класс для рендеринга графиков с поддержкой High-DPI экранов
+        class GraphSpace {
+            constructor(canvasId, logicalXMax, logicalYMax) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Фиксированный логический размер холста
+                this.w = 600; 
+                this.h = 400;
+                
+                // Масштабирование под экраны с высокой плотностью пикселей (Retina) для четкости
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = this.w * dpr;
+                this.canvas.height = this.h * dpr;
+                
+                // CSS размер остается логическим
+                this.canvas.style.width = '100%';
+                this.canvas.style.maxWidth = this.w + 'px';
+                
+                // Применяем масштаб к контексту
+                this.ctx.scale(dpr, dpr);
+
+                this.padX = 50;
+                this.padY = 40;
+                this.xMax = logicalXMax;
+                this.yMax = logicalYMax;
+            }
+
+            clear() {
+                this.ctx.clearRect(0, 0, this.w, this.h);
+            }
+
+            // Трансформация координат
+            x(val) { return this.padX + (val / this.xMax) * (this.w - this.padX - 20); }
+            y(val) { return this.h - this.padY - (val / this.yMax) * (this.h - this.padY - 20); }
+
+            // Отрисовка миллиметровой сетки
+            drawGrid(xStep, yStep) {
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeStyle = "rgba(148, 163, 184, 0.1)"; // Очень тонкая сланцевая сетка
+                this.ctx.setLineDash([3, 3]);
+                
+                // Вертикальные
+                for (let x = 0; x <= this.xMax; x += xStep) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.x(x), this.y(0));
+                    this.ctx.lineTo(this.x(x), this.y(this.yMax));
+                    this.ctx.stroke();
+                }
+                // Горизонтальные
+                for (let y = 0; y <= this.yMax; y += yStep) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.x(0), this.y(y));
+                    this.ctx.lineTo(this.x(this.xMax), this.y(y));
+                    this.ctx.stroke();
+                }
+                this.ctx.setLineDash([]);
+            }
+
+            drawAxes(xLabel, yLabel) {
+                const ctx = this.ctx;
+                ctx.beginPath();
+                ctx.moveTo(this.padX, 20);
+                ctx.lineTo(this.padX, this.h - this.padY);
+                ctx.lineTo(this.w - 15, this.h - this.padY);
+                ctx.strokeStyle = "#475569"; ctx.lineWidth = 2; ctx.stroke();
+
+                ctx.fillStyle = "#94a3b8"; ctx.font = "12px 'JetBrains Mono', monospace";
+                ctx.fillText(xLabel, this.w - 80, this.h - 10);
+                ctx.fillText(yLabel, 10, 25);
+                ctx.fillText("0", this.padX - 15, this.h - this.padY + 15);
+            }
+
+            drawLine(x1, y1, x2, y2, color, width=2, dash=[]) {
+                const ctx = this.ctx;
+                ctx.beginPath();
+                ctx.setLineDash(dash);
+                ctx.moveTo(this.x(x1), this.y(y1));
+                ctx.lineTo(this.x(x2), this.y(y2));
+                ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            drawText(text, x, y, color, bold=true) {
+                this.ctx.fillStyle = color;
+                this.ctx.font = (bold ? "bold " : "") + "12px 'JetBrains Mono', monospace";
+                this.ctx.fillText(text, this.x(x) + 6, this.y(y) - 6);
+            }
+        }
+
+        // ================= ТАБ 1: ОБЩЕСТВЕННЫЕ БЛАГА =================
+        function drawPublicGoods() {
+            let mcValue = parseFloat(document.getElementById('slider-mc').value);
+            document.getElementById('val-mc').innerText = "$" + mcValue;
+
+            let g = new GraphSpace('canvas-pg', 60, 70);
+            g.clear();
+            g.drawGrid(10, 10);
+            g.drawAxes("Q (Объем)", "P ($)");
+
+            // D1, D2: P = 30 - Q
+            g.drawLine(0, 30, 30, 0, "#22d3ee", 2, [4,4]); // Cyan dashed
+            g.drawText("Da, Db", 25, 5, "#22d3ee", false);
+
+            // Total D: P = 60 - 2Q
+            g.drawLine(0, 60, 30, 0, "#f43f5e", 3); // Rose
+            g.drawText("ΣD = 60 - 2Q", 2, 53, "#f43f5e");
+
+            // MC Line
+            g.drawLine(0, mcValue, 60, mcValue, "#fbbf24", 2); // Amber
+            g.drawText("MC", 55, mcValue + 3, "#fbbf24");
+
+             // Intersection Math
+            let optQ = (60 - mcValue) / 2;
+            let textDyn = document.getElementById('pg-dynamic-text');
+            let privateQ = (30 - mcValue) > 0 ? (30 - mcValue) : 0;
+
+            if(optQ > 0) {
+                // Draw projection lines
+                g.drawLine(optQ, 0, optQ, mcValue, "#94a3b8", 1, [4,4]);
+                g.drawText(optQ.toFixed(1), optQ - 2, -3, "#ffffff");
+                
+                // Equilibrium Point
+                g.ctx.beginPath();
+                g.ctx.arc(g.x(optQ), g.y(mcValue), 5, 0, 2*Math.PI);
+                g.ctx.fillStyle = "#ffffff"; g.ctx.fill();
+                g.ctx.lineWidth = 2; g.ctx.strokeStyle = "#f43f5e"; g.ctx.stroke();
+
+                if(document.getElementById('pg-optimal-q')) {
+                    document.getElementById('pg-optimal-q').innerText = optQ.toFixed(1);
+                }
+                
+                let explanation = `<p><strong class="text-white">Текущее состояние:</strong> Издержки (MC) установлены на уровне <span class="text-amber-400 font-bold">$${mcValue}</span>. Государству необходимо произвести <span class="text-cyan-400 font-bold">Q = ${optQ.toFixed(1)} ед.</span> общественного блага.</p>`;
+                
+                explanation += `<p><strong class="text-white">Что происходит на рынке:</strong> При таких издержках, если бы каждый гражданин покупал благо сам по себе (как на частном рынке), объем составил бы всего <span class="text-rose-400 font-bold">${privateQ.toFixed(1)} ед.</span> по кривой индивидуального спроса. `;
+                
+                if (mcValue >= 30) {
+                    explanation += `Более того, издержки превышают максимальную готовность платить одного человека ($30)! Частный бизнес вообще бы не создал это благо (объем = 0). Но благодаря свойству несоперничества, полезность суммируется (ΣD), и проект всё ещё экономически оправдан для общества в целом.</p>`;
+                } else {
+                    explanation += `Разница между социальным оптимумом (${optQ.toFixed(1)}) и частным выбором (${privateQ.toFixed(1)}) — это и есть провал рынка, вызванный «проблемой безбилетника». Люди скрывают свою истинную готовность платить, надеясь, что заплатит сосед.</p>`;
+                }
+                
+                explanation += `<p><strong class="text-cyan-400">Управленческое решение:</strong> Государство должно профинансировать производство ${optQ.toFixed(1)} единиц за счет сбора налогов. Ставка налога должна быть распределена так, чтобы покрыть общие издержки, опираясь на готовность граждан платить.</p>`;
+                
+                textDyn.innerHTML = explanation;
+            } else {
+                if(document.getElementById('pg-optimal-q')) {
+                    document.getElementById('pg-optimal-q').innerText = "0.0";
+                }
+                
+                textDyn.innerHTML = `<p><strong class="text-rose-500">Проект отклонен:</strong> Издержки слишком высоки (<span class="text-amber-400 font-bold">$${mcValue}</span>). Суммарная готовность платить всех граждан не перекрывает даже создание первой единицы блага.</p><p><strong class="text-white">Управленческое решение:</strong> Строительство объекта или предоставление услуги экономически нецелесообразно. Средства налогоплательщиков следует перенаправить на более эффективные проекты.</p>`;
+            }
+        }
+
+        // ================= ТАБ 2: КВОТЫ =================
+        function drawQuotas() {
+            let quota = parseFloat(document.getElementById('slider-quota').value);
+            document.getElementById('val-quota').innerText = quota;
+
+            let g = new GraphSpace('canvas-quota', 100, 60);
+            g.clear();
+            g.drawGrid(10, 10);
+            g.drawAxes("Q (Объем)", "P ($)");
+
+            // Спрос: P = 60 - 0.5Q
+            g.drawLine(0, 60, 100, 10, "#94a3b8", 2); 
+            g.drawText("Спрос", 90, 15, "#94a3b8");
+
+            // Местное предложение (Sd): P = 10 + 0.5Q
+            g.drawLine(0, 10, 80, 50, "#818cf8", 2); // Indigo
+            g.drawText("Sd (Местное)", 65, 45, "#818cf8");
+
+            // Иностранное предложение: эластично P = 20
+            g.drawLine(0, 20, 100, 20, "#cbd5e1", 1, [4,4]);
+            g.drawText("Sf = $20 (Мировая цена)", 60, 22, "#cbd5e1", false);
+
+            // Находим точку излома
+            let q_sd_at_20 = (20 - 10) / 0.5; // 20 ед. местных по цене 20
+            
+            // Рисуем ломаную S_total
+            g.ctx.beginPath();
+            g.ctx.moveTo(g.x(0), g.y(10));
+            g.ctx.lineTo(g.x(q_sd_at_20), g.y(20)); // по Sd
+            g.ctx.lineTo(g.x(q_sd_at_20 + quota), g.y(20)); // квота выбрана
+            
+            // Дальше наклон как у Sd
+            let finalQ = 100;
+            let finalP = 20 + 0.5 * (finalQ - (q_sd_at_20 + quota));
+            g.ctx.lineTo(g.x(finalQ), g.y(finalP));
+            g.ctx.strokeStyle = "#10b981"; g.ctx.lineWidth = 3; g.ctx.stroke(); // Emerald
+            g.drawText("S_total (с квотой)", 75, finalP - 3, "#10b981");
+
+            // Поиск равновесия
+            // D: P = 60 - 0.5Q  =>  S_new: P = 10 + 0.5(Q - quota)
+            let newQ = 50 + 0.5 * quota;
+            let newP = 60 - 0.5 * newQ;
+            let textDyn = document.getElementById('quota-dynamic-text');
+
+            if(newP <= 20) { 
+                newP = 20; newQ = 80; 
+                document.getElementById('quota-new-price').innerText = "$" + newP.toFixed(1);
+                textDyn.innerHTML = `Квота в <span class="text-emerald-400 font-bold">${quota} ед.</span> является <b>не связывающей</b> (слишком большой). Иностранные поставщики способны покрыть весь дефицит по мировой цене $20.0. Рынок не искажается.`;
+            } else {
+                document.getElementById('quota-new-price').innerText = "$" + newP.toFixed(1);
+                textDyn.innerHTML = `При квоте в <span class="text-emerald-400 font-bold">${quota} ед.</span> мирового предложения не хватает. Цена вынужденно взлетает до <span class="text-rose-400 font-bold">$${newP.toFixed(1)}</span>. Местные производители получают сверхдоходы, но потребители переплачивают. Иностранцы, получившие квоту, забирают квотную ренту.`;
+                
+                // Проекции
+                g.drawLine(0, newP, newQ, newP, "#f43f5e", 1, [3,3]);
+                g.drawLine(newQ, 0, newQ, newP, "#f43f5e", 1, [3,3]);
+                
+                // Точка равновесия
+                g.ctx.beginPath();
+                g.ctx.arc(g.x(newQ), g.y(newP), 6, 0, 2*Math.PI);
+                g.ctx.fillStyle = "#10b981"; g.ctx.fill();
+                g.ctx.lineWidth = 2; g.ctx.strokeStyle = "#ffffff"; g.ctx.stroke();
+            }
+        }
+
+        // ================= ТАБ 3: ТАРИФЫ =================
+        function drawTariffs() {
+            let t = parseFloat(document.getElementById('slider-tariff').value);
+            document.getElementById('val-tariff').innerText = "$" + t.toFixed(1);
+
+            let g = new GraphSpace('canvas-tariff', 100, 15);
+            g.clear();
+            g.drawGrid(10, 2);
+            g.drawAxes("Q (Шоколад, тонн)", "P ($)");
+
+            let pw = 4; // Мировая цена
+
+            // Спрос: P = 12 - 0.1Q
+            g.drawLine(0, 12, 100, 2, "#94a3b8", 2); 
+            g.drawText("Спрос", 85, 4, "#94a3b8", false);
+
+            // Внутреннее предл: P = 1 + 0.1Q
+            g.drawLine(0, 1, 100, 11, "#818cf8", 2);
+            g.drawText("Sd (Местные)", 85, 10, "#818cf8");
+
+            // Мировая цена
+            g.drawLine(0, pw, 100, pw, "#cbd5e1", 2, [5,5]);
+            g.drawText("Pw = $4", 90, pw + 0.5, "#cbd5e1", false);
+
+            // Цена с тарифом
+            let pt = pw + t;
+            g.drawLine(0, pt, 100, pt, "#f43f5e", 3);
+            g.drawText("Pw + Тариф", 80, pt + 0.5, "#f43f5e");
+
+            // Расчеты
+            let q_s1 = (pw - 1) / 0.1; // 30
+            let q_d1 = (12 - pw) / 0.1; // 80
+
+            let q_s2 = (pt - 1) / 0.1;
+            let q_d2 = (12 - pt) / 0.1;
+
+            let imports = q_d2 - q_s2;
+            let isProhibitive = false;
+            if (imports <= 0) { 
+                imports = 0; q_s2 = q_d2; 
+                isProhibitive = true;
+            } 
+            
+            let revenue = imports * t;
+
+            // Update UI Counters
+            document.getElementById('tar-local').innerText = q_s2.toFixed(0);
+            document.getElementById('tar-import').innerText = imports.toFixed(0);
+            document.getElementById('tar-rev').innerText = "$" + revenue.toFixed(1);
+
+            let textDyn = document.getElementById('tar-dynamic-text');
+
+            // Отрисовка зон
+            if (!isProhibitive && t > 0) {
+                // Доход (Прямоугольник)
+                g.ctx.fillStyle = "rgba(245, 158, 11, 0.5)"; // Amber 500
+                g.ctx.fillRect(g.x(q_s2), g.y(pt), g.x(q_d2) - g.x(q_s2), g.y(pw) - g.y(pt));
+                g.ctx.strokeStyle = "#f59e0b"; g.ctx.lineWidth = 1;
+                g.ctx.strokeRect(g.x(q_s2), g.y(pt), g.x(q_d2) - g.x(q_s2), g.y(pw) - g.y(pt));
+                
+                // Производственный DWL (Треугольник слева)
+                g.ctx.fillStyle = "rgba(244, 63, 94, 0.5)"; // Rose
+                g.ctx.beginPath();
+                g.ctx.moveTo(g.x(q_s1), g.y(pw));
+                g.ctx.lineTo(g.x(q_s2), g.y(pw));
+                g.ctx.lineTo(g.x(q_s2), g.y(pt));
+                g.ctx.fill();
+                g.ctx.strokeStyle = "#e11d48"; g.ctx.stroke();
+
+                // Потребительский DWL (Треугольник справа)
+                g.ctx.beginPath();
+                g.ctx.moveTo(g.x(q_d1), g.y(pw));
+                g.ctx.lineTo(g.x(q_d2), g.y(pw));
+                g.ctx.lineTo(g.x(q_d2), g.y(pt));
+                g.ctx.fill();
+                g.ctx.stroke();
+
+                let dwl_prod = 0.5 * (q_s2 - q_s1) * t;
+                let dwl_cons = 0.5 * (q_d1 - q_d2) * t;
+                let total_dwl = dwl_prod + dwl_cons;
+
+                textDyn.innerHTML = `Тариф <span class="text-amber-400 font-bold">$${t.toFixed(1)}</span> генерирует доход в бюджет. Однако он заставляет неэффективных местных производителей производить лишние ${(q_s2 - q_s1).toFixed(0)} тонн и вынуждает потребителей отказаться от ${(q_d1 - q_d2).toFixed(0)} тонн. Суммарный чистый убыток экономики (Deadweight Loss) составляет <span class="text-rose-400 font-bold">$${total_dwl.toFixed(1)}</span> (два красных треугольника).`;
+
+            } else if (isProhibitive) {
+                let eq_p = 6.5; // Пересечение D и S
+                g.ctx.beginPath();
+                g.ctx.arc(g.x(55), g.y(eq_p), 6, 0, 2*Math.PI);
+                g.ctx.fillStyle = "#818cf8"; g.ctx.fill();
+                g.ctx.lineWidth = 2; g.ctx.strokeStyle = "#ffffff"; g.ctx.stroke();
+
+                textDyn.innerHTML = `Тариф стал <b>запретительным (Prohibitive)</b>. Иностранный шоколад полностью вытеснен с рынка. Страна вернулась к состоянию автаркии (закрытой экономики). Государство не получает доходов ($0), а потери потребителей максимальны.`;
+            } else {
+                textDyn.innerHTML = `Свободная торговля (Free Trade). Страна импортирует ${imports.toFixed(0)} тонн по цене $4.0. Излишек потребителя максимален, безвозвратных потерь нет.`;
+            }
+        }
+
+        // Инициализация при старте (маленькая задержка для точного расчета контейнеров)
+        setTimeout(() => {
+            drawPublicGoods();
+        }, 100);
+        
+        // Поддержка изменения размеров окна
+        window.addEventListener('resize', () => {
+            const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-target');
+            if(activeTab === 'tab-public-goods') drawPublicGoods();
+            if(activeTab === 'tab-quotas') drawQuotas();
+            if(activeTab === 'tab-tariffs') drawTariffs();
+        });
+
+    </script>
+</body>
+</html>
