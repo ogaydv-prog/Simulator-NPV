@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Полный сброс отступов и жесткое скрытие прокрутки */
+        /* Полный сброс отступов и скрытие прокрутки */
         html, body { 
             margin: 0; 
             padding: 0; 
@@ -14,10 +14,10 @@
             background: transparent; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
+            align-items: flex-start; /* ВЫРАВНИВАНИЕ ПО ВЕРХНЕМУ КРАЮ, чтобы кнопка не падала вниз */
         }
         
-        /* Ссылочный контейнер с анимацией и центрированием содержимого */
+        /* Ссылочный контейнер с анимацией */
         .btn-link { 
             display: flex; 
             align-items: center; 
@@ -29,6 +29,10 @@
             text-decoration: none;
             border-radius: 12px;
             overflow: hidden;
+            
+            /* ТОЧЕЧНАЯ НАСТРОЙКА: Если кнопка ВСЁ ЕЩЕ чуть ниже, уменьши этот минус (например, -4px). 
+               Если нужно опустить — сделай плюс (например, 4px) */
+            margin-top: 0px; 
         }
         
         /* Эффект оживления и свечения при наведении */
@@ -42,7 +46,7 @@
             transform: scale(0.98); 
         }
         
-        /* Идеальное масштабирование и центрирование картинки */
+        /* Масштабирование картинки */
         .btn-img { 
             max-width: 95%; 
             max-height: 95%; 
@@ -62,4 +66,5 @@
     </a>
 
 </body>
+</html>
 </html>
