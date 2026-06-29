@@ -2,103 +2,63 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Кнопка Симулятора</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Убираем любые отступы и полосы прокрутки на уровне документа */
-        html, body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: transparent;
+        /* Полный сброс отступов и скрытие прокрутки */
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
         }
-
-        /* Центрирование кнопки в ячейке без лишнего пространства */
-        .btn-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100vh; /* Занимает ровно пространство фрейма */
-            box-sizing: border-box;
-        }
-
-        /* Интерактивная ссылка-кнопка */
-        .sim-btn {
-            display: block;
-            width: 100%;
-            max-width: 280px; /* Предотвращает чрезмерное растягивание */
-            margin: 0 auto;   /* Строгое центрирование слева и справа */
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
+        
+        /* Ссылочный контейнер с анимацией и центрированием содержимого */
+        .btn-link { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
+            cursor: pointer; 
             text-decoration: none;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.25s ease-in-out;
-            box-sizing: border-box;
-        }
-
-        /* Контейнер картинки: центрирует и прячет края при увеличении */
-        .img-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            background-color: #f8fafc;
         }
-
-        /* Картинка: строго по центру с одинаковыми отступами */
-        .sim-btn img {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            margin: 0 auto;
-            transition: transform 0.25s ease-in-out;
+        
+        /* Эффект оживления и свечения при наведении */
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
         }
-
-        /* Текст под картинкой */
-        .sim-btn span {
-            display: block;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-top: 4px;
-            transition: color 0.25s ease-in-out;
+        
+        /* Эффект нажатия (сжатие) */
+        .btn-link:active { 
+            transform: scale(0.98); 
         }
-
-        /* Эффект при наведении (Оживление и Подсветка) */
-        .sim-btn:hover {
-            transform: translateY(-3px); /* Легкое приподнятие */
-            border-color: #10b981;       /* Зеленая рамка (GRE) */
-            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); /* Зеленое свечение */
-        }
-
-        /* Оживление картинки при наведении */
-        .sim-btn:hover img {
-            transform: scale(1.04);
-        }
-
-        /* Изменение цвета текста при наведении */
-        .sim-btn:hover span {
-            color: #10b981;
+        
+        /* Идеальное масштабирование и центрирование картинки */
+        .btn-img { 
+            max-width: 95%; 
+            max-height: 95%; 
+            object-fit: contain; 
+            display: block; 
         }
     </style>
 </head>
 <body>
 
-    <div class="btn-wrapper">
-        <a href="sim-antitrust-regulation.html" target="_top" class="sim-btn">
-            <div class="img-container">
-                <img src="pic-case9.png" alt="Антимонопольное регулирование">
-            </div>
-            <span>Открыть симулятор</span>
-        </a>
-    </div>
+    <a href="sim-antitrust-regulation.html" 
+       target="_top" 
+       class="btn-link">
+         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-case9.png" 
+              class="btn-img" 
+              alt="Симулятор: Государственное регулирование экономики">
+    </a>
 
 </body>
-</html>
 </html>
