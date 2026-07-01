@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор: Стратегии и барьеры </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    
+        body { 
+            background-color: #0c0c0e;
+            color: #f8fafc; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 70%);
+        }
+
+        .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
+        
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            border-radius: 1rem;
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #38bdf8;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #38bdf8;
+            box-shadow: 0 0 10px #38bdf8;
+        }
+
+        /* Улучшенные слайдеры с индикаторами */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 10px 0;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: rgba(71, 85, 105, 0.6);
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.5);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -9px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.8), inset 0 0 5px rgba(255,255,255,0.5);
+            transition: transform 0.1s, background 0.2s;
+            border: 2px solid #0f172a;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        input[type=range]::-webkit-slider-thumb:active { background: #bae6fd; }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        /* Цветовые свечения */
+        .glow-text-red { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+        .glow-text-green { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+        .glow-text-blue { color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+        .glow-text-amber { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        .glow-text-purple { color: #c084fc; text-shadow: 0 0 10px rgba(192, 132, 252, 0.5); }
+
+        /* Матрица игр (Олигопольные карточки) */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr;
+            grid-template-rows: 60px 1fr 1fr;
+            gap: 4px;
+        }
+        .matrix-cell {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .matrix-header { background: rgba(15, 23, 42, 0.8); font-weight: bold; color: #94a3b8; }
+        .matrix-payoff { padding: 15px; font-size: 1.2rem; font-family: 'JetBrains Mono', monospace; cursor: default; }
+        .matrix-payoff.nash-eq {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        .payoff-a { color: #38bdf8; font-weight: bold; }
+        .payoff-b { color: #fb7185; font-weight: bold; }
+        .info-box { border-left: 3px solid #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 12px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="glass rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-[80px] opacity-20"></div>
+            <div class="z-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 flex items-center gap-3">
+                    <i data-lucide="crosshair" class="w-8 h-8 text-sky-400"></i>
+                    Стратегии  и  барьеры  входа 
+                </h1>
+                <p class="text-slate-400 max-w-3xl text-sm md:text-base leading-relaxed">
+                    <b>Практический симулятор:</b> Управляйте параметрами рынка с помощью интуитивных слайдеров. Изучите механику остаточного спроса, манипуляцию издержками конкурентов, преимущества первого хода в играх и экспоненциальную силу сетевых эффектов.
+                </p>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex gap-6 border-b border-slate-700/50 pb-2 px-2 overflow-x-auto">
+            <button class="tab-btn active text-slate-400 font-semibold py-2 whitespace-nowrap flex items-center gap-2" data-target="tab-limit">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i> Лимитированное ценообразование цены 
+            </button>
+            <button class="tab-btn text-slate-400 font-semibold py-2 whitespace-nowrap flex items-center gap-2" data-target="tab-costs">
+                <i data-lucide="trending-up" class="w-4 h-4"></i> Издержки конкурентов
+            </button>
+            <button class="tab-btn text-slate-400 font-semibold py-2 whitespace-nowrap flex items-center gap-2" data-target="tab-game">
+                <i data-lucide="swords" class="w-4 h-4"></i> Изменение порядка действий
+            </button>
+            <button class="tab-btn text-slate-400 font-semibold py-2 whitespace-nowrap flex items-center gap-2" data-target="tab-network">
+                <i data-lucide="network" class="w-4 h-4"></i> Сетевые эффекты
+            </button>
+        </div>
+
+        <!-- TAB 1: Limit Pricing -->
+        <div id="tab-limit" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 glass-panel p-4 flex flex-col relative">
+                <div class="absolute top-6 right-6 flex items-center gap-4 text-xs font-mono-custom bg-slate-900/80 px-3 py-2 rounded-lg border border-slate-700 z-10">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-slate-500"></div> D (Рынок)</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></div> AC (Конкурента)</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></div> D (Остаточный)</div>
+                </div>
+                <div class="canvas-container flex-grow">
+                    <canvas id="canvas-limit"></canvas>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-6 flex flex-col gap-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-white">
+                        <i data-lucide="sliders" class="w-5 h-5 text-sky-400"></i> Управление
+                    </h3>
+                    <div class="info-box text-sm text-slate-300 mb-6 rounded-r">
+                        <b>Задача:</b> Сместите кривую остаточного спроса влево так, чтобы конкурент не смог найти прибыльный объем выпуска.
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between text-sm mb-2 font-mono-custom">
+                            <span class="text-slate-300">Выпуск Монополиста (<span class="text-sky-400">Q_L</span>)</span>
+                            <span id="val-qi" class="text-sky-400 font-bold bg-sky-900/40 px-2 rounded">30</span>
+                        </div>
+                        <input type="range" id="slider-qi" min="0" max="60" value="30" step="1">
+                        <div class="text-xs text-slate-500 mt-2 text-center">Двигайте слайдер, чтобы изменить объем</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">Рыночная цена</div>
+                            <div id="val-price" class="font-mono-custom text-xl text-white">P = 70</div>
+                        </div>
+                        <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">Мин. издержки AC</div>
+                            <div class="font-mono-custom text-xl text-amber-400">~ 27</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto p-4 rounded-xl bg-slate-900/80 border border-slate-700/50 relative overflow-hidden">
+                    <div id="status-limit-bg" class="absolute inset-0 opacity-20 bg-red-500"></div>
+                    <div class="relative z-10">
+                        <div id="status-limit-title" class="font-bold text-lg mb-1 glow-text-red">ВХОД ВЫГОДЕН</div>
+                        <p id="status-limit-desc" class="text-xs text-slate-300 leading-relaxed font-mono-custom">
+                            Остаточный спрос выше средних издержек. Конкурент найдет точку пересечения и войдет на рынок.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Raising Rivals' Costs -->
+        <div id="tab-costs" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 glass-panel p-4 flex flex-col relative">
+                <div class="absolute top-6 right-6 flex items-center gap-4 text-xs font-mono-custom bg-slate-900/80 px-3 py-2 rounded-lg border border-slate-700 z-10">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-slate-500"></div> Спрос</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-400"></div> MC (Ваша фирма)</div>
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-rose-400"></div> MC (Конкурента)</div>
+                </div>
+                <div class="canvas-container flex-grow">
+                    <canvas id="canvas-costs"></canvas>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-6 flex flex-col gap-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-white">
+                        <i data-lucide="arrow-up-right" class="w-5 h-5 text-rose-400"></i> Стратегия издержек
+                    </h3>
+                    <div class="info-box border-rose-400 bg-rose-400/10 text-sm text-slate-300 mb-6 rounded-r">
+                        Вместо демпинга используйте эксклюзивные контракты или лоббирование, чтобы искусственно поднять предельные издержки (MC) конкурента.
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between text-sm mb-2 font-mono-custom">
+                            <span class="text-slate-300">Надбавка к MC конкурента</span>
+                            <span id="val-mc" class="text-rose-400 font-bold bg-rose-900/40 px-2 rounded">+0</span>
+                        </div>
+                        <input type="range" id="slider-mc" min="0" max="40" value="0" step="1">
+                        <style>#slider-mc::-webkit-slider-thumb { background: #fb7185; box-shadow: 0 0 15px rgba(251, 113, 133, 0.8); }</style>
+                    </div>
+                </div>
+
+                <div class="mt-auto p-4 rounded-xl bg-slate-900/80 border border-slate-700/50">
+                    <div class="font-bold text-sm mb-3 text-emerald-400 font-mono-custom uppercase tracking-wider">Ваша маржа и выгода:</div>
+                    <div class="space-y-3 font-mono-custom text-sm">
+                        <div class="flex justify-between border-b border-slate-700/50 pb-1">
+                            <span class="text-slate-400">Рыночная цена</span>
+                            <span id="stat-price" class="text-white">P = 60.0</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-700/50 pb-1">
+                            <span class="text-slate-400">Маржа на единицу</span>
+                            <span id="stat-margin" class="text-emerald-400">30.0</span>
+                        </div>
+                        <div class="flex justify-between pt-1">
+                            <span class="text-slate-300 font-bold">СВЕРХПРИБЫЛЬ</span>
+                            <span id="stat-profit" class="text-emerald-400 font-bold text-lg glow-text-green">+$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Game Theory (NEW) -->
+        <div id="tab-game" class="tab-content hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-6">
+                <h3 class="text-2xl font-bold mb-4 flex items-center gap-2 text-white">
+                    <i data-lucide="swords" class="w-6 h-6 text-purple-400"></i> Карточки Олигополии
+                </h3>
+                <p class="text-slate-400 text-sm mb-6">
+                    <b>Изменение тайминга решений:</b> Матрица выигрышей (Payoff Matrix). Фирма А и Фирма Б выбирают стратегию объема выпуска (Низкий/Высокий). Наблюдайте, как преимущество первого хода (First-Mover Advantage) меняет равновесие Нэша.
+                </p>
+
+                <!-- Контролы тайминга -->
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6">
+                    <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wide mb-3">Кто делает ход первым?</h4>
+                    <div class="flex flex-col gap-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="timing" value="simultaneous" class="form-radio text-sky-500 w-4 h-4 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-offset-slate-800" checked>
+                            <span class="text-slate-300 group-hover:text-white transition">Одновременная игра (Cournot)</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="timing" value="firmA" class="form-radio text-sky-500 w-4 h-4 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-offset-slate-800">
+                            <span class="text-slate-300 group-hover:text-white transition glow-text-blue font-bold">Фирма А (First-Mover)</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="timing" value="firmB" class="form-radio text-sky-500 w-4 h-4 bg-slate-900 border-slate-600 focus:ring-sky-500 focus:ring-offset-slate-800">
+                            <span class="text-slate-300 group-hover:text-white transition glow-text-red font-bold">Фирма Б (First-Mover)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="info-box border-purple-400 bg-purple-400/10 text-sm text-slate-300 rounded">
+                    <b class="text-purple-400">Объяснение:</b> <span id="game-explanation">При одновременной игре ни одна фирма не рискует выбрать высокий объем из страха перепроизводства. Равновесие устанавливается в точке (Низкий, Низкий).</span>
+                </div>
+            </div>
+
+            <!-- Матрица -->
+            <div class="glass-panel p-6 flex flex-col justify-center items-center bg-slate-900/50">
+                <div class="w-full max-w-md">
+                    <div class="text-center font-bold text-slate-400 mb-2">Стратегия Фирмы Б</div>
+                    <div class="matrix-grid">
+                        <!-- Пустая угловая -->
+                        <div></div>
+                        <div class="matrix-cell matrix-header text-xs">Низкий объем</div>
+                        <div class="matrix-cell matrix-header text-xs">Высокий объем</div>
+
+                        <div class="matrix-cell matrix-header text-xs relative">
+                            <span class="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-slate-400">Фирма А</span>
+                            Низкий
+                        </div>
+                        <div class="matrix-cell matrix-payoff" id="cell-low-low">
+                            <div><span class="payoff-a">30</span>, <span class="payoff-b">30</span></div>
+                        </div>
+                        <div class="matrix-cell matrix-payoff" id="cell-low-high">
+                            <div><span class="payoff-a">15</span>, <span class="payoff-b">40</span></div>
+                        </div>
+
+                        <div class="matrix-cell matrix-header text-xs">Высокий</div>
+                        <div class="matrix-cell matrix-payoff" id="cell-high-low">
+                            <div><span class="payoff-a">40</span>, <span class="payoff-b">15</span></div>
+                        </div>
+                        <div class="matrix-cell matrix-payoff" id="cell-high-high">
+                            <div><span class="payoff-a">10</span>, <span class="payoff-b">10</span></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center text-xs font-mono-custom text-slate-500">
+                        Выигрыши: ( <span class="payoff-a">Прибыль А</span> , <span class="payoff-b">Прибыль Б</span> )
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Network Effects -->
+        <div id="tab-network" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 glass-panel p-4 flex flex-col relative">
+                <div class="absolute top-6 right-6 flex items-center gap-4 text-xs font-mono-custom bg-slate-900/80 px-3 py-2 rounded-lg border border-slate-700 z-10">
+                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]"></div> Ценность сети V = n(n-1)</div>
+                </div>
+                <div class="canvas-container flex-grow">
+                    <canvas id="canvas-network"></canvas>
+                </div>
+            </div>
+            
+            <div class="glass-panel p-6 flex flex-col gap-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-white">
+                        <i data-lucide="users" class="w-5 h-5 text-indigo-400"></i> Сетевые эффекты
+                    </h3>
+                    <div class="info-box border-indigo-400 bg-indigo-400/10 text-sm text-slate-300 mb-6 rounded-r">
+                        Экспоненциальный рост полезности. Используйте <b>Цены проникновения</b> (Penetration pricing), чтобы быстро набрать критическую массу.
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between text-sm mb-2 font-mono-custom">
+                            <span class="text-slate-300">База пользователей (<span class="text-indigo-400">n</span>)</span>
+                            <span id="val-net" class="text-indigo-400 font-bold bg-indigo-900/40 px-2 rounded">5</span>
+                        </div>
+                        <input type="range" id="slider-net" min="1" max="50" value="5" step="1">
+                        <style>#slider-net::-webkit-slider-thumb { background: #818cf8; box-shadow: 0 0 15px rgba(129, 140, 248, 0.8); border: 2px solid #0f172a; }</style>
+                        <div class="text-xs text-slate-500 mt-2 text-center">Увеличивайте сеть слайдером</div>
+                    </div>
+                </div>
+
+                <div class="mt-auto p-4 rounded-xl bg-slate-900/80 border border-slate-700/50 relative overflow-hidden">
+                    <div id="status-net-bg" class="absolute inset-0 opacity-20 bg-blue-500"></div>
+                    <div class="relative z-10">
+                        <div id="status-net-title" class="font-bold text-lg mb-1 glow-text-blue">СТАРТОВЫЙ ЭТАП</div>
+                        <p id="status-net-desc" class="text-xs text-slate-300 leading-relaxed font-mono-custom mb-3">
+                            Ценность сети низкая. Необходимы субсидии (продажа ниже себестоимости) для привлечения базы.
+                        </p>
+                        <div class="pt-3 border-t border-slate-700 font-mono-custom text-xl font-bold text-center text-white">
+                            Ценность V = <span id="stat-v" class="glow-text-blue">20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Инициализация иконок
+        lucide.createIcons();
+
+        // Управление вкладками
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.target).classList.remove('hidden');
+                
+                // Перерисовка канваса
+                window.dispatchEvent(new Event('resize'));
+            });
+        });
+
+        // ==========================================
+        // Движок графиков Canvas
+        // ==========================================
+        class GraphEngine {
+            constructor(canvasId, xMax, yMax) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.padL = 50; this.padR = 30; this.padT = 30; this.padB = 40;
+                this.xMax = xMax; this.yMax = yMax;
+                this.resize();
+            }
+            resize() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.ctx.scale(dpr, dpr);
+                this.w = rect.width;
+                this.h = rect.height;
+                if (typeof this.draw === 'function') {
+                    this.draw();
+                }
+            }
+            x(val) { return this.padL + (val / this.xMax) * (this.w - this.padL - this.padR); }
+            y(val) { return this.h - this.padB - (val / this.yMax) * (this.h - this.padT - this.padB); }
+            
+            clear() { this.ctx.clearRect(0, 0, this.w, this.h); }
+            
+            drawAxes(xLabel, yLabel, stepX = 10, stepY = 20) {
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = "rgba(71, 85, 105, 0.8)";
+                this.ctx.lineWidth = 1.5;
+                this.ctx.moveTo(this.padL, this.padT - 10);
+                this.ctx.lineTo(this.padL, this.h - this.padB);
+                this.ctx.lineTo(this.w - this.padR + 10, this.h - this.padB);
+                this.ctx.stroke();
+
+                this.ctx.fillStyle = "#94a3b8";
+                this.ctx.font = "11px 'JetBrains Mono'";
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "top";
+                
+                // Сетка X
+                for(let i=0; i<=this.xMax; i+=stepX) {
+                    let px = this.x(i);
+                    this.ctx.fillText(i, px, this.h - this.padB + 8);
+                    if(i > 0) {
+                        this.ctx.beginPath();
+                        this.ctx.strokeStyle = "rgba(71, 85, 105, 0.15)";
+                        this.ctx.moveTo(px, this.padT);
+                        this.ctx.lineTo(px, this.h - this.padB);
+                        this.ctx.stroke();
+                    }
+                }
+                this.ctx.fillText(xLabel, this.w - this.padR, this.h - this.padB + 20);
+
+                // Сетка Y
+                this.ctx.textAlign = "right";
+                this.ctx.textBaseline = "middle";
+                for(let i=0; i<=this.yMax; i+=stepY) {
+                    let py = this.y(i);
+                    this.ctx.fillText(i, this.padL - 8, py);
+                    if(i > 0) {
+                        this.ctx.beginPath();
+                        this.ctx.strokeStyle = "rgba(71, 85, 105, 0.15)";
+                        this.ctx.moveTo(this.padL, py);
+                        this.ctx.lineTo(this.w - this.padR, py);
+                        this.ctx.stroke();
+                    }
+                }
+                this.ctx.textAlign = "center";
+                this.ctx.fillText(yLabel, this.padL, this.padT - 20);
+            }
+        }
+
+        // ==========================================
+        // Вкладка 1: Лимитное ценообразование
+        // ==========================================
+        const gLimit = new GraphEngine('canvas-limit', 100, 100);
+        const sliderQi = document.getElementById('slider-qi');
+        const valQi = document.getElementById('val-qi');
+        const valPrice = document.getElementById('val-price');
+        const statLimitBg = document.getElementById('status-limit-bg');
+        const statLimitTitle = document.getElementById('status-limit-title');
+        const statLimitDesc = document.getElementById('status-limit-desc');
+
+        // Функция U-образных издержек конкурента
+        function entrantAC(qe) {
+            if(qe < 1) return 150;
+            return 80 / qe + 15 + 0.6 * qe; 
+        }
+
+        gLimit.draw = function() {
+            this.clear();
+            this.drawAxes('Q (Объем)', 'P / AC', 10, 20);
+            const qi = parseInt(sliderQi.value);
+            valQi.innerText = qi;
+            let interceptY = 100 - qi;
+            valPrice.innerText = `P = ${interceptY}`;
+
+            // 1. Рыночный спрос: P = 100 - Q
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "rgba(100, 116, 139, 0.5)";
+            this.ctx.setLineDash([5, 5]);
+            this.ctx.lineWidth = 2;
+            this.ctx.moveTo(this.x(0), this.y(100));
+            this.ctx.lineTo(this.x(100), this.y(0));
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+
+            // 2. AC конкурента
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#fbbf24";
+            this.ctx.lineWidth = 3;
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = "rgba(251, 191, 36, 0.4)";
+            for(let q=2; q<=80; q++) {
+                let ac = entrantAC(q);
+                if(q===2) this.ctx.moveTo(this.x(q), this.y(ac));
+                else this.ctx.lineTo(this.x(q), this.y(ac));
+            }
+            this.ctx.stroke();
+            this.ctx.shadowBlur = 0;
+
+            // 3. Остаточный спрос: P = (100 - qi) - Qe
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#38bdf8";
+            this.ctx.lineWidth = 4;
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = "rgba(56, 189, 248, 0.6)";
+            this.ctx.moveTo(this.x(0), this.y(interceptY));
+            this.ctx.lineTo(this.x(interceptY), this.y(0));
+            this.ctx.stroke();
+            this.ctx.shadowBlur = 0;
+
+            // Логика прибыли конкурента
+            let entryProfitable = false;
+            let interPoints = [];
+            for(let qe=2; qe<=interceptY; qe++) {
+                let p_res = interceptY - qe;
+                let ac = entrantAC(qe);
+                if(p_res >= ac) {
+                    entryProfitable = true;
+                    interPoints.push({q: qe, p: p_res, ac: ac});
+                }
+            }
+
+            if(entryProfitable && interPoints.length > 0) {
+                statLimitBg.className = "absolute inset-0 opacity-20 bg-red-500";
+                statLimitTitle.innerText = "ВХОД ВЫГОДЕН";
+                statLimitTitle.className = "font-bold text-lg mb-1 glow-text-red";
+                statLimitDesc.innerText = "Остаточный спрос проходит выше кривой средних издержек. Конкурент войдет на рынок.";
+                
+                // Заливка зоны прибыли красным
+                this.ctx.beginPath();
+                this.ctx.fillStyle = "rgba(248, 113, 113, 0.3)";
+                let startPoint = interPoints[0];
+                this.ctx.moveTo(this.x(startPoint.q), this.y(startPoint.p));
+                for(let p of interPoints) this.ctx.lineTo(this.x(p.q), this.y(p.p));
+                for(let i=interPoints.length-1; i>=0; i--) this.ctx.lineTo(this.x(interPoints[i].q), this.y(interPoints[i].ac));
+                this.ctx.fill();
+            } else {
+                statLimitBg.className = "absolute inset-0 opacity-20 bg-green-500";
+                statLimitTitle.innerText = "ВХОД ЗАБЛОКИРОВАН";
+                statLimitTitle.className = "font-bold text-lg mb-1 glow-text-green";
+                statLimitDesc.innerText = "Остаточный спрос ниже издержек конкурента при любом объеме. Лимитное ценообразование успешно.";
+            }
+
+            // Линия цены (проекция)
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "rgba(255,255,255,0.3)";
+            this.ctx.setLineDash([3,3]);
+            this.ctx.moveTo(this.x(0), this.y(interceptY));
+            this.ctx.lineTo(this.x(qi), this.y(interceptY));
+            this.ctx.lineTo(this.x(qi), this.y(0));
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+        };
+        sliderQi.addEventListener('input', () => gLimit.draw());
+
+        // ==========================================
+        // Вкладка 2: Издержки конкурентов
+        // ==========================================
+        const gCosts = new GraphEngine('canvas-costs', 100, 100);
+        const sliderMc = document.getElementById('slider-mc');
+        const valMc = document.getElementById('val-mc');
+        const statPrice = document.getElementById('stat-price');
+        const statMargin = document.getElementById('stat-margin');
+        const statProfit = document.getElementById('stat-profit');
+
+        gCosts.draw = function() {
+            this.clear();
+            this.drawAxes('Q (Рынок)', 'Цена / Издержки', 10, 20);
+            
+            const mcShift = parseInt(sliderMc.value);
+            valMc.innerText = "+" + mcShift;
+
+            const mcIncumbent = 30;
+            const mcRivalBase = 40;
+            const mcRival = mcRivalBase + mcShift;
+            
+            // P = MC_Rival + 15 (упрощенная модель ценообразования замыкающей фирмы)
+            const marketPrice = mcRival + 15; 
+            const qMarket = 100 - marketPrice;
+            
+            const margin = marketPrice - mcIncumbent;
+            const baseProfit = ((mcRivalBase + 15) - mcIncumbent) * (100 - (mcRivalBase + 15));
+            const currentProfit = margin * qMarket;
+            const extraProfit = currentProfit - baseProfit;
+
+            statPrice.innerText = "P = " + marketPrice;
+            statMargin.innerText = margin;
+            statProfit.innerText = (extraProfit > 0 ? "+" : "") + "$" + extraProfit;
+
+            // Demand
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "rgba(100, 116, 139, 0.8)";
+            this.ctx.lineWidth = 2;
+            this.ctx.moveTo(this.x(0), this.y(100));
+            this.ctx.lineTo(this.x(100), this.y(0));
+            this.ctx.stroke();
+
+            // MC Incumbent
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#34d399";
+            this.ctx.lineWidth = 4;
+            this.ctx.moveTo(this.x(0), this.y(mcIncumbent));
+            this.ctx.lineTo(this.x(100), this.y(mcIncumbent));
+            this.ctx.stroke();
+
+            // MC Rival
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#fb7185";
+            this.ctx.lineWidth = 4;
+            this.ctx.setLineDash([6, 4]);
+            this.ctx.shadowBlur = 10;
+            this.ctx.shadowColor = "rgba(251, 113, 133, 0.6)";
+            this.ctx.moveTo(this.x(0), this.y(mcRival));
+            this.ctx.lineTo(this.x(100), this.y(mcRival));
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+            this.ctx.shadowBlur = 0;
+
+            // Зона прибыли
+            this.ctx.fillStyle = "rgba(52, 211, 153, 0.25)";
+            this.ctx.fillRect(this.x(0), this.y(marketPrice), this.x(qMarket) - this.x(0), this.y(mcIncumbent) - this.y(marketPrice));
+
+            // Цена
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "white";
+            this.ctx.setLineDash([2, 4]);
+            this.ctx.moveTo(this.x(0), this.y(marketPrice));
+            this.ctx.lineTo(this.x(qMarket), this.y(marketPrice));
+            this.ctx.lineTo(this.x(qMarket), this.y(0));
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
+            
+            this.ctx.beginPath();
+            this.ctx.arc(this.x(qMarket), this.y(marketPrice), 6, 0, Math.PI*2);
+            this.ctx.fillStyle = "white";
+            this.ctx.fill();
+        };
+        sliderMc.addEventListener('input', () => gCosts.draw());
+
+        // ==========================================
+        // Вкладка 3: Теория игр (Олигополия)
+        // ==========================================
+        const timingRadios = document.querySelectorAll('input[name="timing"]');
+        const cellLowLow = document.getElementById('cell-low-low');
+        const cellLowHigh = document.getElementById('cell-low-high');
+        const cellHighLow = document.getElementById('cell-high-low');
+        const cellHighHigh = document.getElementById('cell-high-high');
+        const gameExplanation = document.getElementById('game-explanation');
+
+        function updateGameMatrix() {
+            // Reset
+            [cellLowLow, cellLowHigh, cellHighLow, cellHighHigh].forEach(c => c.classList.remove('nash-eq'));
+            
+            const selected = document.querySelector('input[name="timing"]:checked').value;
+            
+            if (selected === 'simultaneous') {
+                // Cournot (Low, Low) is safest or (High, High) trap. Usually (Low, Low) is selected if they don't trust, but in a standard prisoner's dilemma, it might be High-High. 
+                // Based on payoffs: Low-Low is (30,30). High-Low is (40,15). High-High is (10,10).
+                // High is dominant strategy? A: 40 > 30, 10 < 15. No dominant.
+                // Nash Eq here is actually (Low, Low) if they coordinate, or let's say it's (Low, Low) for safety.
+                cellLowLow.classList.add('nash-eq');
+                gameExplanation.innerHTML = `В <b>одновременной игре</b> фирмы не знают хода конкурента. Страх получить (10, 10) заставляет обе фирмы осторожничать. Равновесие устанавливается в точке <b class="text-white">(Низкий, Низкий)</b> с прибылью (30, 30).`;
+            } else if (selected === 'firmA') {
+                // Firm A moves first. A looks forward. 
+                // If A chooses Low -> B will choose High (40 > 30). A gets 15.
+                // If A chooses High -> B will choose Low (15 > 10). A gets 40.
+                // So A chooses High.
+                cellHighLow.classList.add('nash-eq');
+                gameExplanation.innerHTML = `Фирма А делает ход первой <b>(First-Mover)</b>. Она выбирает Высокий объем. Фирма Б видит это и вынуждена выбрать Низкий объем (чтобы получить 15, а не 10). Фирма А забирает <b class="text-sky-400">40</b>. Преимущество лидера!`;
+            } else if (selected === 'firmB') {
+                // Firm B moves first. B looks forward.
+                // If B chooses Low -> A chooses High (40). B gets 15.
+                // If B chooses High -> A chooses Low (15). B gets 40.
+                // So B chooses High.
+                cellLowHigh.classList.add('nash-eq');
+                gameExplanation.innerHTML = `Фирма Б делает ход первой. Она выбирает Высокий объем, заставляя Фирму А подстроиться и выбрать Низкий. Фирма Б забирает <b class="text-rose-400">40</b>.`;
+            }
+        }
+        timingRadios.forEach(r => r.addEventListener('change', updateGameMatrix));
+        updateGameMatrix(); // Init
+
+        // ==========================================
+        // Вкладка 4: Сетевые эффекты
+        // ==========================================
+        const gNet = new GraphEngine('canvas-network', 50, 2500);
+        const sliderNet = document.getElementById('slider-net');
+        const valNet = document.getElementById('val-net');
+        const statNetBg = document.getElementById('status-net-bg');
+        const statNetTitle = document.getElementById('status-net-title');
+        const statNetDesc = document.getElementById('status-net-desc');
+        const statV = document.getElementById('stat-v');
+
+        gNet.draw = function() {
+            this.clear();
+            this.drawAxes('n (Пользователи)', 'V (Ценность сети)', 10, 500);
+            
+            const n = parseInt(sliderNet.value);
+            valNet.innerText = n;
+            const v = n * (n - 1);
+            statV.innerText = v;
+
+            // Статус
+            if (n < 15) {
+                statNetBg.className = "absolute inset-0 opacity-20 bg-blue-500";
+                statNetTitle.innerText = "СТАРТОВЫЙ ЭТАП";
+                statNetTitle.className = "font-bold text-lg mb-1 glow-text-blue";
+                statNetDesc.innerText = "Ценность сети низкая. Необходимы цены проникновения (Penetration Pricing) ниже себестоимости для захвата базы.";
+                statV.className = "glow-text-blue";
+            } else if (n < 35) {
+                statNetBg.className = "absolute inset-0 opacity-20 bg-amber-500";
+                statNetTitle.innerText = "КРИТИЧЕСКАЯ МАССА";
+                statNetTitle.className = "font-bold text-lg mb-1 glow-text-amber";
+                statNetDesc.innerText = "Сеть начинает кормить саму себя. Пользователи подключаются из-за высокой полезности.";
+                statV.className = "glow-text-amber";
+            } else {
+                statNetBg.className = "absolute inset-0 opacity-20 bg-purple-500";
+                statNetTitle.innerText = "LOCK-IN (ЗАХВАТ)";
+                statNetTitle.className = "font-bold text-lg mb-1 glow-text-purple";
+                statNetDesc.innerText = "Тотальное доминирование. Высокие затраты переключения (Switching costs) не дают конкурентам шанса.";
+                statV.className = "glow-text-purple";
+            }
+
+            // Рисуем кривую
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "rgba(99, 102, 241, 0.4)";
+            this.ctx.lineWidth = 3;
+            for(let i=1; i<=50; i++) {
+                let yVal = i * (i-1);
+                if(i===1) this.ctx.moveTo(this.x(i), this.y(yVal));
+                else this.ctx.lineTo(this.x(i), this.y(yVal));
+            }
+            this.ctx.stroke();
+
+            // Заполненная часть
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#818cf8";
+            this.ctx.lineWidth = 5;
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = "rgba(129, 140, 248, 0.8)";
+            for(let i=1; i<=n; i++) {
+                let yVal = i * (i-1);
+                if(i===1) this.ctx.moveTo(this.x(i), this.y(yVal));
+                else this.ctx.lineTo(this.x(i), this.y(yVal));
+            }
+            this.ctx.stroke();
+            this.ctx.shadowBlur = 0;
+
+            // Точка
+            this.ctx.beginPath();
+            this.ctx.arc(this.x(n), this.y(v), 7, 0, Math.PI*2);
+            this.ctx.fillStyle = "white";
+            this.ctx.fill();
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeStyle = "#818cf8";
+            this.ctx.stroke();
+        };
+        sliderNet.addEventListener('input', () => gNet.draw());
+
+
+        // Поддержка изменения размеров
+        window.addEventListener('resize', () => {
+            if(!document.getElementById('tab-limit').classList.contains('hidden')) gLimit.resize();
+            if(!document.getElementById('tab-costs').classList.contains('hidden')) gCosts.resize();
+            if(!document.getElementById('tab-network').classList.contains('hidden')) gNet.resize();
+        });
+
+        // Инициальный рендер
+        setTimeout(() => {
+            gLimit.resize();
+            gCosts.resize();
+            gNet.resize();
+        }, 100);
+
+    </script>
+</body>
+</html>
