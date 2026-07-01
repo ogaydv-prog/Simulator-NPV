@@ -4,41 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { 
-            margin: 0; padding: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; background: transparent; 
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
         }
+        
         .btn-link { 
-            display: block; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
             cursor: pointer; 
-            border-radius: 16px;
+            text-decoration: none;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        
         .btn-link:hover { 
             transform: scale(1.05); 
-            filter: brightness(1.15) drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
         }
+        
+        .btn-link:active { 
+            transform: scale(0.98); 
+        }
+        
         .btn-img { 
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            height: auto;
+            max-width: 95%; 
+            max-height: 95%; 
+            object-fit: contain; 
+            display: block; 
         }
     </style>
 </head>
 <body>
 
+    <!-- Ссылка на презентацию -->
     <a href="https://docs.google.com/presentation/d/1Wzs493SUwukHtUSQWfFGfxSXJWn32-eO/edit?usp=sharing" 
        target="_blank" 
        rel="noopener noreferrer"
        class="btn-link">
+        <!-- Картинка pic-preza10.png из репозитория Simulator-NPV -->
         <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-preza10.png" 
              class="btn-img" 
              alt="Скачать презентацию: Стратегии и барьеры">
     </a>
 
 </body>
+</html>
 </html>
