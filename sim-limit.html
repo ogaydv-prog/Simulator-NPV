@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор: Лимитное ценообразование </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f1115;
+            --bg-panel: #1a1d24;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --neon-cyan: #06b6d4;
+            --neon-red: #ef4444;
+            --neon-yellow: #eab308;
+            --neon-green: #10b981;
+            --grid-line: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        /* Винтажные слайдеры с красной полоской (никаких точек) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 15px 0;
+        }
+        input[type=range]:focus { outline: none; }
+        
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #2a2d35;
+            border-radius: 2px;
+            border: 1px solid #000;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 16px;
+            background: #333;
+            border: 1px solid #111;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: -11px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.8), inset 1px 1px 1px rgba(255,255,255,0.2);
+            /* Винтажная красная полоска по центру */
+            background-image: linear-gradient(90deg, transparent 40%, var(--neon-red) 40%, var(--neon-red) 60%, transparent 60%);
+            transition: filter 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            filter: brightness(1.2);
+        }
+
+        /* SVG Стили */
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            user-select: none;
+            touch-action: none;
+        }
+        
+        .axis-line { stroke: #334155; stroke-width: 2; }
+        .grid-line { stroke: var(--grid-line); stroke-width: 1; }
+        .axis-text { fill: #64748b; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+        
+        .curve-demand { stroke: #94a3b8; stroke-width: 3; fill: none; }
+        .curve-mr { stroke: #6366f1; stroke-width: 2; stroke-dasharray: 5,5; fill: none; }
+        .curve-mc { stroke: var(--neon-cyan); stroke-width: 3; fill: none; }
+        .curve-ac { stroke: var(--neon-yellow); stroke-width: 3; fill: none; }
+        .curve-residual { stroke: var(--neon-red); stroke-width: 3; fill: none; }
+
+        .drag-handle {
+            cursor: ew-resize;
+            fill: #222;
+            stroke: #fff;
+            stroke-width: 2;
+            transition: transform 0.1s;
+        }
+        .drag-handle:hover { transform: scale(1.2); }
+        .drag-line {
+            stroke: rgba(255,255,255,0.4);
+            stroke-width: 2;
+            stroke-dasharray: 4,4;
+            cursor: ew-resize;
+        }
+
+        .glow-cyan { filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.6)); }
+        .glow-red { filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6)); }
+        .glow-yellow { filter: drop-shadow(0 0 6px rgba(234, 179, 8, 0.6)); }
+
+        .profit-area { fill: rgba(6, 182, 212, 0.15); stroke: rgba(6, 182, 212, 0.5); stroke-width: 1; }
+        .loss-area { fill: rgba(239, 68, 68, 0.15); stroke: rgba(239, 68, 68, 0.5); stroke-width: 1; }
+        
+        /* Скроллбар для левой панели */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: var(--bg-base); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="p-2 md:p-4 h-screen flex flex-col">
+
+    <!-- Заголовок -->
+    <header class="panel neon-border p-4 mb-4 flex flex-col md:flex-row justify-between items-center shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold text-white tracking-wide">ТЕОРЕТИЧЕСКИЕ ОСНОВЫ ЛИМИТНОГО ЦЕНООБРАЗОВАНИЯ</h1>
+            <p class="text-sm text-slate-400 mt-1">Управленческая экономика - МВА-В26-МД - AlmaU </p>
+        </div>
+        <div class="mt-2 md:mt-0 px-4 py-2 bg-slate-800 rounded border border-slate-600">
+            <span class="text-xs text-slate-400 font-mono block">СТАТУС УГРОЗЫ ВХОДА:</span>
+            <span id="entry-status" class="text-lg font-bold text-red-400 uppercase tracking-widest glow-red">ВХОД ОТКРЫТ</span>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+        
+        <!-- Левая панель: Управление и Теория -->
+        <div class="w-full lg:w-1/3 panel flex flex-col min-h-0">
+            <div class="p-5 overflow-y-auto custom-scroll flex-1">
+                
+                <!-- Теоретическое введение -->
+                <div class="mb-6 pb-4 border-b border-slate-700">
+                    <h2 class="text-lg font-semibold text-white mb-2">Основы лимитного ценообразования</h2>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Стратегия, при которой монополист <b>отказывается</b> от максимизации текущей прибыли (устанавливает цену ниже PM), чтобы не дать войти конкурентам. Захватывая большую часть рынка, монополист оставляет новичку лишь <b>остаточный спрос</b>.
+                    </p>
+                </div>
+
+                <!-- Панель управления -->
+                <div class="mb-6 space-y-5">
+                    <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wide">Параметры рынка (Слайдеры)</h3>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
+                            <span>Выпуск монополиста (Q_I)</span>
+                            <span id="val-qi" class="text-cyan-400 font-bold">40</span>
+                        </div>
+                        <input type="range" id="slider-qi" min="10" max="80" value="40" step="1">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
+                            <span>Издержки конкурента (AC min)</span>
+                            <span id="val-ac" class="text-yellow-400 font-bold">35</span>
+                        </div>
+                        <input type="range" id="slider-ac" min="20" max="60" value="35" step="1">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-mono mb-1 text-slate-400">
+                            <span>Рыночный спрос (Max Price)</span>
+                            <span id="val-demand" class="text-white font-bold">100</span>
+                        </div>
+                        <input type="range" id="slider-demand" min="80" max="120" value="100" step="1">
+                    </div>
+                </div>
+
+                <!-- Блок формул и результатов -->
+                <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-700 mb-6">
+                    <h3 class="text-sm font-bold text-slate-200 mb-3 border-b border-slate-700 pb-1">Экономические показатели</h3>
+                    <div class="space-y-2 text-xs font-mono">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Рыночная цена (P):</span>
+                            <span id="stat-price" class="text-white">60.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Издержки монополиста (MC):</span>
+                            <span class="text-cyan-400">20.00</span>
+                        </div>
+                        <div class="flex justify-between pt-2 border-t border-slate-800">
+                            <span class="text-slate-300 font-bold">Прибыль монополиста (Π):</span>
+                            <span id="stat-profit" class="text-cyan-400 font-bold text-sm">1600.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Подробное описание результатов -->
+                <div>
+                    <h3 class="text-sm font-bold text-slate-200 mb-2">Анализ текущей ситуации</h3>
+                    <p id="analysis-text" class="text-xs text-slate-400 leading-relaxed bg-slate-800/50 p-3 rounded border-l-2 border-red-500">
+                        Остаточный спрос проходит выше средних издержек конкурента. Вход на рынок <b>рентабелен</b>. Монополист максимизирует прибыль, но рискует потерять долю рынка.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Правая панель: Графики (Связанные) -->
+        <div class="w-full lg:w-2/3 flex flex-col gap-4 min-h-0">
+            
+            <!-- График 1: Позиция Монополиста (Рис 13.1) -->
+            <div class="panel flex-1 relative min-h-[250px] overflow-hidden">
+                <div class="absolute top-3 left-4 text-sm font-bold text-slate-300 z-10 bg-slate-900/80 px-2 py-1 rounded">
+                    
+                </div>
+                <div class="absolute top-3 right-4 flex gap-3 text-xs font-mono z-10 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
+                    <span class="flex items-center gap-1 text-slate-300"><div class="w-3 h-1 bg-slate-400"></div> Спрос (D)</span>
+                    <span class="flex items-center gap-1 text-indigo-400"><div class="w-3 h-1 bg-indigo-500 border-dashed border-t"></div> MR</span>
+                    <span class="flex items-center gap-1 text-cyan-400"><div class="w-3 h-1 bg-cyan-400"></div> MC I</span>
+                </div>
+                <svg id="svg-top" viewBox="0 0 600 300"></svg>
+            </div>
+
+            <!-- График 2: Остаточный спрос и Вход (Рис 13.2) -->
+            <div class="panel flex-1 relative min-h-[250px] overflow-hidden">
+                <div class="absolute top-3 left-4 text-sm font-bold text-slate-300 z-10 bg-slate-900/80 px-2 py-1 rounded">
+                   
+                </div>
+                <div class="absolute top-3 right-4 flex gap-3 text-xs font-mono z-10 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
+                    <span class="flex items-center gap-1 text-red-400"><div class="w-3 h-1 bg-red-500"></div> Остаточный D</span>
+                    <span class="flex items-center gap-1 text-yellow-400"><div class="w-3 h-1 bg-yellow-400"></div> AC E (Конкурент)</span>
+                </div>
+                <svg id="svg-bot" viewBox="0 0 600 300"></svg>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    // --- Состояние Симулятора ---
+    const state = {
+        D_max: 100,      // Перехват спроса по оси P
+        slope: 1,        // Наклон кривой спроса
+        MC_I: 20,        // Предельные издержки укоренившейся фирмы
+        Q_I: 40,         // Объем выпуска укоренившейся фирмы
+        AC_E_base: 35,   // Базовый уровень издержек конкурента
+        
+        // Размеры SVG (внутренние координаты)
+        w: 600,
+        h: 300,
+        padL: 40, padR: 20, padT: 40, padB: 30,
+        xMax: 120, yMax: 120,
+
+        dragActive: null // 'QI' или 'Demand'
+    };
+
+    // DOM Элементы
+    const els = {
+        qi: document.getElementById('slider-qi'),
+        ac: document.getElementById('slider-ac'),
+        demand: document.getElementById('slider-demand'),
+        valQi: document.getElementById('val-qi'),
+        valAc: document.getElementById('val-ac'),
+        valDemand: document.getElementById('val-demand'),
+        statPrice: document.getElementById('stat-price'),
+        statProfit: document.getElementById('stat-profit'),
+        entryStatus: document.getElementById('entry-status'),
+        analysisText: document.getElementById('analysis-text'),
+        svgTop: document.getElementById('svg-top'),
+        svgBot: document.getElementById('svg-bot')
+    };
+
+    // Вспомогательные функции координат
+    const mapX = (val) => state.padL + (val / state.xMax) * (state.w - state.padL - state.padR);
+    const mapY = (val) => state.h - state.padB - (val / state.yMax) * (state.h - state.padT - state.padB);
+    const unmapX = (px) => ((px - state.padL) / (state.w - state.padL - state.padR)) * state.xMax;
+    const unmapY = (py) => ((state.h - state.padB - py) / (state.h - state.padT - state.padB)) * state.yMax;
+
+    // Функция издержек конкурента U-образной формы
+    function entrantAC(q) {
+        if (q <= 0) return 999;
+        // Парабола вокруг q=25: AC = base + 0.05*(q-25)^2
+        return state.AC_E_base + 0.04 * Math.pow(q - 25, 2);
+    }
+
+    // Создание SVG элементов
+    function createSVG(type, attrs) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', type);
+        for (let k in attrs) el.setAttribute(k, attrs[k]);
+        return el;
+    }
+
+    // Отрисовка сеток и осей
+    function drawAxes(svg, yLabel, showXLabels = true) {
+        svg.innerHTML = ''; // Очистка
+        
+        // Сетка
+        for (let i = 20; i <= state.xMax; i += 20) {
+            svg.appendChild(createSVG('line', { x1: mapX(i), y1: state.padT, x2: mapX(i), y2: state.h - state.padB, class: 'grid-line' }));
+            if (showXLabels) {
+                const text = createSVG('text', { x: mapX(i), y: state.h - 10, class: 'axis-text', 'text-anchor': 'middle' });
+                text.textContent = i;
+                svg.appendChild(text);
+            }
+        }
+        for (let i = 20; i <= state.yMax; i += 20) {
+            svg.appendChild(createSVG('line', { x1: state.padL, y1: mapY(i), x2: state.w - state.padR, y2: mapY(i), class: 'grid-line' }));
+            const text = createSVG('text', { x: state.padL - 10, y: mapY(i) + 4, class: 'axis-text', 'text-anchor': 'end' });
+            text.textContent = i;
+            svg.appendChild(text);
+        }
+
+        // Оси
+        svg.appendChild(createSVG('line', { x1: state.padL, y1: state.padT - 10, x2: state.padL, y2: state.h - state.padB, class: 'axis-line' }));
+        svg.appendChild(createSVG('line', { x1: state.padL, y1: state.h - state.padB, x2: state.w - state.padR + 10, y2: state.h - state.padB, class: 'axis-line' }));
+        
+        // Подписи осей
+        const yTitle = createSVG('text', { x: state.padL, y: state.padT - 20, class: 'axis-text', 'text-anchor': 'middle', fill: '#e2e8f0' });
+        yTitle.textContent = yLabel;
+        svg.appendChild(yTitle);
+        
+        if (showXLabels) {
+            const xTitle = createSVG('text', { x: state.w - state.padR + 15, y: state.h - state.padB + 4, class: 'axis-text', fill: '#e2e8f0' });
+            xTitle.textContent = 'Q';
+            svg.appendChild(xTitle);
+        }
+    }
+
+    // Главная функция обновления
+    function updateSim() {
+        // Синхронизация слайдеров и состояния
+        els.valQi.innerText = state.Q_I.toFixed(0);
+        els.qi.value = state.Q_I;
+        els.valAc.innerText = state.AC_E_base;
+        els.ac.value = state.AC_E_base;
+        els.valDemand.innerText = state.D_max;
+        els.demand.value = state.D_max;
+
+        const P_I = state.D_max - state.slope * state.Q_I;
+        const profit = (P_I - state.MC_I) * state.Q_I;
+
+        els.statPrice.innerText = P_I.toFixed(1);
+        els.statProfit.innerText = profit.toFixed(1);
+
+        // --- ВЕРХНИЙ ГРАФИК (Монополист) ---
+        drawAxes(els.svgTop, 'P, P_M', false);
+        
+        // Спрос (D)
+        const dLine = createSVG('line', { x1: mapX(0), y1: mapY(state.D_max), x2: mapX(state.D_max/state.slope), y2: mapY(0), class: 'curve-demand' });
+        els.svgTop.appendChild(dLine);
+
+        // MR
+        const mrLine = createSVG('line', { x1: mapX(0), y1: mapY(state.D_max), x2: mapX((state.D_max)/ (2*state.slope)), y2: mapY(0), class: 'curve-mr' });
+        els.svgTop.appendChild(mrLine);
+
+        // MC_I
+        const mcLine = createSVG('line', { x1: mapX(0), y1: mapY(state.MC_I), x2: mapX(state.xMax), y2: mapY(state.MC_I), class: 'curve-mc glow-cyan' });
+        els.svgTop.appendChild(mcLine);
+
+        // Зона прибыли
+        const rectProfit = createSVG('rect', {
+            x: mapX(0), y: mapY(P_I),
+            width: mapX(state.Q_I) - mapX(0), height: mapY(state.MC_I) - mapY(P_I),
+            class: 'profit-area'
+        });
+        els.svgTop.appendChild(rectProfit);
+
+        // Линии проекции для Q_I и P_I
+        els.svgTop.appendChild(createSVG('line', { x1: mapX(0), y1: mapY(P_I), x2: mapX(state.Q_I), y2: mapY(P_I), class: 'drag-line' }));
+        const qLineTop = createSVG('line', { x1: mapX(state.Q_I), y1: mapY(P_I), x2: mapX(state.Q_I), y2: mapY(0), class: 'drag-line', 'data-drag': 'QI' });
+        els.svgTop.appendChild(qLineTop);
+        
+        // Ручка Drag (Q_I)
+        const handleQTop = createSVG('circle', { cx: mapX(state.Q_I), cy: mapY(P_I), r: 6, class: 'drag-handle glow-cyan', 'data-drag': 'QI' });
+        els.svgTop.appendChild(handleQTop);
+
+
+        // --- НИЖНИЙ ГРАФИК (Конкурент) ---
+        drawAxes(els.svgBot, 'P, AC', true);
+
+        // Пунктирный рыночный спрос для контекста
+        els.svgBot.appendChild(createSVG('line', { x1: mapX(0), y1: mapY(state.D_max), x2: mapX(state.D_max/state.slope), y2: mapY(0), stroke: '#475569', 'stroke-dasharray': '3,3', 'stroke-width': 2 }));
+
+        // AC Конкурента
+        let acPath = `M ${mapX(2)} ${mapY(entrantAC(2))}`;
+        for(let q=3; q<=80; q++) {
+            acPath += ` L ${mapX(q)} ${mapY(entrantAC(q))}`;
+        }
+        els.svgBot.appendChild(createSVG('path', { d: acPath, class: 'curve-ac glow-yellow' }));
+
+        // Остаточный спрос: P = (D_max - Q_I) - Qe
+        const residualMaxP = state.D_max - state.Q_I;
+        const residualMaxQ = residualMaxP / state.slope;
+        const resLine = createSVG('line', { x1: mapX(0), y1: mapY(residualMaxP), x2: mapX(residualMaxQ), y2: mapY(0), class: 'curve-residual glow-red' });
+        els.svgBot.appendChild(resLine);
+
+        // Линия Q_I проекции с верхнего графика (показывает смещение)
+        const qLineBot = createSVG('line', { x1: mapX(state.Q_I), y1: state.padT, x2: mapX(state.Q_I), y2: mapY(0), stroke: 'rgba(255,255,255,0.2)', 'stroke-dasharray': '2,4', 'stroke-width': 2, 'data-drag': 'QI', cursor: 'ew-resize' });
+        els.svgBot.appendChild(qLineBot);
+        
+        // Ручка на оси X для смещения Q_I снизу
+        const handleQBot = createSVG('polygon', { points: `${mapX(state.Q_I)-6},${mapY(0)+10} ${mapX(state.Q_I)+6},${mapY(0)+10} ${mapX(state.Q_I)},${mapY(0)}`, fill: '#06b6d4', cursor: 'ew-resize', 'data-drag': 'QI' });
+        els.svgBot.appendChild(handleQBot);
+
+        // --- ЛОГИКА ОПРЕДЕЛЕНИЯ ВХОДА ---
+        let entryProfitable = false;
+        let entryQ = 0;
+        let entryP = 0;
+        let entryCost = 0;
+        
+        // Ищем пересечение (максимальную разницу P_res - AC)
+        let maxProfit = -999;
+        for(let qe=1; qe<=residualMaxQ; qe+=0.5) {
+            let p_res = residualMaxP - state.slope * qe;
+            let ac = entrantAC(qe);
+            if (p_res >= ac) {
+                entryProfitable = true;
+                if (p_res - ac > maxProfit) {
+                    maxProfit = p_res - ac;
+                    entryQ = qe;
+                    entryP = p_res;
+                    entryCost = ac;
+                }
+            }
+        }
+
+        if (entryProfitable) {
+            els.entryStatus.innerText = "ВХОД ОТКРЫТ";
+            els.entryStatus.className = "text-lg font-bold text-red-400 uppercase tracking-widest glow-red";
+            
+            // Подсветка зоны входа на нижнем графике
+            els.svgBot.appendChild(createSVG('line', { x1: mapX(entryQ), y1: mapY(entryP), x2: mapX(entryQ), y2: mapY(entryCost), stroke: '#ef4444', 'stroke-width': 4 }));
+            els.svgBot.appendChild(createSVG('circle', { cx: mapX(entryQ), cy: mapY(entryP), r: 4, fill: '#ef4444' }));
+            
+            els.analysisText.innerHTML = `Остаточный спрос <span class="text-red-400">пересекает</span> кривую средних издержек конкурента. Новичок может войти, произвести <b>${entryQ.toFixed(1)}</b> ед. и получить прибыль. <br><br>Монополист получит высокую краткосрочную прибыль ($${profit.toFixed(0)}), но потеряет монополию в будущем.`;
+            els.analysisText.className = "text-xs text-slate-300 leading-relaxed bg-slate-800/80 p-3 rounded border-l-4 border-red-500 shadow-md";
+        } else {
+            els.entryStatus.innerText = "ВХОД ЗАБЛОКИРОВАН";
+            els.entryStatus.className = "text-lg font-bold text-green-400 uppercase tracking-widest glow-cyan";
+            
+            els.analysisText.innerHTML = `Остаточный спрос находится строго <span class="text-green-400">ниже</span> кривой издержек AC при любом объеме. Вход невозможен.<br><br>Это <b>Лимитное ценообразование</b>. Монополист пожертвовал частью краткосрочной прибыли (зарабатывает $${profit.toFixed(0)} вместо монопольных), но сохранил рынок за собой.`;
+            els.analysisText.className = "text-xs text-slate-300 leading-relaxed bg-slate-800/80 p-3 rounded border-l-4 border-green-500 shadow-md";
+        }
+    }
+
+    // --- Обработчики Слайдеров ---
+    els.qi.addEventListener('input', (e) => { state.Q_I = parseFloat(e.target.value); updateSim(); });
+    els.ac.addEventListener('input', (e) => { state.AC_E_base = parseFloat(e.target.value); updateSim(); });
+    els.demand.addEventListener('input', (e) => { state.D_max = parseFloat(e.target.value); updateSim(); });
+
+    // --- Интерактивность SVG (Drag & Drop) ---
+    function getMousePos(svg, evt) {
+        const CTM = svg.getScreenCTM();
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        return {
+            x: (clientX - CTM.e) / CTM.a,
+            y: (clientY - CTM.f) / CTM.d
+        };
+    }
+
+    function handleDown(e) {
+        const target = e.target;
+        if (target.getAttribute('data-drag')) {
+            state.dragActive = target.getAttribute('data-drag');
+            e.preventDefault();
+        }
+    }
+
+    function handleMove(e) {
+        if (!state.dragActive) return;
+        e.preventDefault();
+        
+        let svg = e.currentTarget === document ? els.svgTop : e.currentTarget;
+        if (e.target && e.target.ownerSVGElement) svg = e.target.ownerSVGElement;
+        
+        const pos = getMousePos(svg, e);
+        const valX = unmapX(pos.x);
+        
+        if (state.dragActive === 'QI') {
+            let newQ = Math.max(10, Math.min(80, valX));
+            state.Q_I = newQ;
+            updateSim();
+        }
+    }
+
+    function handleUp(e) {
+        state.dragActive = null;
+    }
+
+    // Привязка событий к обоим SVG
+    [els.svgTop, els.svgBot].forEach(svg => {
+        svg.addEventListener('mousedown', handleDown);
+        svg.addEventListener('touchstart', handleDown, {passive: false});
+        svg.addEventListener('mousemove', handleMove);
+        svg.addEventListener('touchmove', handleMove, {passive: false});
+    });
+    
+    document.addEventListener('mouseup', handleUp);
+    document.addEventListener('touchend', handleUp);
+
+    // Инициализация
+    updateSim();
+
+</script>
+</body>
+</html>
