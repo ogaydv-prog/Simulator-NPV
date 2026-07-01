@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: hidden; 
+            background: transparent; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        .btn-link { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            width: 100%; 
+            height: 100%; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease; 
+            cursor: pointer; 
+            text-decoration: none;
+            overflow: hidden;
+        }
+        
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
+        }
+        
+        .btn-link:active { 
+            transform: scale(0.98); 
+        }
+        
+        .btn-img { 
+            max-width: 95%; 
+            max-height: 95%; 
+            object-fit: contain; 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ссылка на файл sim-limit.html -->
+    <a href="sim-limit.html" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="btn-link">
+        <!-- Картинка pic-sim-limit.png из репозитория Simulator-NPV -->
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-sim-limit.png" 
+             class="btn-img" 
+             alt="Симулятор: Барьеры входа">
+    </a>
+
+</body>
+</html>
