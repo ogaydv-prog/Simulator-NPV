@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            margin: 0; padding: 0; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; background: transparent; 
+        }
+        .btn-link { 
+            display: block; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; 
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-link:hover { 
+            transform: scale(1.05); 
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); 
+        }
+        .btn-img { 
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://docs.google.com/presentation/d/1Wzs493SUwukHtUSQWfFGfxSXJWn32-eO/edit?usp=sharing" 
+       target="_blank" 
+       rel="noopener noreferrer"
+       class="btn-link">
+        <img src="https://raw.githubusercontent.com/ogaydv-prog/Simulator-NPV/main/pic-preza10.png" 
+             class="btn-img" 
+             alt="Скачать презентацию: Стратегии и барьеры">
+    </a>
+
+</body>
+</html>
